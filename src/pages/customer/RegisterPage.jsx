@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, TextField, Typography } from "@mui/material";
 
-export default function CusRegisterPage() {
+export default function RegisterPage() {
   const [form, setForm] = useState({
     name: "",
     email: "",

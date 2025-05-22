@@ -1,74 +1,181 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@mui/material";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useNavigate } from "react-router-dom";
-
-const navItems = [
-  {
-    label: "LEARN",
-    dropdown: ["Link 1", "Link 2", "Link 3"], // bạn thêm link sau
-  },
-  {
-    label: "GET CARE",
-    dropdown: ["Link 1", "Link 2"],
-  },
-  {
-    label: "GET INVOLVED",
-    dropdown: ["Link 1", "Link 2", "Link 3", "Link 4"],
-  },
-];
+import Avatar from "@mui/material/Avatar";
+import Stack from "@mui/material/Stack";
+import { blue } from "@mui/material/colors";
+import MaleIcon from "@mui/icons-material/Male";
+import FemaleIcon from '@mui/icons-material/Female';
 
 export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const navigate = useNavigate();
-  const goRegisterPage = () => {
-    navigate("/register");
-  };
+
+  const routes = {
+  goHome: () => navigate("/"),
+  goRegister: () => navigate("/register"),
+
+  // Học
+  goBarrenMale: () => navigate("/barrenMale"),
+  goBarrenFeMale: () => navigate("/barrenFemale"),
+
+
+  //chăm sóc
+  goTestingList: () => navigate("/viewTestingList"),
+  
+};
+ 
   return (
-    <nav className="bg-[#032F6C] px-6 py-4 flex items-center justify-between text-white">
+    <nav className="bg-[#032F6C] px-6 py-4 flex items-center justify-between text-white sticky top-0 z-10">
       {/* Logo */}
       <div className="flex items-center space-x-2 font-semibold text-lg cursor-pointer">
-        <svg
-          className="w-7 h-7"
-          fill="white"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Biểu tượng bạn có thể thêm hoặc chỉnh sửa */}
-          <path d="M4 4h16v16H4z" />
-        </svg>
-        <span>ReproTrack</span>
+        <Stack direction="row" spacing={2}>
+          <Avatar sx={{ bgcolor: blue[700] }}>R</Avatar>
+        </Stack>
+        <span onClick={routes.goHome}>ReproTrack</span>
       </div>
 
       {/* Menu chính */}
       <ul className="flex space-x-8">
-        {navItems.map((item, idx) => (
-          <li
-            key={idx}
-            className="relative"
-            onMouseEnter={() => setOpenDropdown(idx)}
-            onMouseLeave={() => setOpenDropdown(null)}
+        {/* Học */}
+        <li
+          className="relative group"
+          onMouseEnter={() => setOpenDropdown(0)}
+          onMouseLeave={() => setOpenDropdown(null)}
+        >
+          <button
+            className="flex p-3 items-center gap-1 font-bold uppercase 
+                       transition-all duration-300 
+                       group-hover:text-blue-900 
+                       group-hover:bg-white 
+                       group-hover:shadow-md"
           >
-            <button className="flex items-center gap-1 font-bold uppercase hover:text-gray-300 transition-colors">
-              {item.label}
-              <ArrowDropDownIcon />
-            </button>
+            Học
+            <ArrowDropDownIcon />
+          </button>
 
-            {/* Dropdown */}
-            {openDropdown === idx && (
-              <ul className="absolute top-full left-0 mt-2 bg-white text-black rounded shadow-lg min-w-[140px] z-10">
-                {item.dropdown.map((link, i) => (
-                  <li
-                    key={i}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  >
-                    {link}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ))}
+          {openDropdown === 0 && (
+            <ul className="absolute -left-120 w-300 px-20 py-6 bg-white text-black z-10 shadow-lg">
+              <p className="text-[#132b6c] font-bold ml-3">TÌM HIỂU THÊM</p>
+              <div className="grid grid-cols-3 gap-4 max-w-6xl mx-auto">
+                <li onClick={routes.goBarrenMale} className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Hiếm muộn Nam <MaleIcon/>
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 2
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 3
+                </li>
+                <li onClick={routes.goBarrenFeMale} className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Hiếm muộn Nữ <FemaleIcon/>
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 5
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 6
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 7
+                </li>
+              </div>
+            </ul>
+          )}
+        </li>
+
+        {/* GET CARE */}
+        <li
+          className="relative group"
+          onMouseEnter={() => setOpenDropdown(1)}
+          onMouseLeave={() => setOpenDropdown(null)}
+        >
+          <button
+            className="flex p-3 items-center gap-1 font-bold uppercase 
+               transition-all duration-300 
+               group-hover:text-blue-900 
+               group-hover:bg-white 
+               group-hover:shadow-md"
+          >
+            CHĂM SÓC
+            <ArrowDropDownIcon />
+          </button>
+
+          {openDropdown === 1 && (
+            <ul className="absolute  -left-150 w-300 px-20 py-6 bg-white text-black z-10 shadow-lg">
+              <div className="grid grid-cols-3 gap-8 mx-auto">
+                <li
+                  onClick={routes.goTestingList}
+                  className=" px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
+                >
+                  Dịch vụ của chúng tôi
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 2
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 3
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 3
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 3
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 3
+                </li>
+              </div>
+            </ul>
+          )}
+        </li>
+
+        {/* GET INVOLCE */}
+        <li
+          className="relative group"
+          onMouseEnter={() => setOpenDropdown(2)}
+          onMouseLeave={() => setOpenDropdown(null)}
+        >
+          <button
+            className="flex p-3 items-center gap-1 font-bold uppercase 
+                       transition-all duration-300 
+                       group-hover:text-blue-900 
+                       group-hover:bg-white 
+                       group-hover:shadow-md"
+          >
+            THAM GIA
+            <ArrowDropDownIcon />
+          </button>
+
+          {openDropdown === 2 && (
+            <ul className="absolute -left-150 w-300 px-20 py-6 bg-white text-black z-10 shadow-lg">
+              <div className="grid grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 1
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 2
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 3
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 4
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 3
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 3
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 3
+                </li>
+              </div>
+            </ul>
+          )}
+        </li>
       </ul>
 
       {/* Nút Đăng nhập và Đăng ký */}
@@ -88,7 +195,8 @@ export default function Navbar() {
         >
           Đăng nhập
         </Button>
-        <Button onClick={goRegisterPage}
+        <Button
+          onClick={routes.goRegister}
           variant="contained"
           sx={{
             backgroundColor: "#23A0FF",

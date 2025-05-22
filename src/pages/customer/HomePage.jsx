@@ -4,8 +4,7 @@ import MainLayout from '../../components/layout/MainLayout'
 const HomePage = () => {
   return (
     <div>
-        <MainLayout/>
-
+      asdasdadada
     </div>
   )
 }

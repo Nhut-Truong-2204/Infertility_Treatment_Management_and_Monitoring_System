@@ -4,7 +4,7 @@ import MainLayout from '../../components/layout/MainLayout'
 const HomePage = () => {
   return (
     <div>
-      asdasdadada
+      Nội dung ở giữa
     </div>
   )
 }

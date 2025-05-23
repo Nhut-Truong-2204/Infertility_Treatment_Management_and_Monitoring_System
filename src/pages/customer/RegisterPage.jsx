@@ -16,7 +16,6 @@ export default function RegisterPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Register info:", form);
-    // Xử lý logic gửi form ở đây
   };
 
   return (

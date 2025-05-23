@@ -1,31 +1,31 @@
 import { useState } from "react";
 import { Button } from "@mui/material";
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import { blue } from "@mui/material/colors";
 import MaleIcon from "@mui/icons-material/Male";
-import FemaleIcon from '@mui/icons-material/Female';
+import FemaleIcon from "@mui/icons-material/Female";
+import InfertilityIcon from "../../../assets/R.png";
 
 export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const navigate = useNavigate();
 
   const routes = {
-  goHome: () => navigate("/"),
-  goRegister: () => navigate("/register"),
+    goHome: () => navigate("/"),
+    goRegister: () => navigate("/register"),
 
-  // Học
-  goBarrenMale: () => navigate("/barrenMale"),
-  goBarrenFeMale: () => navigate("/barrenFemale"),
+    // Học
+    goBarrenMale: () => navigate("/barrenMale"),
+    goBarrenFeMale: () => navigate("/barrenFemale"),
+    goInfertility: () => navigate("/infertility"),
 
+    //chăm sóc
+    goTestingList: () => navigate("/viewTestingList"),
+  };
 
-  //chăm sóc
-  goTestingList: () => navigate("/viewTestingList"),
-  
-};
- 
   return (
     <nav className="bg-[#032F6C] px-6 py-4 flex items-center justify-between text-white sticky top-0 z-10">
       {/* Logo */}
@@ -59,8 +59,11 @@ export default function Navbar() {
             <ul className="absolute -left-120 w-300 px-20 py-6 bg-white text-black z-10 shadow-lg">
               <p className="text-[#132b6c] font-bold ml-3">TÌM HIỂU THÊM</p>
               <div className="grid grid-cols-3 gap-4 max-w-6xl mx-auto">
-                <li onClick={routes.goBarrenMale} className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Hiếm muộn Nam <MaleIcon/>
+                <li
+                  onClick={routes.goBarrenMale}
+                  className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
+                >
+                  Hiếm muộn Nam <MaleIcon fontSize="large" />
                 </li>
                 <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Link 2
@@ -68,8 +71,11 @@ export default function Navbar() {
                 <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Link 3
                 </li>
-                <li onClick={routes.goBarrenFeMale} className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Hiếm muộn Nữ <FemaleIcon/>
+                <li
+                  onClick={routes.goBarrenFeMale}
+                  className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
+                >
+                  Hiếm muộn Nữ <FemaleIcon fontSize="large" />
                 </li>
                 <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Link 5
@@ -77,8 +83,15 @@ export default function Navbar() {
                 <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Link 6
                 </li>
-                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Link 7
+                <li
+                  onClick={routes.goInfertility}
+                  className="px-4 py-2 relative hover:bg-blue-100 cursor-pointer rounded transition"
+                >
+                  Vô Sinh
+                  <img
+                    src={InfertilityIcon}
+                    className="w-[30px] absolute bottom-[8px] left-20"
+                  />
                 </li>
               </div>
             </ul>

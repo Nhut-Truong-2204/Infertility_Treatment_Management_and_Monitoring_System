@@ -1,23 +1,15 @@
-import React from "react";
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import React from 'react'
+import { useNavigate } from "react-router-dom";
+import BlogHeader from "../../../../ui/Header";
+const BarrenFemale = () => {
 
-const BarrenMale = () => {
+  const navigate = useNavigate();
+  const routes = {
+    goHomePage: () => navigate("/"),
+  };
   return (
     <>
-      <div className="flex items-center justify-center bg-[#2750aa] h-[200px] mt-[200px] mb-[40px]">
-        <div className="relative w-[1024px] text-white ">
-          <p className="hover:underline">
-            <ArrowBackIosIcon fontSize="inherit" />
-            Trở về Trang Chủ
-          </p>
-          <p
-            className="text-[70px] text-white"
-            style={{ fontFamily: "Times New Roman, Times, serif" }}
-          >
-            Hiếm Muộn ở Nam
-          </p>
-        </div>
-      </div>
+      <BlogHeader title="Hiếm Muộn ở Nữ" />
 
       {/* Overview */}
       <div className="flex justify-center">
@@ -35,7 +27,7 @@ const BarrenMale = () => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default BarrenMale;
+export default BarrenFemale

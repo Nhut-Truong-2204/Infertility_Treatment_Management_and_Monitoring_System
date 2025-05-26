@@ -16,6 +16,7 @@ export default function Navbar() {
   const routes = {
     goHome: () => navigate("/"),
     goRegister: () => navigate("/register"),
+    goLogin: () => navigate("/login"),
 
     // Học
     goBarrenMale: () => navigate("/barrenMale"),
@@ -194,6 +195,7 @@ export default function Navbar() {
       {/* Nút Đăng nhập và Đăng ký */}
       <div className="flex space-x-4">
         <Button
+          onClick={routes.goLogin}
           variant="outlined"
           sx={{
             color: "white",

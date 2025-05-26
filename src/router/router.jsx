@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import HomePage from "./../pages/customer/HomePage";
 import RegisterPage from "./../pages/customer/RegisterPage";
+import LoginPage from "../pages/customer/LoginPage";
 import MainLayout from "../components/layout/MainLayout";
 import ViewTestingServiceList from "../../src/components/layout/navbar/blogDropDown/Care/ViewTestingServiceList";
 import BarrenMale from "../components/layout/navbar/blogDropDown/Learn/BarrenMale";
@@ -38,5 +39,11 @@ const router = createBrowserRouter([
     path: "/register",
     element: <RegisterPage />,
   },
+
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+
 ]);
 export default router;

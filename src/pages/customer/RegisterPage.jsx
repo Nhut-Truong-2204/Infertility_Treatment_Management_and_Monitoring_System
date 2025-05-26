@@ -25,6 +25,7 @@ export default function RegisterPage() {
         className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md"
       >
         <Typography
+          marginBottom="20px"
           variant="h5"
           className="text-center text-[#032F6C] font-bold mb-6 uppercase"
         >

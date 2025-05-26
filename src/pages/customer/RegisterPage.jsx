@@ -16,7 +16,6 @@ export default function RegisterPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Register info:", form);
-    // Xử lý logic gửi form ở đây
   };
 
   return (
@@ -26,6 +25,7 @@ export default function RegisterPage() {
         className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md"
       >
         <Typography
+          marginBottom="20px"
           variant="h5"
           className="text-center text-[#032F6C] font-bold mb-6 uppercase"
         >
@@ -36,6 +36,7 @@ export default function RegisterPage() {
           <TextField
             label="Họ và Tên"
             variant="outlined"
+            margin="normal"
             fullWidth
             name="name"
             value={form.name}
@@ -45,6 +46,7 @@ export default function RegisterPage() {
           <TextField
             label="Email"
             variant="outlined"
+            margin="normal"
             fullWidth
             name="email"
             type="email"
@@ -55,6 +57,7 @@ export default function RegisterPage() {
           <TextField
             label="Mật khẩu"
             variant="outlined"
+            margin="normal"
             fullWidth
             name="password"
             type="password"
@@ -65,6 +68,7 @@ export default function RegisterPage() {
           <TextField
             label="Xác nhận mật khẩu"
             variant="outlined"
+            margin="normal"
             fullWidth
             name="confirmPassword"
             type="password"

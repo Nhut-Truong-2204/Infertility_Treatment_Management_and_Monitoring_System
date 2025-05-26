@@ -36,6 +36,7 @@ export default function RegisterPage() {
           <TextField
             label="Họ và Tên"
             variant="outlined"
+            margin="normal"
             fullWidth
             name="name"
             value={form.name}
@@ -45,6 +46,7 @@ export default function RegisterPage() {
           <TextField
             label="Email"
             variant="outlined"
+            margin="normal"
             fullWidth
             name="email"
             type="email"
@@ -55,6 +57,7 @@ export default function RegisterPage() {
           <TextField
             label="Mật khẩu"
             variant="outlined"
+            margin="normal"
             fullWidth
             name="password"
             type="password"
@@ -65,6 +68,7 @@ export default function RegisterPage() {
           <TextField
             label="Xác nhận mật khẩu"
             variant="outlined"
+            margin="normal"
             fullWidth
             name="confirmPassword"
             type="password"

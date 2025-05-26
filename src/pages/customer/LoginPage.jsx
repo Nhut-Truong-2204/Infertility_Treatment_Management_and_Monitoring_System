@@ -39,6 +39,7 @@ export default function LoginPage() {
                     <TextField
                         label="Email"
                         variant="outlined"
+                        margin="normal"
                         fullWidth
                         name="email"
                         type="email"
@@ -49,6 +50,7 @@ export default function LoginPage() {
                     <TextField
                         label="Mật khẩu"
                         variant="outlined"
+                        margin="normal"
                         fullWidth
                         name="password"
                         type="password"

@@ -1,7 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Image from "../../../../../assets/Capture.PNG";
-import BlogHeader from "../../../../ui/Header";
+import HeaderImage from "../../../../../assets/Hiemmuonnamnu2.png";
+import Paragraph from "../../../../ui/Paragraph";
+import Header from "../../../../ui/Header";
 const Infertility = () => {
   const navigate = useNavigate();
   const routes = {
@@ -10,27 +11,20 @@ const Infertility = () => {
 
   return (
     <>
-      <BlogHeader title='Vô Sinh'/>
+      {/* Header */}
+      <Header title="Vô Sinh"
+      description="Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content  "
+      imageSrc={HeaderImage}/>
 
-      {/* Overview */}
-      <div className="flex justify-center mt-[100px] mb-[100px]">
-        <div className="relative w-[1024px] ">
-          <h1
-            className="text-[40px] text-black"
-            style={{ fontFamily: "Times New Roman, Times, serif" }}
-          >
-            Tổng Quan
-          </h1>
-          <img
-            src={Image}
-            alt="hiem-muon-nam"
-            className="w-full h-[600px] mt-[20px]"
-          />
-          <p className="text-[25px] mt-[50px]">
-            Nói một cách đơn giản, hiếm muộn nam là tình trạng người đàn ông
-            đang ở độ tuổi sinh sản, đời sống tình dục bình thường nhưng lại
-            không thể có con theo cách tự nhiên.
-          </p>
+        {/* Body */}
+      <div className="flex justify-center items-center">
+        <div className=" relative mt-[100px] mb-[100px]">
+          <div className="relative w-[1024px] ">
+
+            {/* content */}
+            <Paragraph title="Title" content={"Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content ContentContent Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content Content"} />
+            
+          </div>
         </div>
       </div>
     </>

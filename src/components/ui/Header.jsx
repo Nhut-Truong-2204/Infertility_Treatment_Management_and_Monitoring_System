@@ -13,10 +13,10 @@ const Header = ({ title, description, imageSrc }) => {
       />
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black bg-opacity-40" />
+      <div className="absolute inset-0 z-9 bg-gradient-to-r from-black/100 via-black/40 to-transparent"></div>
 
       {/* Content */}
-      <div className="relative z-10 flex items-center h-full max-w-7xl mx-auto px-6">
+      <div className="relative z-9 flex items-center h-full max-w-7xl mx-auto px-6">
         <div className="max-w-2xl text-white">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">{title}</h1>
           <p className="text-lg leading-relaxed">{description}</p>

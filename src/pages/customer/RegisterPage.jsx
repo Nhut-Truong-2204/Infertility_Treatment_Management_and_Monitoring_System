@@ -1,112 +1,231 @@
-import React, { useState } from "react";
-import { Button, TextField, Typography } from "@mui/material";
+import { useState, useEffect } from 'react';
+import { registerUser } from '../../api/customer/registerUser'; // file này hiện đang dùng dữ liệu giả để test
+import InputField from '../../components/ui/InputField'; // Giả sử bạn đã tạo một component InputField để tái sử dụng
+import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+import Image from '../../assets/Surgery.jpg'; 
 
-export default function RegisterPage() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+import {
+  MDBBtn,
+  MDBContainer,
+  MDBCard,
+  MDBCardBody,
+  MDBCardImage,
+  MDBRow,
+  MDBCol,
+  MDBInput
+} from 'mdb-react-ui-kit';
+const RegisterPage = () => {
+  const navigate = useNavigate();
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState(''); // 'success' hoặc 'error'
+  const [showToast, setShowToast] = useState(false);
+
+
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phoneNumber: '',
   });
 
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Register info:", form);
+  const validate = () => {
+    const newErrors = {};
+
+    // fullName
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Họ và tên là bắt buộc.';
+    } if (formData.fullName.length < 2) {
+      newErrors.fullName = 'Họ và tên phải ít nhất 2 ký tự.';
+    }
+    if (formData.fullName.length > 50) {
+      newErrors.fullName = 'Họ và tên không được quá 50 ký tự.';
+    }
+    // Kiểm tra ký tự đặc biệt
+    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+    if (specialCharRegex.test(formData.fullName)) {
+      newErrors.fullName = 'Họ và tên không được chứa ký tự đặc biệt.';
+    }
+
+    // email
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email là bắt buộc.';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        newErrors.email = 'Email không đúng định dạng.';
+      }
+    }
+
+    // password
+    if (!formData.password) {
+      newErrors.password = 'Mật khẩu là bắt buộc.';
+    } else {
+      const password = formData.password;
+      const minLength = password.length >= 8;
+      const hasUpper = /[A-Z]/.test(password);
+      const hasLower = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+      if (!minLength || !hasUpper || !hasLower || !hasNumber || !hasSpecial) {
+        newErrors.password = 'Mật khẩu phải từ 8 ký tự trở lên và chứa chữ hoa, chữ thường, số, ký tự đặc biệt.';
+      }
+    }
+
+    // confirmPassword
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Xác nhận mật khẩu là bắt buộc.';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp.';
+    }
+
+    // phoneNumber (optional)
+    if (formData.phoneNumber) {
+      const phoneRegex = /^[0-9]{9,15}$/; // ví dụ: 09xxxxxxx hoặc dài hơn
+      if (!phoneRegex.test(formData.phoneNumber)) {
+        newErrors.phoneNumber = 'Số điện thoại không hợp lệ (Chỉ nhập số và 9–15 chữ số).';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleReset = () => {
+    setFormData({
+      fullName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      phoneNumber: '',
+    });
+    setErrors({});
+  };
+
+  useEffect(() => {
+    if (showToast) {
+      if (toastType === 'success') {
+        toast.success(toastMessage);
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      } else if (toastType === 'error') {
+        toast.error(toastMessage);
+      }
+      setShowToast(false);
+    }
+  }, [showToast, toastMessage, toastType, navigate]);
+
+
+  const handleRegister = async () => {
+    if (!validate()) {
+      return;
+    }
+
+    try {
+      const result = await registerUser(formData);
+      setToastMessage(result.message || 'Đăng ký thành công!');
+      setToastType('success');
+      setShowToast(true);
+    } catch (err) {
+      setToastMessage(err?.response?.data?.message || 'Đăng ký thất bại!');
+      setToastType('error');
+      setShowToast(true);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f7ff] flex items-center justify-center p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md"
-      >
-        <Typography
-          marginBottom="20px"
-          variant="h5"
-          className="text-center text-[#032F6C] font-bold mb-6 uppercase"
-        >
-          Đăng Ký
-        </Typography>
+    <MDBContainer
+    fluid
+    className='bg-[#BEBEBE]'
+    style={{ minHeight: '100vh', paddingTop: '2rem', paddingBottom: '2rem' }}
+  >
+    <MDBRow className='d-flex justify-content-center align-items-center h-100'>
+      <MDBCol md={9} lg={8} xl={8}>
+        <MDBCard className='rounded-4 shadow-5-strong overflow-hidden'>
+          <MDBRow className='g-0'>
+            {/* Ảnh bên trái */}
+            <MDBCol md='6' className="d-none d-md-block">
+              <MDBCardImage
+                src={'https://i.pinimg.com/736x/47/a4/44/47a4448f2df0046ee1f7bed28f87e551.jpg'}
+                alt="Sample"
+                className="w-100 h-100 object-fit-cover"
+                style={{ objectFit: 'cover', height: '100%' }}
+              />
+            </MDBCol>
+    {/* Phải */}
+              <MDBCol md='6'>
+                <MDBCardBody className='text-black d-flex flex-column justify-content-center'>
+                  <h3 className="mb-5 text-uppercase fw-bold">Đăng ký</h3>
 
-        <div className="space-y-4">
-          <TextField
-            label="Họ và Tên"
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            InputLabelProps={{ sx: { color: "#032F6C" } }}
-          />
-          <TextField
-            label="Email"
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            name="email"
-            type="email"
-            value={form.email}
-            onChange={handleChange}
-            InputLabelProps={{ style: { color: "#032F6C" } }}
-          />
-          <TextField
-            label="Mật khẩu"
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            InputLabelProps={{ style: { color: "#032F6C" } }}
-          />
-          <TextField
-            label="Xác nhận mật khẩu"
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            name="confirmPassword"
-            type="password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            InputLabelProps={{ style: { color: "#032F6C" } }}
-          />
-        </div>
+                  <InputField
+                    name="fullName"
+                    placeholder="Họ và tên"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    error={errors.fullName}
+                  />
+                  <InputField
+                    name="email"
+                    type="email"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    error={errors.email}
+                  />
+                  <InputField
+                    name="password"
+                    type="password"
+                    placeholder="Mật khẩu"
+                    value={formData.password}
+                    onChange={handleChange}
+                    error={errors.password}
+                  />
+                  <InputField
+                    name="confirmPassword"
+                    type="password"
+                    placeholder="Xác nhận mật khẩu"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    error={errors.confirmPassword}
+                  />
+                  <InputField
+                    name="phoneNumber"
+                    placeholder="Số điện thoại (tuỳ chọn)"
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                    error={errors.phoneNumber}
+                  />
 
-        <Button
-          type="submit"
-          variant="contained"
-          fullWidth
-          sx={{
-            marginTop: 3,
-            backgroundColor: "#23A0FF",
-            paddingY: "10px",
-            fontWeight: "bold",
-            fontSize: "16px",
-            borderRadius: "8px",
-            "&:hover": {
-              backgroundColor: "#1B7ACD",
-            },
-          }}
-        >
-          Đăng ký
-        </Button>
 
-        <div className="text-center mt-4 text-sm text-gray-600">
-          Đã có tài khoản?{" "}
-          <a
-            href="#"
-            className="text-[#23A0FF] hover:underline font-medium transition-colors"
-          >
-            Đăng nhập
-          </a>
-        </div>
-      </form>
-    </div>
+
+                  <div className="d-flex justify-content-end pt-3">
+                    <MDBBtn color='light' size='sm' onClick={() => navigate('/')}>Đăng nhập bằng Google</MDBBtn>
+                    <MDBBtn color='light' size='lg' onClick={handleReset}>Reset all</MDBBtn>
+                    <MDBBtn className='ms-2' color='info' size='lg' onClick={handleRegister}>Đăng ký</MDBBtn>
+                  </div>
+                </MDBCardBody>
+              </MDBCol>
+            </MDBRow>
+          </MDBCard>
+        </MDBCol>
+      </MDBRow>
+      <ToastContainer position="top-center" autoClose={3000} />
+    </MDBContainer>
   );
-}
+};
+
+export default RegisterPage;
+
+

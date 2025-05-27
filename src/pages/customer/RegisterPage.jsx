@@ -117,15 +117,12 @@ const RegisterPage = () => {
     if (showToast) {
       if (toastType === 'success') {
         toast.success(toastMessage);
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
       } else if (toastType === 'error') {
         toast.error(toastMessage);
       }
       setShowToast(false);
     }
-  }, [showToast, toastMessage, toastType, navigate]);
+  }, [showToast, toastMessage, toastType]);
 
 
   const handleRegister = async () => {
@@ -135,9 +132,17 @@ const RegisterPage = () => {
 
     try {
       const result = await registerUser(formData);
-      setToastMessage(result.message || 'Đăng ký thành công!');
+      setToastMessage('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.');
       setToastType('success');
       setShowToast(true);
+
+      // Chuyển hướng đến trang xác thực email sau 2 giây
+    setTimeout(() => {
+      navigate('/email-verification', { 
+        state: { email: formData.email }
+      });
+    }, 2000);
+
     } catch (err) {
       setToastMessage(err?.response?.data?.message || 'Đăng ký thất bại!');
       setToastType('error');

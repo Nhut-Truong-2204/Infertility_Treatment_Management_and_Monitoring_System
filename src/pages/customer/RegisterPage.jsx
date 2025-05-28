@@ -216,7 +216,7 @@ const RegisterPage = () => {
 
 
                   <div className="d-flex justify-content-end pt-3">
-                    <MDBBtn color='light' size='sm' onClick={() => navigate('/')}>Đăng nhập bằng Google</MDBBtn>
+                    <MDBBtn color='light' size='sm' onClick={() => navigate('/')}>Đăng ký bằng Google</MDBBtn>
                     <MDBBtn color='light' size='lg' onClick={handleReset}>Reset all</MDBBtn>
                     <MDBBtn className='ms-2' color='info' size='lg' onClick={handleRegister}>Đăng ký</MDBBtn>
                   </div>

@@ -4,6 +4,8 @@ export const registerUser = async (data) => {
 
 //   const response = await axios.post('/auth/register', data);
 // return response.data;
+
+
   console.log("Dữ liệu gửi đi:", data);
 
   // Giả lập delay như đang gọi API thật

@@ -3,7 +3,6 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { toast, ToastContainer, Flip } from 'react-toastify';
 import { motion} from "framer-motion";
 import 'react-toastify/dist/ReactToastify.css';
-import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
 import { blue } from "@mui/material/colors";

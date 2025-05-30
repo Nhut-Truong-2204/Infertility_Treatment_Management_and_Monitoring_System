@@ -9,7 +9,7 @@ import ViewTestingServiceList from "../../src/components/layout/navbar/blogDropD
 import BarrenMale from "../components/layout/navbar/blogDropDown/Learn/BarrenMale";
 import BarrenFemale from "../components/layout/navbar/blogDropDown/Learn/BarrenFemale"
 import Infertility from "../components/layout//navbar/blogDropDown/Learn/Infertility";
-
+import NotFound from "../pages/customer/NotFound";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -56,6 +56,9 @@ const router = createBrowserRouter([
   path: "/email-verification",
   element: <EmailVerificationPage />,
   },
-
+  {
+    path: "*",
+    element: <NotFound  />,
+    },
 ]);
 export default router;

@@ -77,47 +77,42 @@ export default function LoginPage() {
         }
     };
 
-    const [formData, setFormData] = useState({
-        email: "",
-        password: "",
-    });
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
 
-    const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({});
 
-    useEffect(() => {
-        if (location.state?.message) {
-            toast[location.state.type](location.state.message);
-            // Clear state sau khi đã hiển thị
-            window.history.replaceState({}, document.title);
-        }
-    }, [location]);
+  useEffect(() => {
+    if (location.state?.message) {
+      toast[location.state.type](location.state.message);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-        // Clear error when user types
-        if (errors[e.target.name]) {
-            setErrors({ ...errors, [e.target.name]: '' });
-        }
-    };
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) {
+      setErrors({ ...errors, [e.target.name]: '' });
+    }
+  };
 
-    const validate = () => {
-        const newErrors = {};
-        
-        if (!formData.email) {
-            newErrors.email = 'Email là bắt buộc';
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Email không hợp lệ';
-        }
-        
-        if (!formData.password) {
-            newErrors.password = 'Mật khẩu là bắt buộc';
-        } else if (formData.password.length < 8) {
-            newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.email) {
+      newErrors.email = 'Email là bắt buộc';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email không hợp lệ';
+    }
+    if (!formData.password) {
+      newErrors.password = 'Mật khẩu là bắt buộc';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
     const handleSubmit = async (e) => {
         e.preventDefault();

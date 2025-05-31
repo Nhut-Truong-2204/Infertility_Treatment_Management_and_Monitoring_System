@@ -8,6 +8,7 @@ import { blue } from "@mui/material/colors";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import InfertilityIcon from "../../../assets/R.png";
+import { Syringe } from "phosphor-react";
 
 export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -17,22 +18,20 @@ export default function Navbar() {
     goHome: () => navigate("/"),
     goRegister: () => navigate("/register"),
     goLogin: () => navigate("/login"),
-
-    // Học
     goBarrenMale: () => navigate("/barrenMale"),
     goBarrenFeMale: () => navigate("/barrenFemale"),
     goInfertility: () => navigate("/infertility"),
-
-    //chăm sóc
     goTestingList: () => navigate("/viewTestingList"),
   };
 
   return (
-    <nav className="bg-[#032F6C] px-6 py-4 flex items-center justify-between text-white sticky top-0 z-10">
+    <nav className="bg-[#032F6C] px-8 py-3 flex items-center justify-between text-white sticky top-0 z-50 shadow-md border-b border-blue-900">
       {/* Logo */}
       <div className="flex items-center space-x-2 font-semibold text-lg cursor-pointer">
         <Stack direction="row" spacing={2}>
-          <Avatar sx={{ bgcolor: blue[700] }}>R</Avatar>
+          <Avatar sx={{ bgcolor: "#23A0FF" }}>
+            <Syringe size={20} weight="fill" color="white" />
+          </Avatar>
         </Stack>
         <span onClick={routes.goHome}>ReproTrack</span>
       </div>
@@ -46,25 +45,43 @@ export default function Navbar() {
           onMouseLeave={() => setOpenDropdown(null)}
         >
           <button
-            className="flex p-3 items-center gap-1 font-bold uppercase 
+            className="flex px-4 py-2 items-center gap-1 font-semibold uppercase 
                        transition-all duration-300 
-                       group-hover:text-blue-900 
+                       group-hover:text-[#032F6C] 
                        group-hover:bg-white 
-                       group-hover:shadow-md"
+                       group-hover:shadow 
+                       rounded-md"
           >
             Học
             <ArrowDropDownIcon />
           </button>
 
           {openDropdown === 0 && (
-            <ul className="absolute -left-120 w-300 px-20 py-6 bg-white text-black z-10 shadow-lg">
-              <p className="text-[#132b6c] font-bold ml-3">TÌM HIỂU THÊM</p>
-              <div className="grid grid-cols-3 gap-4 max-w-6xl mx-auto">
+            <ul className="absolute -left-20 min-w-[350px] px-6 py-4 bg-white text-black z-20 rounded-lg shadow-xl border border-gray-200 transition-all duration-200">
+              <p className="text-[#132b6c] font-bold ml-3 mb-3">TÌM HIỂU THÊM</p>
+              <div className="grid grid-cols-2 gap-4">
                 <li
                   onClick={routes.goBarrenMale}
-                  className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
                 >
-                  Hiếm muộn Nam <MaleIcon fontSize="large" />
+                  Hiếm muộn Nam <MaleIcon fontSize="small" />
+                </li>
+                <li
+                  onClick={routes.goBarrenFeMale}
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
+                >
+                  Hiếm muộn Nữ <FemaleIcon fontSize="small" />
+                </li>
+                <li
+                  onClick={routes.goInfertility}
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition relative"
+                >
+                  Vô sinh
+                  <img
+                    src={InfertilityIcon}
+                    alt="infertility"
+                    className="w-[26px] absolute right-4 top-1/2 -translate-y-1/2"
+                  />
                 </li>
                 <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Link 2
@@ -72,56 +89,35 @@ export default function Navbar() {
                 <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Link 3
                 </li>
-                <li
-                  onClick={routes.goBarrenFeMale}
-                  className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
-                >
-                  Hiếm muộn Nữ <FemaleIcon fontSize="large" />
-                </li>
-                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Link 5
-                </li>
-                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Link 6
-                </li>
-                <li
-                  onClick={routes.goInfertility}
-                  className="px-4 py-2 relative hover:bg-blue-100 cursor-pointer rounded transition"
-                >
-                  Vô Sinh
-                  <img
-                    src={InfertilityIcon}
-                    className="w-[30px] absolute bottom-[8px] left-20"
-                  />
-                </li>
               </div>
             </ul>
           )}
         </li>
 
-        {/* GET CARE */}
+        {/* Chăm sóc */}
         <li
           className="relative group"
           onMouseEnter={() => setOpenDropdown(1)}
           onMouseLeave={() => setOpenDropdown(null)}
         >
           <button
-            className="flex p-3 items-center gap-1 font-bold uppercase 
-               transition-all duration-300 
-               group-hover:text-blue-900 
-               group-hover:bg-white 
-               group-hover:shadow-md"
+            className="flex px-4 py-2 items-center gap-1 font-semibold uppercase 
+                       transition-all duration-300 
+                       group-hover:text-[#032F6C] 
+                       group-hover:bg-white 
+                       group-hover:shadow 
+                       rounded-md"
           >
-            CHĂM SÓC
+            Chăm sóc
             <ArrowDropDownIcon />
           </button>
 
           {openDropdown === 1 && (
-            <ul className="absolute  -left-150 w-300 px-20 py-6 bg-white text-black z-10 shadow-lg">
-              <div className="grid grid-cols-3 gap-8 mx-auto">
+            <ul className="absolute -left-20 min-w-[350px] px-6 py-4 bg-white text-black z-20 rounded-lg shadow-xl border border-gray-200 transition-all duration-200">
+              <div className="grid grid-cols-2 gap-4">
                 <li
                   onClick={routes.goTestingList}
-                  className=" px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
+                  className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
                 >
                   Dịch vụ của chúng tôi
                 </li>
@@ -131,40 +127,32 @@ export default function Navbar() {
                 <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Link 3
                 </li>
-                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Link 3
-                </li>
-                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Link 3
-                </li>
-                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Link 3
-                </li>
               </div>
             </ul>
           )}
         </li>
 
-        {/* GET INVOLCE */}
+        {/* Tham gia */}
         <li
           className="relative group"
           onMouseEnter={() => setOpenDropdown(2)}
           onMouseLeave={() => setOpenDropdown(null)}
         >
           <button
-            className="flex p-3 items-center gap-1 font-bold uppercase 
+            className="flex px-4 py-2 items-center gap-1 font-semibold uppercase 
                        transition-all duration-300 
-                       group-hover:text-blue-900 
+                       group-hover:text-[#032F6C] 
                        group-hover:bg-white 
-                       group-hover:shadow-md"
+                       group-hover:shadow 
+                       rounded-md"
           >
-            THAM GIA
+            Tham gia
             <ArrowDropDownIcon />
           </button>
 
           {openDropdown === 2 && (
-            <ul className="absolute -left-150 w-300 px-20 py-6 bg-white text-black z-10 shadow-lg">
-              <div className="grid grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <ul className="absolute -left-20 min-w-[350px] px-6 py-4 bg-white text-black z-20 rounded-lg shadow-xl border border-gray-200 transition-all duration-200">
+              <div className="grid grid-cols-2 gap-4">
                 <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Link 1
                 </li>
@@ -177,22 +165,13 @@ export default function Navbar() {
                 <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Link 4
                 </li>
-                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Link 3
-                </li>
-                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Link 3
-                </li>
-                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Link 3
-                </li>
               </div>
             </ul>
           )}
         </li>
       </ul>
 
-      {/* Nút Đăng nhập và Đăng ký */}
+      {/* Nút Đăng nhập & Đăng ký */}
       <div className="flex space-x-4">
         <Button
           onClick={routes.goLogin}
@@ -200,7 +179,9 @@ export default function Navbar() {
           sx={{
             color: "white",
             borderColor: "white",
+            borderRadius: "8px",
             textTransform: "none",
+            px: 3,
             "&:hover": {
               backgroundColor: "white",
               color: "#032F6C",
@@ -215,7 +196,9 @@ export default function Navbar() {
           variant="contained"
           sx={{
             backgroundColor: "#23A0FF",
+            borderRadius: "8px",
             textTransform: "none",
+            px: 3,
             "&:hover": {
               backgroundColor: "#1B7ACD",
             },

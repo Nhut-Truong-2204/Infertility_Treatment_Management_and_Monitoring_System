@@ -4,6 +4,7 @@ import RegisterPage from "./../pages/customer/RegisterPage";
 import EmailVerificationPage from "../pages/customer/EmailVerificationPage";
 import LoginPage from "../pages/customer/LoginPage";
 import ForgetPasswordPage from "../pages/customer/ForgetPasswordPage";
+import ChangePasswordPage from "../pages/customer/ChangePasswordPage";
 import MainLayout from "../components/layout/MainLayout";
 import ViewTestingServiceList from "../../src/components/layout/navbar/blogDropDown/Care/ViewTestingServiceList";
 import BarrenMale from "../components/layout/navbar/blogDropDown/Learn/BarrenMale";
@@ -58,9 +59,15 @@ const router = createBrowserRouter([
   },
 
   {
+  path: "/change-password",
+  element: <ChangePasswordPage/>,
+  },
+
+  {
   path: "/email-verification",
   element: <EmailVerificationPage />,
   },
+
   {
     path: "*",
     element: <NotFound  />,

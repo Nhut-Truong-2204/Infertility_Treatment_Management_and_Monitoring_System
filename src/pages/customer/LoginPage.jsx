@@ -203,7 +203,6 @@ export default function LoginPage() {
                 </motion.div>
 
                 <div className="relative mb-5">
-                    
                 <motion.h2 
                     className="text-6xl font-bold text-center font-['Inter'] relative"
                     initial={{ opacity: 0, y: -50 }}
@@ -217,10 +216,10 @@ export default function LoginPage() {
                     <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent blur-[0.5px]">
                         Đăng nhập
                     </span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent mix-blend-overlay">
+                    <span className="absolute inset-0 bg-gradient-to-r from-white-500 to-blue-500 bg-clip-text text-transparent mix-blend-overlay">
                         Đăng nhập
                     </span>
-                    <span className="relative bg-gradient-to-r from-blue-600 to-pink-500 bg-clip-text text-transparent">
+                    <span className="relative bg-gradient-to-r from-blue-600 to-white-500 bg-clip-text text-transparent">
                         Đăng nhập
                     </span>
                 </motion.h2>
@@ -229,7 +228,7 @@ export default function LoginPage() {
                     initial={{ width: 1 }}
                     animate={{ width: "380px" }}
                     transition={{ duration: 0.8, delay: 0.5 }}
-                    className="h-1 bg-gradient-to-r from-blue-600 via-blue-500 to-pink-500 mx-auto mt-4 rounded-full"
+                    className="h-1 bg-gradient-to-r from-blue-600 via-white-500 to-blue-300 mx-auto mt-4 rounded-full"
                 />
                 </div>
 

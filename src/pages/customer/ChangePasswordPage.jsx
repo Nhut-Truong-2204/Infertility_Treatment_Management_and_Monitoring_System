@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Stack, Avatar } from "@mui/material";
-import { blue } from "@mui/material/colors";
+import { Syringe } from "phosphor-react";
 import Background from "../../assets/UpdatePassword.jpg";
 
 export default function ChangePasswordPage() {
-    const location = useLocation();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -157,12 +156,9 @@ export default function ChangePasswordPage() {
                             }}
                         >
                             <Stack direction="row" spacing={2}>
-                                <motion.div
-                                    whileHover={{ rotate: 360 }}
-                                    transition={{ duration: 0.8 }}
-                                >
-                                    <Avatar sx={{ bgcolor: blue[700] }}>R</Avatar>
-                                </motion.div>
+                                <Avatar sx={{ bgcolor: "#23A0FF" }}>
+                                    <Syringe size={20} weight="fill" color="white" />
+                                </Avatar>
                             </Stack>
                             <motion.span
                                 onClick={() => navigate('/')}
@@ -176,7 +172,7 @@ export default function ChangePasswordPage() {
                     {/* Title Section */}
                     <div className="relative mb-5">
                         <motion.h2 
-                            className="text-6xl font-bold text-center font-['Inter'] relative"
+                            className="text-4xl font-bold text-center font-['Inter'] relative"
                             initial={{ opacity: 0, y: -50 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ 
@@ -195,6 +191,14 @@ export default function ChangePasswordPage() {
                                 Đổi mật khẩu
                             </span>
                         </motion.h2>
+
+                        <motion.div
+                            initial={{ width: 1 }}
+                            animate={{ width: "380px" }}
+                            transition={{ duration: 0.8, delay: 0.5 }}
+                            className="h-1 mb-8 mt-8 bg-gradient-to-r from-blue-600 via-white-500 to-blue-300 mx-auto mt-4 rounded-full"
+                        />
+
                     </div>
 
                     {/* Error/Success Messages */}

@@ -2,7 +2,7 @@ import React, { useState} from "react";
 import { Typography, Alert, Avatar, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { blue } from "@mui/material/colors";
+import { Syringe } from "phosphor-react";
 import Background from "../../assets/ForgotPassword.jpg";
 
 export default function ForgetPasswordPage() {
@@ -222,12 +222,9 @@ export default function ForgetPasswordPage() {
                             }}
                         >
                             <Stack direction="row" spacing={2}>
-                                <motion.div
-                                    whileHover={{ rotate: 360 }}
-                                    transition={{ duration: 0.8 }}
-                                >
-                                    <Avatar sx={{ bgcolor: blue[700] }}>R</Avatar>
-                                </motion.div>
+                                <Avatar sx={{ bgcolor: "#23A0FF" }}>
+                                    <Syringe size={20} weight="fill" color="white" />
+                                </Avatar>
                             </Stack>
                             <motion.span
                                 onClick={() => navigate('/')}
@@ -238,9 +235,9 @@ export default function ForgetPasswordPage() {
                         </motion.div>
                     </motion.div>
 
-            <div className="text-center mb-4">
+            <div className="text-center">
                 <motion.h2 
-                    className="text-6xl font-bold text-center font-['Inter'] relative"
+                    className="text-4xl font-bold text-center font-['Inter'] relative mb-8"
                     initial={{ opacity: 0, y: -50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ 
@@ -261,14 +258,22 @@ export default function ForgetPasswordPage() {
                 </motion.h2>
 
                 <motion.div
+                    initial={{ width: 1 }}
+                    animate={{ width: "380px" }}
+                    transition={{ duration: 0.8, delay: 0.5 }}
+                    className="h-1 mb-8 bg-gradient-to-r from-blue-600 via-white-500 to-blue-300 mx-auto mt-4 rounded-full"
+                />
+
+                <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    key={showVerification ? "verification" : "email"} // Key để trigger animation khi text thay đổi
+                    key={showVerification ? "verification" : "email"}
+                    className="mb-8" // Key để trigger animation khi text thay đổi
                 >
                     <Typography
                         variant="body1"
-                        className="text-gray-800 mt-5 text-lg font-medium"
+                        className="text-gray-800 text-lg font-medium"
                     >
                         {!showVerification
                             ? "Vui lòng điền email gắn với tài khoản của bạn để nhận mã xác nhận thay đổi mật khẩu"

@@ -1,144 +1,547 @@
-import React, { useState } from "react";
-import { Button, TextField, Typography, InputAdornment, Alert } from "@mui/material";
+import React, { useState} from "react";
+import { Typography, Alert, Avatar, Stack } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { blue } from "@mui/material/colors";
+import Background from "../../assets/ForgotPassword.jpg";
 
 export default function ForgetPasswordPage() {
-    const [email, setEmail] = useState("");
-    const [code, setCode] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+    const navigate = useNavigate();
+    const [showVerification, setShowVerification] = useState(false);
     const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
+    const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [verificationDigits, setVerificationDigits] = useState(['', '', '', '', '', '']);
 
-    // Gửi mã xác minh
-    const handleSendCode = (e) => {
-        e.preventDefault();
-        if (!email) {
-            setError("Vui lòng nhập email.");
-            setSuccess("");
-            return;
+    const [formData, setFormData] = useState({
+        email: "",
+        verificationCode: ""
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+
+        // Clear errors when user starts typing
+        if (name === 'email') {
+            setErrors({});
+            setError('');
         }
-        setError("");
-        setSuccess("Mã xác nhận đã được gửi đến email của bạn!");
     };
 
-    // Đặt lại mật khẩu
-    const handleSubmit = (e) => {
+    const formContainerVariants = {
+        hidden: { 
+            opacity: 0,
+            y: 20
+        },
+        show: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                type: "spring",
+                duration: 1,
+                staggerChildren: 0.2,
+                delayChildren: 0.3
+            }
+        },
+        exit: {
+            opacity: 0,
+            y: -20,
+            transition: {
+                duration: 0.3
+            }
+        }
+    };
+
+    const formItemVariants = {
+        hidden: { 
+            opacity: 0,
+            x: -20,
+            y: 10
+        },
+        show: { 
+            opacity: 1,
+            x: 0,
+            y: 0,
+            transition: {
+                type: "spring",
+                stiffness: 300,
+                damping: 24
+            }
+        }
+    };
+
+    const submitButtonVariants = {
+        idle: { scale: 1 },
+        loading: {
+            scale: [1, 0.98, 1],
+            transition: {
+                duration: 1.5,
+                repeat: Infinity
+            }
+        },
+        success: {
+            backgroundColor: ["#3B82F6", "#10B981"],
+            transition: { duration: 0.5 }
+        },
+        error: {
+            x: [-10, 10, -10, 10, 0],
+            transition: { duration: 0.5 }
+        }
+    };
+
+    // Validate email format
+    const isValidEmail = (email) => {
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        const isValid = emailRegex.test(email);
+        console.log("Email validation result:", isValid); // For debugging
+        return isValid;
+    };
+
+    // Handle email submission
+    const handleEmailSubmit = async (e) => {
         e.preventDefault();
-        if (!email || !code || !password || !confirmPassword) {
-            setError("Vui lòng nhập đầy đủ thông tin.");
-            setSuccess("");
-            return;
-        }
-        if (code !== sentCode) {
-            setError("Mã xác nhận không đúng.");
-            setSuccess("");
-            return;
-        }
-        if (password !== confirmPassword) {
-            setError("Mật khẩu xác nhận không khớp.");
-            setSuccess("");
-            return;
-        }
+        const newErrors = {};
+        setErrors({});
         setError("");
-        setSuccess("Đặt lại mật khẩu thành công!");
-        // Reset form nếu muốn
-        // setEmail(""); setCode(""); setPassword(""); setConfirmPassword("");
+
+        if (!formData.email) {
+            newErrors.email = "Vui lòng nhập email.";
+        } else if (!isValidEmail(formData.email)) {
+            newErrors.email = "Email không hợp lệ.";
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        setLoading(true);
+        try {
+            // Your API call here
+            setShowVerification(true);
+        } catch (err) {
+            setError("Có lỗi xảy ra khi gửi mã xác nhận.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle verification code submission
+    const handleVerificationSubmit = async (e) => {
+        e.preventDefault();
+        if (!formData.verificationCode) {
+            setError("Vui lòng nhập mã xác nhận.");
+            return;
+        }
+        if (!/^\d{6}$/.test(formData.verificationCode)) {
+            setError("Mã xác nhận phải gồm 6 chữ số.");
+            return;
+        }
+
+        // Here you would typically verify the code with your backend
+        // For now, let's assume "123456" is the correct code
+        setLoading(true);
+        try {
+            // Your API verification call here
+            if (formData.verificationCode === "123456") {
+                navigate("/change-password", { state: { email: formData.email } });
+            } else {
+                setError("Mã xác nhận không chính xác.");
+            }
+        } catch (err) {
+            setError("Có lỗi xảy ra khi xác nhận.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleResendCode = async () => {
+        setLoading(true);
+        try {
+            // Tạm thời giữ logic giả lập gửi mã
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Giả lập API call
+            setVerificationDigits(['', '', '', '', '', '']);
+            setFormData(prev => ({
+                ...prev,
+                verificationCode: ''
+            }));
+            setError('');
+            // Hiển thị thông báo thành công
+            setError("Mã xác nhận mới đã được gửi đến email của bạn");
+        } catch (err) {
+            setError("Có lỗi xảy ra khi gửi lại mã xác nhận.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
-        <div className="min-h-screen bg-[#f0f7ff] flex items-center justify-center p-4">
-            <form
-                className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md"
-                onSubmit={handleSubmit}
-                autoComplete="off"
-            >
-                <Typography
-                    marginBottom="20px"
-                    variant="h5"
-                    className="text-center text-[#032F6C] font-bold mb-6 uppercase"
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            className="min-h-screen relative overflow-hidden"
+            style={{ 
+                backgroundImage: `url(${Background})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+            }}
+    >
+        {/* Thêm dark overlay */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.5 }}
+                className="absolute inset-0 bg-black/50"  // Độ tối 50%, có thể điều chỉnh
+            />
+
+        {/* Content wrapper */}
+            <div className="relative z-10 min-h-screen flex items-center justify-center">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="bg-white bg-opacity-95 backdrop-blur-sm p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 relative z-10"
                 >
-                    Quên mật khẩu
-                </Typography>
-                {error && <Alert severity="error" className="mb-4">{error}</Alert>}
-                {success && <Alert severity="success" className="mb-4">{success}</Alert>}
-
-                <TextField
-                    label="Email"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                />
-
-                <TextField
-                    label="Mã xác nhận"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={code}
-                    onChange={e => setCode(e.target.value)}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <Button
-                                    onClick={handleSendCode}
-                                    sx={{
-                                        color: "#23A0FF",
-                                        fontWeight: "bold",
-                                        textTransform: "none",
-                                        fontSize: "14px",
-                                        p: 0,
-                                        minWidth: "unset"
-                                    }}
-                                    tabIndex={-1}
+                    <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        className="flex justify-center mb-5"
+                    >
+                        <motion.div 
+                            initial={{ x: -100, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ type: "spring", duration: 1, bounce: 0.5 }}
+                            className="flex items-center space-x-2 font-semibold text-lg cursor-pointer"
+                            whileHover={{ 
+                                color: "#3B82F6",
+                                transition: { duration: 0.2 }
+                            }}
+                        >
+                            <Stack direction="row" spacing={2}>
+                                <motion.div
+                                    whileHover={{ rotate: 360 }}
+                                    transition={{ duration: 0.8 }}
                                 >
-                                    Lấy mã xác minh
-                                </Button>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
+                                    <Avatar sx={{ bgcolor: blue[700] }}>R</Avatar>
+                                </motion.div>
+                            </Stack>
+                            <motion.span
+                                onClick={() => navigate('/')}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                ReproTrack
+                            </motion.span>
+                        </motion.div>
+                    </motion.div>
 
-                <TextField
-                    label="Mật khẩu"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    type="password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                />
-
-                <TextField
-                    label="Nhập lại mật khẩu"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                />
-
-                <Button
-                    type="submit"
-                    variant="contained"
-                    fullWidth
-                    sx={{
-                        marginTop: 3,
-                        backgroundColor: "#23A0FF",
-                        fontWeight: "bold",
-                        fontSize: "16px",
-                        borderRadius: "8px",
-                        paddingY: "12px",
-                        "&:hover": {
-                            backgroundColor: "#1B7ACD",
-                        },
+            <div className="text-center mb-4">
+                <motion.h2 
+                    className="text-6xl font-bold text-center font-['Inter'] relative"
+                    initial={{ opacity: 0, y: -50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ 
+                        duration: 0.8, 
+                        type: "spring",
+                        bounce: 0.5 
                     }}
                 >
-                    Đặt lại mật khẩu
-                </Button>
-            </form>
-        </div>
+                    <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent blur-[0.5px]">
+                        Quên mật khẩu
+                    </span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-white-500 to-blue-500 bg-clip-text text-transparent mix-blend-overlay">
+                        Quên mật khẩu
+                    </span>
+                    <span className="relative bg-gradient-to-r from-blue-600 to-white-500 bg-clip-text text-transparent">
+                        Quên mật khẩu
+                    </span>
+                </motion.h2>
+
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    key={showVerification ? "verification" : "email"} // Key để trigger animation khi text thay đổi
+                >
+                    <Typography
+                        variant="body1"
+                        className="text-gray-800 mt-5 text-lg font-medium"
+                    >
+                        {!showVerification
+                            ? "Vui lòng điền email gắn với tài khoản của bạn để nhận mã xác nhận thay đổi mật khẩu"
+                            : "Mã xác nhận đã được gửi về email của bạn. Vui lòng kiểm tra email và nhập mã xác nhận"
+                        }
+                    </Typography>
+                </motion.div>
+            </div>
+
+                {/* Alert Messages */}
+                {error && (
+                    <motion.div 
+                        className="mb-6"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                    >
+                        <Alert severity="error">{error}</Alert>
+                    </motion.div>
+                )}
+
+                {/* Form Section */}
+                {!showVerification ? (
+                    <motion.form 
+                        variants={formContainerVariants}
+                        initial="hidden"
+                        animate="show"
+                        exit="exit"
+                        onSubmit={handleEmailSubmit} 
+                        className="space-y-6"
+                    >
+                        <motion.div 
+                            variants={formItemVariants}
+                            className="space-y-2"
+                        >
+                            <motion.label 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="block text-sm font-medium text-gray-700"
+                            >
+                                Email
+                            </motion.label>
+                            <motion.input
+                                whileFocus={{ scale: 1.01 }}
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className={`w-full px-4 py-3 rounded-lg border ${
+                                    errors.email ? 'border-red-500' : 'border-gray-300'
+                                } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200`}
+                                placeholder="example@gmail.com"
+                            />
+                            {errors.email && (
+                                <motion.p
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0 }}
+                                    className="text-red-500 text-sm mt-3"
+                                >
+                                    {errors.email}
+                                </motion.p>
+                            )}
+                        </motion.div>
+
+                        <motion.div variants={formItemVariants}>
+                            <motion.button
+                                variants={submitButtonVariants}
+                                initial="idle"
+                                animate={loading ? "loading" : "idle"}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                type="submit"
+                                disabled={loading}
+                                className={`w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300
+                                ${loading ? "opacity-80" : ""}`}
+                            >
+                                <motion.span
+                                    animate={loading ? {
+                                        opacity: [1, 0.7, 1],
+                                        transition: { duration: 1.5, repeat: Infinity }
+                                    } : {}}
+                                >
+                                    {loading ? (
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <motion.span
+                                                animate={{
+                                                    rotate: 360
+                                                }}
+                                                transition={{
+                                                    duration: 1,
+                                                    repeat: Infinity,
+                                                    ease: "linear"
+                                                }}
+                                                className="inline-block"
+                                            >
+                                                ⭕
+                                            </motion.span>
+                                            <span>Đang gửi...</span>
+                                        </div>
+                                    ) : (
+                                        "Gửi mã xác nhận"
+                                    )}
+                                </motion.span>
+                            </motion.button>
+                        </motion.div>
+                    </motion.form>
+                ) : (
+                    <motion.form 
+                        variants={formContainerVariants}
+                        initial="hidden"
+                        animate="show"
+                        exit="exit"
+                        onSubmit={handleVerificationSubmit}
+                        className="space-y-6"
+                    >
+                        <motion.div 
+                            variants={formItemVariants}
+                            className="space-y-4"
+                        >
+                            <div className="flex flex-col items-center space-y-4">
+                                <motion.h3 
+                                    className="text-3xl mt-4 font-['Inter'] font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400 tracking-tight"
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 300,
+                                        damping: 20
+                                    }}
+                                >
+                                    Nhập mã xác nhận
+                                </motion.h3>
+                            </div>
+
+                            <motion.div 
+                                className="w-full"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 400,
+                                    damping: 25,
+                                    delay: 0.2
+                                }}
+                            >
+                                <input
+                                type="text" 
+                                className={`w-full h-14 text-center text-3xl font-semibold border-2 rounded-lg
+                                    ${error ? 'border-red-500' : 'border-gray-300'}
+                                    focus:border-blue-500 focus:ring-2 focus:ring-blue-200 
+                                    transition-all duration-300 ease-in-out
+                                    hover:border-blue-400
+                                    bg-white/50 backdrop-blur-sm
+                                    shadow-sm`}
+                                value={verificationDigits.join('')}
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                    const newDigits = value.split('').concat(Array(6-value.length).fill(''));
+                                    setVerificationDigits(newDigits);
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        verificationCode: value
+                                    }));
+                                }}
+                                maxLength={6}
+                                />
+                            </motion.div>
+                        </motion.div>
+
+                        <motion.div 
+                            className="flex justify-between items-center mt-8 ml-8"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                        >
+                            <motion.button
+                                type="button"
+                                onClick={handleResendCode}
+                                disabled={loading}
+                                className={`text-blue-600 mt-4 hover:text-blue-700 flex items-center space-x-2
+                                    px-3 py-2 rounded-lg hover:bg-blue-50 transition-all duration-300
+                                    ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <motion.span
+                                    animate={loading ? {
+                                        rotate: 360,
+                                        transition: { duration: 1, repeat: Infinity, ease: "linear" }
+                                    } : {}}
+                                    className="inline-block"
+                                >
+                                    {loading ? '⭕' : '↻'}
+                                </motion.span>
+                                <span>{loading ? 'Đang gửi...' : 'Gửi lại mã'}</span>
+                            </motion.button>
+
+                            <motion.button
+                                variants={submitButtonVariants}
+                                initial="idle"
+                                animate={loading ? "loading" : "idle"}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                type="submit"
+                                disabled={loading || verificationDigits.some(digit => !digit)}
+                                className={`bg-gradient-to-r from-blue-500 to-blue-600 text-white 
+                                    px-4 py-2.5 rounded-lg font-medium mt-4
+                                    transition-all duration-300 ease-out
+                                ${loading || verificationDigits.some(digit => !digit) 
+                                    ? 'opacity-60 cursor-not-allowed' 
+                                    : 'hover:from-blue-600 hover:to-blue-700'}`}
+                            >
+                                {loading ? (
+                                    <div className="flex items-center space-x-2">
+                                        <motion.div
+                                            animate={{ rotate: 360 }}
+                                            transition={{
+                                                duration: 1,
+                                                repeat: Infinity,
+                                                ease: "linear"
+                                            }}
+                                            className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                                        />
+                                        <span>Đang xác nhận...</span>
+                                    </div>
+                                ) : (
+                                    'Tiếp tục'
+                                )}
+                            </motion.button>
+                    </motion.div>
+                </motion.form>
+                )}
+
+                {/* Back to Login Link */}
+                <motion.div 
+                    className="mt-6 text-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                >
+                    <motion.button
+                        whileHover={{ 
+                            scale: 1.05,
+                            color: "#1B7ACD",
+                            transition: {
+                                type: "spring",
+                                stiffness: 300
+                            }
+                        }}
+                        whileTap={{ scale: 0.95 }}
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{
+                            type: "spring",
+                            stiffness: 400,
+                            damping: 10
+                        }}
+                        className="text-[#23A0FF] font-medium inline-flex items-center space-x-1 mt-4"
+                        onClick={() => navigate('/login')}
+                    >
+                        <motion.span
+                            initial={{ x: 5 }}
+                            whileHover={{ x: -3 }}
+                            transition={{ type: "spring", stiffness: 400 }}
+                        >
+                            ←
+                        </motion.span>
+                        <span>Quay lại đăng nhập</span>
+                    </motion.button>
+                </motion.div>
+
+            </motion.div>
+          </div>  
+        </motion.div>
     );
 }

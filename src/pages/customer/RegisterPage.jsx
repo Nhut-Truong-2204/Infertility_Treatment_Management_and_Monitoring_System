@@ -220,24 +220,28 @@ const RegisterPage = () => {
   };
 
   const handleRegister = async () => {
-    if (!validate()) return;
-
+    if (!validate() || isLoading) return;
     setIsLoading(true);
     try {
-      await registerUser(formData);
-      showToastMessage(
-        "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.",
-        "success"
-      );
-      setTimeout(() => {
-        // navigate('/email-verification', { state: { email: formData.email } });
-        console.log("Navigate to email verification");
-      }, 2000);
-    } catch (err) {
-      showToastMessage(err?.message || "Đăng ký thất bại!", "error");
-    } finally {
-      setIsLoading(false);
-    }
+        await registerUser(formData);
+        showToastMessage(
+            "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.",
+            "success"
+        );
+        // Thêm setTimeout để hiển thị toast message trước khi chuyển trang
+        setTimeout(() => {
+            // Chuyển hướng đến trang xác thực email với thông tin email
+            navigate('/email-verification', { 
+                state: { 
+                  email: formData.email,
+                } 
+            });
+          }, 2000);
+      } catch (err) {
+          showToastMessage(err?.message || "Đăng ký thất bại!", "error");
+      } finally {
+          setIsLoading(false);
+      }
   };
 
   return (

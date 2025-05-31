@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 // Mảng ảnh - bạn thay đường dẫn ảnh thật ở đây
 import Img1 from "../../assets/9798f7419779181ef543a915777553ff.jpg";
-import Img2 from "../../assets/DoctorLogin.jpg";
+import Img2 from "../../assets/DoctorLogin1.jpg";
 import Img3 from "../../assets/HiemmuonNam.png";
 import Img4 from "../../assets/HiemmuonNu.png";
 import Img5 from "../../assets/HiemmuonNu2.png";

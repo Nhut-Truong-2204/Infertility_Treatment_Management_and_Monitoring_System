@@ -1,19 +1,139 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { toast, ToastContainer, Flip } from 'react-toastify';
-import { motion} from "framer-motion";
+import { Mail, Lock, Eye, EyeOff, AlertCircle, Syringe } from 'lucide-react';
+import { motion, AnimatePresence } from "framer-motion";
 import 'react-toastify/dist/ReactToastify.css';
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
-import { blue } from "@mui/material/colors";
 import GoogleLogo from "../../assets/GoogleLogo.png";
-import Background from "../../assets/DoctorLogin.jpg";
+import Background1 from "../../assets/DoctorLogin1.jpg";
+import Background2 from "../../assets/DoctorLogin2.jpg";
+import Background3 from "../../assets/DoctorLogin3.jpg";
+import Background4 from "../../assets/DoctorLogin4.jpg";
+import Background5 from "../../assets/DoctorLogin5.jpg";
+
+const InputField = ({
+        name,
+        type = "text",
+        placeholder,
+        value,
+        onChange,
+        error,
+        icon: Icon
+    }) => {
+        const [showPassword, setShowPassword] = useState(false);
+        const [isFocused, setIsFocused] = useState(false);
+
+
+        return (
+            <div className="relative mb-6 group">
+                <div className={`relative transition-all duration-300 ${
+                    isFocused ? "transform scale-105" : ""
+                }`}>
+                    {/* Icon */}
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                        <Icon className={`h-5 w-5 transition-colors duration-300 ${
+                            isFocused 
+                                ? "text-blue-500"
+                                : error 
+                                    ? "text-red-400" 
+                                    : "text-gray-400"
+                        }`} />
+                    </div>
+
+                    {/* Input */}
+                    <input
+                        type={type === "password" && showPassword ? "text" : type}
+                        name={name}
+                        placeholder={placeholder}
+                        value={value}
+                        onChange={onChange}
+                        onFocus={() => setIsFocused(true)}
+                        onBlur={() => setIsFocused(false)}
+                        className={`w-full pl-12 pr-12 py-4 bg-white/80 backdrop-blur-sm border-2 rounded-xl
+                            transition-all duration-300 text-gray-800 placeholder-gray-500
+                            focus:outline-none focus:ring-0 focus:shadow-lg focus:shadow-blue-500/20
+                            ${error
+                                ? "border-red-300 focus:border-red-500 bg-red-50/50"
+                                : isFocused
+                                    ? "border-blue-400 focus:border-blue-500"
+                                    : "border-gray-200 hover:border-gray-300"
+                            }
+                            ${isFocused ? "transform scale-105" : ""}`}
+                    />
+
+                    {/* Password Toggle Button */}
+                    {type === "password" && (
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute inset-y-0 right-0 pr-4 flex items-center z-10"
+                        >
+                            {showPassword ? (
+                                <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+                            ) : (
+                                <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+                            )}
+                        </button>
+                    )}
+                </div>
+
+                {/* Error Message */}
+                <AnimatePresence mode="wait">
+                {error && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: -10, x: -10 }}
+                        animate={{ opacity: 1, y: 0, x: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 30
+                        }}
+                        className="flex items-center mt-2 space-x-2"
+                    >
+                        <motion.div
+                            animate={{ 
+                                rotate: [0, -10, 10, -10, 0],
+                                scale: [1, 1.1, 1]
+                            }}
+                            transition={{
+                                duration: 0.5,
+                                times: [0, 0.2, 0.4, 0.6, 0.8]
+                            }}
+                            className="text-red-600"
+                        >
+                            <AlertCircle className="h-4 w-4" />
+                        </motion.div>
+                        <motion.span
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-sm text-red-600 font-medium"
+                            style={{
+                                textShadow: "0 0 1px rgba(239, 68, 68, 0.2)"
+                            }}
+                        >
+                            {error}
+                        </motion.span>
+                    </motion.div>
+                )}
+                </AnimatePresence>
+            </div>
+        );
+    };
 
 export default function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const [loading, setLoading] = useState(false);
-    const [showPassword] = useState(false);
+    const [currentBg, setCurrentBg] = useState(0);
+    const backgrounds = [Background1, Background2, Background3, Background4, Background5];
+
+    const [formData, setFormData] = useState({
+      email: '',
+      password: '',
+    });
 
     const formContainerVariants = {
         hidden: { 
@@ -76,11 +196,6 @@ export default function LoginPage() {
         }
     };
 
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -90,12 +205,29 @@ export default function LoginPage() {
     }
   }, [location]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+        setCurrentBg(prev => (prev + 1) % backgrounds.length);
+    }, 5900); // Giảm một chút so với thời gian animation để tránh độ trễ
+
+    return () => clearInterval(interval);
+  }, [backgrounds.length]);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
-    }
-  };
+    const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+        
+        // Clear error when user starts typing
+        if (errors[name]) {
+            setErrors(prev => ({
+                ...prev,
+                [name]: ""
+            }));
+        }
+    };
 
   const validate = () => {
     const newErrors = {};
@@ -149,12 +281,20 @@ export default function LoginPage() {
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
         className="min-h-screen relative overflow-hidden"
-        style={{ 
-            backgroundImage: `url(${Background})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-        }}
     >
+
+        {backgrounds.map((bg, index) => (
+            <motion.div
+                key={index}
+                className={`background-slide ${currentBg === index ? 'active' : ''}`}
+                initial={false}
+                style={{
+                    backgroundImage: `url(${bg})`,
+                    opacity: currentBg === index ? 1 : 0,
+                }}
+            />
+        ))}
+
         {/* Thêm dark overlay */}
         <motion.div
             initial={{ opacity: 0 }}
@@ -186,12 +326,9 @@ export default function LoginPage() {
                         }}
                     >
                         <Stack direction="row" spacing={2}>
-                            <motion.div
-                                whileHover={{ rotate: 360 }}
-                                transition={{ duration: 0.8 }}
-                            >
-                                <Avatar sx={{ bgcolor: blue[700] }}>R</Avatar>
-                            </motion.div>
+                            <Avatar sx={{ bgcolor: "#23A0FF" }}>
+                                <Syringe size={20} weight="fill" color="white" />
+                            </Avatar>
                         </Stack>
                         <motion.span
                             onClick={() => navigate('/')}
@@ -204,7 +341,7 @@ export default function LoginPage() {
 
                 <div className="relative mb-5">
                 <motion.h2 
-                    className="text-6xl font-bold text-center font-['Inter'] relative"
+                    className="text-4xl font-bold font-['Montserrat'] text-center relative"
                     initial={{ opacity: 0, y: -50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ 
@@ -213,24 +350,52 @@ export default function LoginPage() {
                         bounce: 0.5 
                     }}
                 >
-                    <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent blur-[0.5px]">
-                        Đăng nhập
+                    <span className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent blur-[2px]">
+                        Đăng Nhập
                     </span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-white-500 to-blue-500 bg-clip-text text-transparent mix-blend-overlay">
-                        Đăng nhập
+                    <span className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-400 to-blue-600 bg-clip-text text-transparent mix-blend-overlay">
+                        Đăng Nhập
                     </span>
-                    <span className="relative bg-gradient-to-r from-blue-600 to-white-500 bg-clip-text text-transparent">
-                        Đăng nhập
+                    <span className="relative bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
+                        Đăng Nhập
                     </span>
+
+                    <motion.p
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ 
+                            delay: 0.5,
+                            duration: 0.8,
+                            type: "spring",
+                            stiffness: 100,
+                            damping: 20
+                        }}
+                        className="text-xl text-gray-500 font-normal mt-8 mb-8 relative"
+                    >
+                        <motion.span
+                            initial={{ filter: "blur(8px)" }}
+                            animate={{ filter: "blur(0px)" }}
+                            transition={{ duration: 1, delay: 0.6 }}
+                            className="bg-gradient-to-r from-blue-700 to-blue-300 bg-clip-text text-transparent"
+                        >
+                            Chào mừng bạn quay trở lại
+                        </motion.span>
+                        <motion.div
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{ duration: 0.8, delay: 0.7 }}
+                            className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-gray-400 to-transparent"
+                        />
+                    </motion.p>
                 </motion.h2>
 
                 <motion.div
-                    initial={{ width: 1 }}
-                    animate={{ width: "380px" }}
+                    initial={{ width: 0 }}
+                    animate={{ width: "100%" }}
                     transition={{ duration: 0.8, delay: 0.5 }}
-                    className="h-1 bg-gradient-to-r from-blue-600 via-white-500 to-blue-300 mx-auto mt-4 rounded-full"
+                    className="h-1 mb-10 bg-gradient-to-r from-blue-700 via-indigo-300 to-blue-300 mx-auto mt-4 rounded-full shadow-lg"
                 />
-                </div>
+            </div>
 
                 <motion.form 
                   variants={formContainerVariants}
@@ -241,96 +406,44 @@ export default function LoginPage() {
                   className="space-y-6"
                 >
 
-                    <motion.div 
-                      variants={formItemVariants}
-                      className="space-y-2"
-                    >
-                        <motion.label 
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Email
-                        </motion.label>
-
-                        <motion.input
-                          whileFocus={{ scale: 1.01 }}
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          className={`w-full px-4 py-3 rounded-lg border ${
-                            errors.email ? 'border-red-500' : 'border-gray-300'
-                            } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200`}
-                          placeholder="example@gmail.com"
+                    <motion.div variants={formItemVariants}>
+                        <InputField
+                            name="email"
+                            type="email"
+                            placeholder="example@gmail.com"
+                            value={formData.email}
+                            onChange={handleChange}
+                            error={errors.email}
+                            icon={Mail}
                         />
+                    </motion.div>
 
-                        {errors.email && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          className="text-red-500 text-sm mt-3"
-                        >
-                          {errors.email}
-                        </motion.p>
-                        )}
-                        </motion.div>
-
-                    <motion.div 
-                      variants={formItemVariants}
-                      className="space-y-2"
-                    >
-                        <motion.label 
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="block text-sm font-medium text-gray-700"
-                        >
-                          Mật khẩu
-                        </motion.label>
-                        <motion.input
-                          whileFocus={{ scale: 1.01 }}
-                          type={showPassword ? "text" : "password"}
-                          name="password"
-                          value={formData.password}
-                          onChange={handleChange}
-                          className={`w-full px-4 py-3 rounded-lg border ${
-                            errors.password ? 'border-red-500' : 'border-gray-300'
-                            } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200`}
-                          placeholder="••••••••"
+                    <motion.div variants={formItemVariants}>
+                        <InputField
+                            name="password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={formData.password}
+                            onChange={handleChange}
+                            error={errors.password}
+                            icon={Lock}
                         />
-                        {errors.password && (
-                        <motion.p
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          className="text-red-500 text-sm mt-3"
-                        >
-                        {errors.password}
-                        </motion.p>
-                        )}
-                        </motion.div>
+                    </motion.div>
 
-                    <motion.div 
-                      variants={formItemVariants}
-                      className="flex justify-center"
-                    >
+                    <motion.div variants={formItemVariants} className="flex justify-center">
+                        <motion.div whileHover={{ scale: 1.05 }} className="relative inline-block">
+                        <Link
+                            to="/forgot-password"
+                            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                            Quên mật khẩu?
+                        </Link>
                         <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            className="relative inline-block"
-                        >
-                            <Link
-                                to="/forgot-password"
-                                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                            >
-                                Quên mật khẩu?
-                            </Link>
-                            <motion.div
-                                className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"
-                                initial={{ scaleX: 0 }}
-                                whileHover={{ scaleX: 1 }}
-                                transition={{ duration: 0.3 }}
-                            />
+                            className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"
+                            initial={{ scaleX: 0 }}
+                            whileHover={{ scaleX: 1 }}
+                            transition={{ duration: 0.3 }}
+                        />
                         </motion.div>
                     </motion.div>
 
@@ -376,7 +489,6 @@ export default function LoginPage() {
                     </motion.button>
                     </motion.div>
                     </motion.form>
-                    
 
                 <motion.div
                     initial={{ opacity: 0 }}

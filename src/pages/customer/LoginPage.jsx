@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import 'react-toastify/dist/ReactToastify.css';
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
-import GoogleLogo from "../../assets/GoogleLogo.png";
+import { GoogleLogin } from '@react-oauth/google';
 import Background1 from "../../assets/DoctorLogin1.jpg";
 import Background2 from "../../assets/DoctorLogin2.jpg";
 import Background3 from "../../assets/DoctorLogin3.jpg";
@@ -261,12 +261,14 @@ export default function LoginPage() {
         }
     };
 
-    const handleGoogleLogin = () => {
+    const handleGoogleLogin = async (credentialResponse) => {
         try {
             setLoading(true);
-            // TODO: Thêm xử lý đăng nhập Google ở đây
+            const credential = credentialResponse.credential;
+        
+            console.log('Google credential:', credential);
             toast.success("Đăng nhập Google thành công!");
-            navigate("/");
+            navigate("/dashboard"); // hoặc trang đích khác
         } catch (error) {
             toast.error("Đăng nhập Google thất bại!");
             console.error("Google login error:", error);
@@ -516,34 +518,59 @@ export default function LoginPage() {
                     </motion.div>
                 </motion.div>
 
-                <motion.button
+                <motion.div
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.8 }}
-                    whileHover={{ 
-                        scale: 1.02,
-                        backgroundColor: "#f8fafc",
-                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)"
-                    }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleGoogleLogin}
-                    type="button"
-                    className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300"
+                    className="w-full flex items-center justify-center"
                 >
-                    <motion.div
-                        initial={{ rotate: -180 }}
-                        animate={{ rotate: 0 }}
-                        transition={{ delay: 1, type: "spring" }}
-                    className="flex items-center justify-center"
-                    >
-                        <img 
-                            src={GoogleLogo} 
-                            alt="Google"
-                            className="w-6 h-6 object-contain" 
-                        />
-                    </motion.div>
-                    <span>Đăng nhập với Google</span>
-                </motion.button>
+                    <div className="custom-google-btn w-full relative">
+                        <button 
+                            className="w-full flex items-center justify-center gap-3 px-4 py-3 text-gray-700 bg-white 
+                                    border-2 border-gray-200 rounded-lg hover:bg-gray-100 hover:border-gray-300 
+                                    active:bg-gray-200 transition-all duration-200"
+                            onClick={() => {
+                                const iframe = document.querySelector('iframe');
+                                if (iframe?.contentWindow) {
+                                    const googleButton = iframe.contentWindow.document.querySelector('[role="button"]');
+                                    if (googleButton) {
+                                        googleButton.click();
+                                    }
+                                }
+                            }}
+                        >
+                            <img 
+                                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+                                className="w-6 h-6" 
+                            />
+                            <span className="text-base font-semibold">
+                                Đăng nhập bằng Google
+                            </span>
+                        </button>
+
+                        <div className="google-login-hidden absolute flex items-center justify-center" style={{ 
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            opacity: 0,
+                            zIndex: 10
+                        }}>
+                            <GoogleLogin
+                                onSuccess={handleGoogleLogin}
+                                onError={() => {
+                                    toast.error("Đăng nhập Google thất bại!");
+                                }}
+                                size="large"
+                                type="standard"
+                                shape="rectangular"
+                                useOneTap
+                                locale="vi"
+                            />
+                        </div>
+                    </div>
+                </motion.div>
 
                 <motion.div 
                     initial={{ opacity: 0 }}

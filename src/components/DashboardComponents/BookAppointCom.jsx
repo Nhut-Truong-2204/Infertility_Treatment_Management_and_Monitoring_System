@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 
 // Mảng ảnh - bạn thay đường dẫn ảnh thật ở đây
 import Img1 from "../../assets/9798f7419779181ef543a915777553ff.jpg";
@@ -7,7 +7,7 @@ import Img2 from "../../assets/DoctorLogin1.jpg";
 import Img3 from "../../assets/HiemmuonNam.png";
 import Img4 from "../../assets/HiemmuonNu.png";
 import Img5 from "../../assets/HiemmuonNu2.png";
-import Img6 from "../../assets/HiemmuonNam2.png";
+import Img6 from "../../assets/Hiemmuonnam2.png";
 import Img7 from "../../assets/HiemmuonNam3.png";
 import Img8 from "../../assets/R.png";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +20,7 @@ export default function BookAppointmentSection() {
   const navigation = useNavigate();
   const goToBooking = () => {
     navigation("/bookingAppointment");
-  }
+  };
   useEffect(() => {
     const interval = setInterval(() => {
       setDirection(1); // Ảnh trượt từ phải sang trái
@@ -79,7 +79,10 @@ export default function BookAppointmentSection() {
         <p className="text-lg mb-8 max-w-md leading-relaxed">
           STD testing, birth control, abortion, and more, in-person and online.
         </p>
-        <button onClick={goToBooking} className="bg-[#4c9be8] hover:bg-[#3588cc] transition duration-300 font-semibold px-6 py-3 rounded-full shadow-md">
+        <button
+          onClick={goToBooking}
+          className="bg-[#4c9be8] hover:bg-[#3588cc] transition duration-300 font-semibold px-6 py-3 rounded-full shadow-md"
+        >
           GET STARTED
         </button>
       </motion.div>

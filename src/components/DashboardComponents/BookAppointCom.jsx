@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Mảng ảnh - bạn thay đường dẫn ảnh thật ở đây
 import Img1 from "../../assets/9798f7419779181ef543a915777553ff.jpg";

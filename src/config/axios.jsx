@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Tạo một instance Axios với các cấu hình mặc định
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api', // URL gốc của API
+  baseURL: import.meta.env.VITE_API_URL || 'https://infertility-treatment-management-and.onrender.com', // URL gốc của API
   timeout: 10000, // thời gian chờ tối đa
   headers: {
     'Content-Type': 'application/json',

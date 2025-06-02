@@ -22,6 +22,8 @@ export default function Navbar() {
     goBarrenFeMale: () => navigate("/barrenFemale"),
     goInfertility: () => navigate("/infertility"),
     goTestingList: () => navigate("/viewTestingList"),
+    goDoctorList: () => navigate("/viewDoctorList"),
+
   };
 
   return (
@@ -52,7 +54,7 @@ export default function Navbar() {
                        group-hover:shadow 
                        rounded-md"
           >
-            Học
+            Tìm hiểu thêm
             <ArrowDropDownIcon />
           </button>
 
@@ -121,8 +123,9 @@ export default function Navbar() {
                 >
                   Dịch vụ của chúng tôi
                 </li>
-                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Link 2
+                <li onClick={routes.goDoctorList}
+                className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Danh sách bác sĩ 
                 </li>
                 <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Link 3

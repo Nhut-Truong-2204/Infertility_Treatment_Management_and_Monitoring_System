@@ -13,6 +13,7 @@ import Infertility from "../components/layout//navbar/blogDropDown/Learn/Inferti
 import NotFound from "../pages/customer/NotFound";
 import BookingAppointment from "../pages/customer/BookingAppointment";
 // import DoctorList from "../pages/customer/DoctorList";
+import ClinicIntroduction from "../pages/customer/ClinicIntroduction";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
       //   element:
       //     <DoctorList />,
       // },
+      {
+        path: "/clinicpage",
+        element: <ClinicIntroduction />,
+      },
     ],
   },
   {

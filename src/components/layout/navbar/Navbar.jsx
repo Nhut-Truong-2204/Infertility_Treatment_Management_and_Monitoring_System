@@ -10,7 +10,7 @@ import FemaleIcon from "@mui/icons-material/Female";
 import InfertilityIcon from "../../../assets/R.png";
 import { Syringe } from "phosphor-react";
 
-export default function Navbar() {
+export default function Navbar() {  
   const [openDropdown, setOpenDropdown] = useState(null);
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ export default function Navbar() {
     goInfertility: () => navigate("/infertility"),
     goTestingList: () => navigate("/viewTestingList"),
     goDoctorList: () => navigate("/viewDoctorList"),
-
+    goClinicIntro: () => navigate("/clinicpage"),
   };
 
   return (
@@ -85,8 +85,8 @@ export default function Navbar() {
                     className="w-[26px] absolute right-4 top-1/2 -translate-y-1/2"
                   />
                 </li>
-                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Link 2
+                <li onClick={routes.goClinicIntro} className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Clinic Information
                 </li>
                 <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Link 3

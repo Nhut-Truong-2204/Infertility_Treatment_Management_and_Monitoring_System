@@ -12,6 +12,7 @@ import BarrenFemale from "../components/layout/navbar/blogDropDown/Learn/BarrenF
 import Infertility from "../components/layout//navbar/blogDropDown/Learn/Infertility";
 import NotFound from "../pages/customer/NotFound";
 import BookingAppointment from "../pages/customer/BookingAppointment";
+// import DoctorList from "../pages/customer/DoctorList";
 import ClinicIntroduction from "../pages/customer/ClinicIntroduction";
 const router = createBrowserRouter([
   {
@@ -42,6 +43,11 @@ const router = createBrowserRouter([
         path: "/bookingAppointment",
         element: <BookingAppointment />,
       },
+      // {
+      //   path: "/viewDoctorList",
+      //   element:
+      //     <DoctorList />,
+      // },
       {
         path: "/clinicpage",
         element: <ClinicIntroduction />,
@@ -59,23 +65,23 @@ const router = createBrowserRouter([
   },
 
   {
-  path: "/forgot-password",
-  element: <ForgetPasswordPage />,
+    path: "/forgot-password",
+    element: <ForgetPasswordPage />,
   },
 
   {
-  path: "/change-password",
-  element: <ChangePasswordPage/>,
+    path: "/change-password",
+    element: <ChangePasswordPage />,
   },
 
   {
-  path: "/email-verification",
-  element: <EmailVerificationPage />,
+    path: "/email-verification",
+    element: <EmailVerificationPage />,
   },
 
   {
     path: "*",
-    element: <NotFound  />,
-    },
+    element: <NotFound />,
+  },
 ]);
 export default router;

@@ -211,40 +211,37 @@ const RegisterPage = () => {
   const showToastMessage = (message, type) => {
     setToastMessage(message);
     setToastType(type);
+    setToastMessage("Đăng ký thành công! Đang chuyển hướng...");
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
+    setTimeout(() => {
+      navigate('/login'); // Đường dẫn tới trang Đăng nhập
+    }, 2000);
   };
 
   const handleRegister = async () => {
     if (!validate() || isLoading) return;
     setIsLoading(true);
     try {
-      const response = await registerUser(formData); // <- nhận response từ API
-  
-      if (response?.success) {
-        showToastMessage(response.message || "Đăng ký thành công!", "success");
-  
-        // Chuyển hướng sau khi hiện toast
+        await registerUser(formData);
+        showToastMessage(
+            "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.",
+            "success"
+        );
+        // Thêm setTimeout để hiển thị toast message trước khi chuyển trang
         setTimeout(() => {
-          navigate('/email-verification', { 
-            state: { 
-              email: response.data.email, // sử dụng email từ response
-            } 
-          });
-        }, 2000);
-      } else {
-        // fallback nếu `success: false` nhưng không có lỗi throw
-        showToastMessage(response.message || "Đăng ký thất bại!", "error");
+            // Chuyển hướng đến trang xác thực email với thông tin email
+            navigate('/email-verification', { 
+                state: { 
+                  email: formData.email,
+                } 
+            });
+          }, 2000);
+      } catch (err) {
+          showToastMessage(err?.message || "Đăng ký thất bại!", "error");
+      } finally {
+          setIsLoading(false);
       }
-  
-    } catch (err) {
-      showToastMessage(
-        err?.response?.data?.message || err?.message || "Đăng ký thất bại!",
-        "error"
-      );
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   return (
@@ -431,7 +428,7 @@ const RegisterPage = () => {
                         className="w-6 h-6 object-contain"
                       />
                     </motion.div>
-                    <span>Đăng ký với Google</span>
+                    <span>Đăng nhập với Google</span>
                   </motion.button>
                 </div>
               </div>

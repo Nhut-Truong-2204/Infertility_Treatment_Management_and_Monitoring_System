@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@chakra-ui/react": "^3.19.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@heroicons/react": "^2.1.1",
@@ -19,8 +18,6 @@
     "@react-oauth/google": "^0.12.2",
     "@tailwindcss/vite": "^4.1.7",
     "axios": "^1.9.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
     "framer-motion": "^12.15.0",
     "lucide-react": "^0.511.0",
     "phosphor-react": "^1.4.1",
@@ -28,12 +25,10 @@
     "react-bits": "^1.0.5",
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
-    "react-paginate": "^8.3.0",
     "react-router": "^7.6.0",
     "react-router-dom": "^7.6.0",
     "react-toastify": "^11.0.5",
-    "tailwindcss": "^4.1.7",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss": "^4.1.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
@@ -43,7 +38,6 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
-    "path": "^0.12.7",
     "vite": "^6.3.5"
   }
 }

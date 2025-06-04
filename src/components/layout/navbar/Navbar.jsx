@@ -10,7 +10,7 @@ import FemaleIcon from "@mui/icons-material/Female";
 import InfertilityIcon from "../../../assets/R.png";
 import { Syringe } from "phosphor-react";
 
-export default function Navbar() {  
+export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const navigate = useNavigate();
 
@@ -22,10 +22,6 @@ export default function Navbar() {
     goBarrenFeMale: () => navigate("/barrenFemale"),
     goInfertility: () => navigate("/infertility"),
     goTestingList: () => navigate("/viewTestingList"),
-    goDoctorList: () => navigate("/viewDoctorList"),
-    goClinicIntro: () => navigate("/clinicpage"),
-    goService: () => navigate("/servicepage"),
-
   };
 
   return (
@@ -56,7 +52,7 @@ export default function Navbar() {
                        group-hover:shadow 
                        rounded-md"
           >
-            Tìm hiểu thêm
+            Học
             <ArrowDropDownIcon />
           </button>
 
@@ -87,8 +83,8 @@ export default function Navbar() {
                     className="w-[26px] absolute right-4 top-1/2 -translate-y-1/2"
                   />
                 </li>
-                <li onClick={routes.goClinicIntro} className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Clinic Information
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 2
                 </li>
                 <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Link 3
@@ -125,13 +121,11 @@ export default function Navbar() {
                 >
                   Dịch vụ của chúng tôi
                 </li>
-                <li onClick={routes.goDoctorList}
-                className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Danh sách bác sĩ 
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 2
                 </li>
-                <li onClick={routes.goService}
-                className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Dịch vụ bệnh viện
+                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Link 3
                 </li>
               </div>
             </ul>

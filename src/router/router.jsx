@@ -14,6 +14,7 @@ import NotFound from "../pages/customer/NotFound";
 import BookingAppointment from "../pages/customer/BookingAppointment";
 import DoctorList from "../pages/customer/DoctorList";
 import ClinicIntroduction from "../pages/customer/ClinicIntroduction";
+import ServicesPage from "../pages/customer/Servicepage";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
       {
         path: "/clinicpage",
         element: <ClinicIntroduction />,
+      },
+      {
+        path: "/servicepage",
+        element: <ServicesPage />,
       },
     ],
   },

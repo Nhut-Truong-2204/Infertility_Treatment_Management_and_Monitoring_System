@@ -24,6 +24,8 @@ export default function Navbar() {
     goTestingList: () => navigate("/viewTestingList"),
     goDoctorList: () => navigate("/viewDoctorList"),
     goClinicIntro: () => navigate("/clinicpage"),
+    goService: () => navigate("/servicepage"),
+
   };
 
   return (
@@ -127,8 +129,9 @@ export default function Navbar() {
                 className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                   Danh sách bác sĩ 
                 </li>
-                <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                  Link 3
+                <li onClick={routes.goService}
+                className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  Dịch vụ bệnh viện
                 </li>
               </div>
             </ul>

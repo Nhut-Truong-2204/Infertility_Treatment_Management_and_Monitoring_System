@@ -9,6 +9,12 @@ import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import InfertilityIcon from "../../../assets/R.png";
 import { Syringe } from "phosphor-react";
+const gooeyItems = [
+  { label: "Trang chủ", onClick: () => navigate("/") },
+  { label: "Giới thiệu", onClick: () => navigate("/clinicpage") },
+  { label: "Bác sĩ", onClick: () => navigate("/viewDoctorList") },
+  { label: "Dịch vụ", onClick: () => navigate("/servicepage") },
+];
 
 export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -39,24 +45,19 @@ export default function Navbar() {
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"
+        }`}
     >
-      <nav className="  py-7 px-40 flex items-center justify-between text-white sticky top-0 z-50 shadow-md border-b-grey-1 border-grey-200">
+      <nav className="  py-10 px-40 flex items-center justify-between text-white sticky top-0 z-50 ">
         {/* Logo */}
-        <div className="flex items-center space-x-2 font-semibold text-lg cursor-pointer">
-          <Stack direction="row" spacing={2}>
-            <img
-              src="https://demo.awaikenthemes.com/landing/wp-content/uploads/2025/04/ferlix-logo.svg"
-              alt=""
-            />
-          </Stack>
-          <span onClick={routes.goHome}>ReproTrack</span>
+        <div onClick={routes.goHome} className="flex items-center space-x-2 font-semibold text-lg cursor-pointer hover:bg-blue-900 hover:rounded-2xl hover:py-2 hover:px-4 transition-all duration-300">
+          <img src="src/assets/spermatozoon.png" alt="CumIcon"
+            className="h-10" />
+          <span >ReproTrack</span>
         </div>
 
         {/* Menu chính */}
-        <ul className="flex space-x-8">
+        <ul className="flex space-x-10">
           {/* Học */}
           <li
             className="relative group"
@@ -68,7 +69,7 @@ export default function Navbar() {
                        transition-all duration-300 
                        group-hover:text-[#032F6C] 
                        group-hover:bg-white 
-                       group-hover:shadow 
+                       group-hover:shadow
                        rounded-md"
             >
               Tìm hiểu thêm
@@ -202,40 +203,56 @@ export default function Navbar() {
         </ul>
 
         {/* Nút Đăng nhập & Đăng ký */}
-        <div className="flex space-x-4">
-          <Button
-            onClick={routes.goLogin}
-            variant="outlined"
-            sx={{
-              color: "white",
-              borderColor: "white",
-              borderRadius: "8px",
-              textTransform: "none",
-              px: 3,
-              "&:hover": {
-                backgroundColor: "white",
-                color: "#032F6C",
+        <div className="flex space-x-4 gap-2">
+          <div className="relative group w-[160px] h-[50px]">
+            <Button
+              onClick={routes.goLogin}
+              variant="outlined"
+              sx={{
+                color: "white",
                 borderColor: "white",
-              },
-            }}
-          >
-            Đăng nhập
-          </Button>
-          <Button
-            onClick={routes.goRegister}
-            variant="contained"
-            sx={{
-              backgroundColor: "#23A0FF",
-              borderRadius: "8px",
-              textTransform: "none",
-              px: 3,
-              "&:hover": {
+                borderRadius: "8px",
+                textTransform: "none",
                 backgroundColor: "#1B7ACD",
-              },
-            }}
-          >
-            Đăng ký
-          </Button>
+                px: 3,
+                "&:hover": {
+                  backgroundColor: "#f41574",
+                  color: "#white",
+                  borderColor: "white",
+                },
+              }}
+              className="w-full h-full flex items-center justify-center relative overflow-hidden"
+            >
+              <span className="relative z-10 text-[20px] text-base md:text-xl font-bold">Đăng nhập</span>
+
+              <span
+                className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"
+              ></span>
+            </Button>
+          </div>
+          <div className="relative group w-[160px] h-[50px]">
+            <Button
+              onClick={routes.goRegister}
+              variant="contained"
+              sx={{
+                backgroundColor: "#f41574",
+                borderRadius: "8px",
+                textTransform: "none",
+                px: 3,
+                "&:hover": {
+                  backgroundColor: "#1B7ACD",
+                },
+              }}
+              className="w-full h-full flex items-center justify-center relative overflow-hidden"
+            >
+              <span className="relative z-10 text-[20px] text-base md:text-xl font-bold">Đăng ký</span>
+
+              <span
+                className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"
+              ></span>
+            </Button>
+          </div>
+
         </div>
       </nav>
     </div>

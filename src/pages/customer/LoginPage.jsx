@@ -12,6 +12,7 @@ import Background2 from "../../assets/DoctorLogin2.jpg";
 import Background3 from "../../assets/DoctorLogin3.jpg";
 import Background4 from "../../assets/DoctorLogin4.jpg";
 import Background5 from "../../assets/DoctorLogin5.jpg";
+import { loginUser } from '../../api/customer/loginUser';
 
 const InputField = ({
     name,
@@ -249,11 +250,15 @@ export default function LoginPage() {
 
         setLoading(true);
         try {
-            // TODO: Add your login API call here
+            const response = await loginUser({
+                email: formData.email,
+                password: formData.password
+            });
+
             toast.success("Đăng nhập thành công!");
-            navigate("/");
+            navigate("/"); // hoặc trang bạn muốn chuyển đến sau khi đăng nhập
         } catch (err) {
-            toast.error(err?.response?.data?.message || "Đăng nhập thất bại!");
+            toast.error(err?.message || "Đăng nhập thất bại!");
         } finally {
             setLoading(false);
         }

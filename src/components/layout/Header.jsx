@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "@mui/material";
 
 const Header = () => {
   return (
@@ -22,9 +23,9 @@ const Header = () => {
 
         {/* Two buttons under the text */}
         <div className="flex space-x-4 mt-4">
-          <button className="bg-pink-500 hover:bg-pink-600 text-white text-base md:text-xl font-bold px-15 py-6 rounded-4xl transition duration-300 shadow-md">
+          <utton className="bg-pink-500 hover:bg-pink-600 text-white text-base md:text-xl font-bold px-15 py-6 rounded-4xl transition duration-300 shadow-md" >
             Đặt lịch ngay
-          </button>
+          </utton>
           <button className="bg-pink-500 hover:bg-pink-600 text-white text-base md:text-xl font-bold px-15 py-6 rounded-4xl transition duration-300 shadow-md">
             Tìm hiểu thêm
           </button>

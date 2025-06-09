@@ -203,8 +203,8 @@ export default function Navbar() {
         </ul>
 
         {/* Nút Đăng nhập & Đăng ký */}
-        <div className="flex space-x-4 gap-2">
-          <div className="relative group w-[160px] h-[50px]">
+        <div className="flex space-x-5 gap-2">
+          <div className="relative group w-[140px] h-[50px]">
             <Button
               onClick={routes.goLogin}
               variant="outlined"
@@ -216,21 +216,21 @@ export default function Navbar() {
                 backgroundColor: "#1B7ACD",
                 px: 3,
                 "&:hover": {
-                  backgroundColor: "#f41574",
+                  backgroundColor: "#20296e",
                   color: "#white",
                   borderColor: "white",
                 },
               }}
               className="w-full h-full flex items-center justify-center relative overflow-hidden"
             >
-              <span className="relative z-10 text-[20px] text-base md:text-xl font-bold">Đăng nhập</span>
+              <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">Đăng nhập</span>
 
               <span
                 className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"
               ></span>
             </Button>
           </div>
-          <div className="relative group w-[160px] h-[50px]">
+          <div className="relative group w-[140px] h-[50px]">
             <Button
               onClick={routes.goRegister}
               variant="contained"
@@ -240,12 +240,12 @@ export default function Navbar() {
                 textTransform: "none",
                 px: 3,
                 "&:hover": {
-                  backgroundColor: "#1B7ACD",
+                  backgroundColor: "#20296e",
                 },
               }}
               className="w-full h-full flex items-center justify-center relative overflow-hidden"
             >
-              <span className="relative z-10 text-[20px] text-base md:text-xl font-bold">Đăng ký</span>
+              <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">Đăng ký</span>
 
               <span
                 className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"

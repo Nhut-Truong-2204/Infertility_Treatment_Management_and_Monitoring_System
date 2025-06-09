@@ -14,16 +14,9 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import GoogleLogo from "../../assets/GoogleLogo.png";
 import { useNavigate } from "react-router-dom";
-
+import { registerUser } from "../../api/customer/registerUser";
+import { toast } from "react-toastify"; // Uncomment if using react-toastify
 // Mock functions to replace imports
-const registerUser = async (data) => {
-  // Simulate API call
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  if (data.email === "test@error.com") {
-    throw new Error("Email đã tồn tại");
-  }
-  return { success: true };
-};
 
 const InputField = ({
   name,
@@ -123,19 +116,19 @@ const RegisterPage = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const handleGoogleLogin = () => {
-    try {
-      setLoading(true);
-      // TODO: Thêm xử lý đăng nhập Google ở đây
-      toast.success("Đăng nhập Google thành công!");
-      navigate("/");
-    } catch (error) {
-      toast.error("Đăng nhập Google thất bại!");
-      console.error("Google login error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const handleGoogleLogin = () => {
+  //   try {
+  //     setLoading(true);
+  //     // TODO: Thêm xử lý đăng nhập Google ở đây
+  //     toast.success("Đăng nhập Google thành công!");
+  //     navigate("/");
+  //   } catch (error) {
+  //     toast.error("Đăng nhập Google thất bại!");
+  //     console.error("Google login error:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -197,17 +190,6 @@ const RegisterPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleReset = () => {
-    setFormData({
-      fullName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      phoneNumber: "",
-    });
-    setErrors({});
-  };
-
   const showToastMessage = (message, type) => {
     setToastMessage(message);
     setToastType(type);
@@ -216,34 +198,40 @@ const RegisterPage = () => {
   };
 
   const handleRegister = async () => {
-    if (!validate() || isLoading) return;
+    if (!validate() || isLoading) return; // nếu form không hợp lệ hoặc đang loading thì không xử lý
+
     setIsLoading(true);
     try {
-      const response = await registerUser(formData); // <- nhận response từ API
-  
-      if (response?.success) {
-        showToastMessage(response.message || "Đăng ký thành công!", "success");
-  
-        // Chuyển hướng sau khi hiện toast
-        setTimeout(() => {
-          navigate('/email-verification', { 
-            state: { 
-              email: response.data.email, // sử dụng email từ response
-            } 
-          });
-        }, 2000);
+      const response = await registerUser(formData );
+
+      if (response.success) {
+        const { userId, fullName, email } = response.data;
+
+        console.log("User ID:", userId);
+        console.log("Full Name:", fullName);
+        console.log("Email:", email);
+
+        toast({
+          title: "Thành công",
+          description: response.message,
+          variant: "success",
+        });
+        navigate("/login");
       } else {
-        // fallback nếu `success: false` nhưng không có lỗi throw
-        showToastMessage(response.message || "Đăng ký thất bại!", "error");
+        toast({
+          title: "Đăng ký thất bại",
+          description: response.message,
+          variant: "destructive",
+        });
       }
-  
     } catch (err) {
+      // Xử lý lỗi trả về từ API hoặc lỗi khác
       showToastMessage(
         err?.response?.data?.message || err?.message || "Đăng ký thất bại!",
         "error"
       );
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Dù thành công hay thất bại cũng kết thúc loading
     }
   };
 
@@ -415,7 +403,7 @@ const RegisterPage = () => {
                       boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                     }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={handleGoogleLogin}
+                    // onClick={handleGoogleLogin}
                     type="button"
                     className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300"
                   >
@@ -463,51 +451,15 @@ const RegisterPage = () => {
       )}
 
       <style jsx>{`
-        @keyframes gradientFlow {
-          0%,
-          100% {
-            background: linear-gradient(45deg, #3b82f6, #0ea5e9, #06b6d4);
-            transform: translateX(0%) translateY(0%);
-          }
-          25% {
-            background: linear-gradient(90deg, #06b6d4, #3b82f6, #0284c7);
-            transform: translateX(-5%) translateY(-2%);
-          }
-          50% {
-            background: linear-gradient(135deg, #0ea5e9, #0284c7, #3b82f6);
-            transform: translateX(2%) translateY(-5%);
-          }
-          75% {
-            background: linear-gradient(180deg, #0284c7, #06b6d4, #0ea5e9);
-            transform: translateX(-3%) translateY(3%);
-          }
-        }
-
-        @keyframes gradientFlow2 {
-          0%,
-          100% {
-            background: linear-gradient(120deg, #dbeafe, transparent, #cffafe);
-            transform: translateX(0%) translateY(0%) rotate(0deg);
-          }
-          33% {
-            background: linear-gradient(60deg, #cffafe, transparent, #e0f2fe);
-            transform: translateX(3%) translateY(-2%) rotate(60deg);
-          }
-          66% {
-            background: linear-gradient(180deg, #e0f2fe, transparent, #dbeafe);
-            transform: translateX(-2%) translateY(4%) rotate(120deg);
-          }
-        }
-
         @keyframes gradientFlow3 {
           0%,
-          100% {
-            background: linear-gradient(240deg, transparent, #cffafe, #e0f2fe);
-            transform: translateX(0%) translateY(0%) scale(1);
-          }
           50% {
             background: linear-gradient(60deg, transparent, #e0f2fe, #dbeafe);
             transform: translateX(2%) translateY(-3%) scale(1.05);
+          }
+          100% {
+            background: linear-gradient(240deg, transparent, #cffafe, #e0f2fe);
+            transform: translateX(0%) translateY(0%) scale(1);
           }
         }
 
@@ -524,22 +476,6 @@ const RegisterPage = () => {
           }
           75% {
             filter: hue-rotate(90deg) brightness(1.05);
-          }
-        }
-
-        @keyframes gradientShimmer {
-          0%,
-          100% {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8, #06b6d4);
-          }
-          25% {
-            background: linear-gradient(135deg, #1d4ed8, #0ea5e9, #3b82f6);
-          }
-          50% {
-            background: linear-gradient(135deg, #0ea5e9, #06b6d4, #1d4ed8);
-          }
-          75% {
-            background: linear-gradient(135deg, #06b6d4, #3b82f6, #0ea5e9);
           }
         }
 

@@ -1,8 +1,6 @@
-import   router  from "../src/router/router";
-import { RouterProvider } from "react-router";
+import React from 'react';
+import LoadingPage from './components/layout/LoadingPage';
 
-function App() {
-  return <RouterProvider router={router} />;
+export default function App() {
+  return <LoadingPage />;
 }
-
-export default App;

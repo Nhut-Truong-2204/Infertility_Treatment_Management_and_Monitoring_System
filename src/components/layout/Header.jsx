@@ -12,7 +12,7 @@ const Header = () => {
       />
 
       {/* Overlay */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-b from-[#1b2955] via-[#1b2955cc] to-transparent"></div>
+      <div className="absolute inset-0 z-10 bg-gradient-to-b from-[#16417e] via-[#415185cc] to-transparent"></div>
 
       {/* Main content */}
       <div className="relative z-20 flex flex-col items-center justify-center h-full space-y-10 px-4 text-center">

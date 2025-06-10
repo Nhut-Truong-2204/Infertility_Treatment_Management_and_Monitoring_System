@@ -1,20 +1,33 @@
-// components/DoctorCard.jsx
+// src/components/DoctorCard.jsx
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const DoctorCard = ({ doctor }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/doctors/${doctor.userId}`);
+  };
+
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 flex items-center space-x-4">
-      <img
-        src={doctor.profilePictureUrl || '/default-avatar.png'}
-        alt={doctor.fullName}
-        className="w-16 h-16 rounded-full object-cover"
-      />
-      <div>
-        <h3 className="text-lg font-semibold">{doctor.fullName}</h3>
-        <p className="text-sm text-gray-500">{doctor.specializationName}</p>
-        <p className="text-sm text-gray-600 mt-1">{doctor.shortBio}</p>
-      </div>
-    </div>
+    <Card
+      className="cursor-pointer hover:shadow-lg transition duration-300"
+      onClick={handleClick}
+    >
+      <CardHeader className="flex flex-col items-center gap-2">
+        <Avatar className="w-16 h-16">
+          <AvatarImage src={doctor.profilePictureUrl || "/default-avatar.png"} />
+          <AvatarFallback>{doctor.fullName?.slice(0, 2).toUpperCase()}</AvatarFallback>
+        </Avatar>
+        <CardTitle className="text-lg text-center">{doctor.fullName}</CardTitle>
+        <p className="text-sm text-muted-foreground">{doctor.specializationName}</p>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-gray-600">{doctor.shortBio}</p>
+      </CardContent>
+    </Card>
   );
 };
 

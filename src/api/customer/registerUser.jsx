@@ -1,7 +1,7 @@
 // services/authService.js
 import axios from "axios";
-
 import instance from "../../config/axios";
+
 export const registerUser = async (data) => {
   try {
     const response = await instance.post("/api/auth/register", data);

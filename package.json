@@ -10,12 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "^3.20.0",
+    "@chakra-ui/theme-tools": "^2.2.6",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@heroicons/react": "^2.1.1",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
+    "@radix-ui/react-avatar": "^1.1.10",
+    "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-switch": "^1.2.5",
     "@react-oauth/google": "^0.12.2",
     "@tailwindcss/vite": "^4.1.7",
@@ -36,6 +40,7 @@
     "react-router-dom": "^7.6.0",
     "react-toastify": "^11.0.5",
     "react-transition-group": "^4.4.5",
+    "tailwind-merge": "^3.3.0",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
@@ -49,7 +54,9 @@
     "globals": "^16.0.0",
     "path": "^0.12.7",
     "postcss": "^8.5.4",
+    "shadcn": "^2.6.1",
     "tailwindcss": "^4.1.8",
+    "tw-animate-css": "^1.3.4",
     "vite": "^6.3.5"
   }
 }

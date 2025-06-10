@@ -15,6 +15,7 @@ import BookingAppointment from "../pages/customer/BookingAppointment";
 import DoctorList from "../pages/customer/DoctorList";
 import ClinicIntroduction from "../pages/customer/ClinicIntroduction";
 import ServicesPage from "../pages/customer/Servicepage";
+import DoctorDetail from "../pages/customer/DoctorDetail";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
         path: "/viewDoctorList",
         element:
           <DoctorList />,
+      },
+      {
+        path: "/doctors/:userId",
+        element: <DoctorDetail />,
       },
       {
         path: "/clinicpage",

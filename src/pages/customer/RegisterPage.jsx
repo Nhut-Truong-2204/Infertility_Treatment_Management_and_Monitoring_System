@@ -14,16 +14,9 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import GoogleLogo from "../../assets/GoogleLogo.png";
 import { useNavigate } from "react-router-dom";
-
+import { registerUser } from "../../api/customer/registerUser";
+import { toast } from "react-toastify"; // Uncomment if using react-toastify
 // Mock functions to replace imports
-const registerUser = async (data) => {
-  // Simulate API call
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  if (data.email === "test@error.com") {
-    throw new Error("Email đã tồn tại");
-  }
-  return { success: true };
-};
 
 const InputField = ({
   name,
@@ -123,19 +116,19 @@ const RegisterPage = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const handleGoogleLogin = () => {
-    try {
-      setLoading(true);
-      // TODO: Thêm xử lý đăng nhập Google ở đây
-      toast.success("Đăng nhập Google thành công!");
-      navigate("/");
-    } catch (error) {
-      toast.error("Đăng nhập Google thất bại!");
-      console.error("Google login error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const handleGoogleLogin = () => {
+  //   try {
+  //     setLoading(true);
+  //     // TODO: Thêm xử lý đăng nhập Google ở đây
+  //     toast.success("Đăng nhập Google thành công!");
+  //     navigate("/");
+  //   } catch (error) {
+  //     toast.error("Đăng nhập Google thất bại!");
+  //     console.error("Google login error:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -197,17 +190,6 @@ const RegisterPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleReset = () => {
-    setFormData({
-      fullName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      phoneNumber: "",
-    });
-    setErrors({});
-  };
-
   const showToastMessage = (message, type) => {
     setToastMessage(message);
     setToastType(type);
@@ -215,602 +197,567 @@ const RegisterPage = () => {
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
     setTimeout(() => {
-      navigate('/login'); // Đường dẫn tới trang Đăng nhập
+      navigate("/login"); // Đường dẫn tới trang Đăng nhập
     }, 2000);
   };
 
   const handleRegister = async () => {
-    if (!validate() || isLoading) return;
+    if (!validate() || isLoading) return; // nếu form không hợp lệ hoặc đang loading thì không xử lý
+
     setIsLoading(true);
     try {
-        await registerUser(formData);
-        showToastMessage(
-            "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.",
-            "success"
-        );
-        // Thêm setTimeout để hiển thị toast message trước khi chuyển trang
-        setTimeout(() => {
-            // Chuyển hướng đến trang xác thực email với thông tin email
-            navigate('/email-verification', { 
-                state: { 
-                  email: formData.email,
-                } 
-            });
-          }, 2000);
-      } catch (err) {
-          showToastMessage(err?.message || "Đăng ký thất bại!", "error");
-      } finally {
-          setIsLoading(false);
+      const response = await registerUser(formData);
+
+      if (response.success) {
+        const { userId, fullName, email } = response.data;
+
+        console.log("User ID:", userId);
+        console.log("Full Name:", fullName);
+        console.log("Email:", email);
+
+        toast({
+          title: "Thành công",
+          description: response.message,
+          variant: "success",
+        });
+        navigate("/login");
+      } else {
+        toast({
+          title: "Đăng ký thất bại",
+          description: response.message,
+          variant: "destructive",
+        });
       }
+    } catch (err) {
+      // Xử lý lỗi trả về từ API hoặc lỗi khác
+      showToastMessage(
+        err?.response?.data?.message || err?.message || "Đăng ký thất bại!",
+        "error"
+      );
+    } finally {
+      setIsLoading(false); // Dù thành công hay thất bại cũng kết thúc loading
+    }
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden animate-gradientShift">
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-400 via-sky-300 to-cyan-400 animate-gradientFlow"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-blue-200 via-transparent to-cyan-300 animate-gradientFlow2"></div>
-      <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-sky-200 to-blue-300 animate-gradientFlow3"></div>
+    <div className="relative bg-[url('https://i.pinimg.com/736x/ed/47/1b/ed471bb12dd54f43cc7b7b5877371853.jpg')] w-screen h-screen bg-cover bg-center bg-no-repeat">
+      <div className="absolute inset-0 bg-opacity-50 backdrop-blur-sm"></div>
 
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-full opacity-20 animate-float blur-sm"></div>
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-sky-200 to-blue-200 rounded-full opacity-20 animate-float-delay blur-sm"></div>
-        <div className="absolute top-1/4 right-1/4 w-32 h-32 bg-gradient-to-r from-blue-300 to-cyan-300 rounded-full opacity-15 animate-pulse-slow"></div>
-        <div className="absolute bottom-1/3 left-1/3 w-24 h-24 bg-gradient-to-r from-sky-300 to-blue-300 rounded-full opacity-20 animate-pulse-slower"></div>
-        <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-400 rounded-full opacity-25 animate-float-reverse"></div>
-        <div className="absolute bottom-1/4 right-1/3 w-20 h-20 bg-gradient-to-bl from-blue-300 to-sky-300 rounded-full opacity-15 animate-float-slow"></div>
+      <div className="min-h-screen relative overflow-hidden animate-gradientShift ">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-full opacity-20 animate-float blur-sm"></div>
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-sky-200 to-blue-200 rounded-full opacity-20 animate-float-delay blur-sm"></div>
+          <div className="absolute top-1/4 right-1/4 w-32 h-32 bg-gradient-to-r from-blue-300 to-cyan-300 rounded-full opacity-15 animate-pulse-slow"></div>
+          <div className="absolute bottom-1/3 left-1/3 w-24 h-24 bg-gradient-to-r from-sky-300 to-blue-300 rounded-full opacity-20 animate-pulse-slower"></div>
+          <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-400 rounded-full opacity-25 animate-float-reverse"></div>
+          <div className="absolute bottom-1/4 right-1/3 w-20 h-20 bg-gradient-to-bl from-blue-300 to-sky-300 rounded-full opacity-15 animate-float-slow"></div>
 
-        {/* Floating particles */}
-        <div className="absolute top-20 left-20 w-3 h-3 bg-white rounded-full opacity-60 animate-particle-float"></div>
-        <div className="absolute top-40 right-32 w-2 h-2 bg-blue-200 rounded-full opacity-50 animate-particle-float-delay"></div>
-        <div className="absolute bottom-32 left-16 w-4 h-4 bg-cyan-200 rounded-full opacity-40 animate-particle-float-slow"></div>
-        <div className="absolute bottom-20 right-20 w-2 h-2 bg-sky-200 rounded-full opacity-60 animate-particle-float-reverse"></div>
-        <div className="absolute top-60 left-1/3 w-3 h-3 bg-blue-300 rounded-full opacity-45 animate-particle-float-slower"></div>
-      </div>
+          {/* Floating particles */}
+          <div className="absolute top-20 left-20 w-3 h-3 bg-white rounded-full opacity-60 animate-particle-float"></div>
+          <div className="absolute top-40 right-32 w-2 h-2 bg-blue-200 rounded-full opacity-50 animate-particle-float-delay"></div>
+          <div className="absolute bottom-32 left-16 w-4 h-4 bg-cyan-200 rounded-full opacity-40 animate-particle-float-slow"></div>
+          <div className="absolute bottom-20 right-20 w-2 h-2 bg-sky-200 rounded-full opacity-60 animate-particle-float-reverse"></div>
+          <div className="absolute top-60 left-1/3 w-3 h-3 bg-blue-300 rounded-full opacity-45 animate-particle-float-slower"></div>
+        </div>
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4">
-        <div
-          className="max-w-6xl w-full bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden 
+        <div className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4">
+          <div
+            className="max-w-6xl w-full bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden 
                         grid grid-cols-1 lg:grid-cols-2 animate-slideUp"
-        >
-          {/* Medical themed left side */}
-          <div className="relative bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500 p-12 flex flex-col justify-center items-center text-white overflow-hidden animate-gradientShimmer">
-            {/* Background pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-10 left-10 w-20 h-20 border-2 border-white rounded-full animate-pulse-slow"></div>
-              <div className="absolute bottom-20 right-10 w-16 h-16 border-2 border-white rounded-full animate-pulse delay-500"></div>
-              <div className="absolute top-1/2 left-20 w-12 h-12 border-2 border-white rounded-full animate-pulse-slower delay-1000"></div>
-              <div className="absolute top-1/3 right-1/3 w-8 h-8 border border-white rounded-full animate-pulse delay-700"></div>
-              <div className="absolute bottom-1/3 left-1/4 w-6 h-6 border border-white rounded-full animate-pulse-slow delay-300"></div>
-            </div>
-
-            {/* Animated gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-sky-600/20 via-transparent to-cyan-100/20 animate-gradientSweep"></div>
-
-            <div className="relative z-10 text-center animate-fadeIn">
-              <div className="mb-8 transform animate-bounce">
-                <Heart className="w-20 h-20 mx-auto mb-4 text-white drop-shadow-lg" />
+          >
+            {/* Medical themed left side */}
+            <div className="relative bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500 p-12 flex flex-col justify-center items-center text-white overflow-hidden animate-gradientShimmer">
+              {/* Background pattern */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-10 left-10 w-20 h-20 border-2 border-white rounded-full animate-pulse-slow"></div>
+                <div className="absolute bottom-20 right-10 w-16 h-16 border-2 border-white rounded-full animate-pulse delay-500"></div>
+                <div className="absolute top-1/2 left-20 w-12 h-12 border-2 border-white rounded-full animate-pulse-slower delay-1000"></div>
+                <div className="absolute top-1/3 right-1/3 w-8 h-8 border border-white rounded-full animate-pulse delay-700"></div>
+                <div className="absolute bottom-1/3 left-1/4 w-6 h-6 border border-white rounded-full animate-pulse-slow delay-300"></div>
               </div>
 
-              <h1 className="text-4xl font-bold mb-6 leading-tight">
-                Chào mừng đến với
-                <span className="block text-cyan-200 text-3xl mt-2">
-                  ReproTrack
-                </span>
-              </h1>
+              {/* Animated gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-sky-600/20 via-transparent to-cyan-100/20 animate-gradientSweep"></div>
 
-              <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                Đăng ký để trải nghiệm dịch vụ chăm sóc sức khỏe tốt nhất
-              </p>
+              <div className="relative z-10 text-center animate-fadeIn">
+                <div className="mb-8 transform animate-bounce">
+                  <Heart className="w-20 h-20 mx-auto mb-4 text-white drop-shadow-lg" />
+                </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center justify-center space-x-3 text-blue-100">
-                  <CheckCircle className="w-5 h-5" />
-                  <span>Tư vấn y tế chuyên nghiệp</span>
-                </div>
-                <div className="flex items-center justify-center space-x-3 text-blue-100">
-                  <CheckCircle className="w-5 h-5" />
-                  <span>Theo dõi sức khỏe 24/7</span>
-                </div>
-                <div className="flex items-center justify-center space-x-3 text-blue-100">
-                  <CheckCircle className="w-5 h-5" />
-                  <span>Bảo mật thông tin tuyệt đối</span>
-                </div>
-              </div>
-            </div>
-          </div>
+                <h1 className="text-4xl font-bold mb-6 leading-tight">
+                  Chào mừng đến với
+                  <span className="block text-cyan-200 text-3xl mt-2">
+                    ReproTrack
+                  </span>
+                </h1>
 
-          {/* Registration form */}
-          <div className="p-12 relative">
-            <div className="animate-slideInRight">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                  Tạo tài khoản
-                </h2>
-                <p className="text-gray-600">
-                  Điền thông tin để bắt đầu hành trình chăm sóc sức khỏe
+                <p className="text-xl text-blue-100 mb-8 leading-relaxed">
+                  Đăng ký để trải nghiệm dịch vụ chăm sóc sức khỏe tốt nhất
                 </p>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center space-x-3 text-blue-100">
+                    <CheckCircle className="w-5 h-5" />
+                    <span>Tư vấn y tế chuyên nghiệp</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-3 text-blue-100">
+                    <CheckCircle className="w-5 h-5" />
+                    <span>Theo dõi sức khỏe 24/7</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-3 text-blue-100">
+                    <CheckCircle className="w-5 h-5" />
+                    <span>Bảo mật thông tin tuyệt đối</span>
+                  </div>
+                </div>
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <InputField
-                  name="fullName"
-                  placeholder="Họ và tên"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  error={errors.fullName}
-                  icon={User}
-                />
+            {/* Registration form */}
+            <div className="p-12 relative">
+              <div className="animate-slideInRight">
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                    Tạo tài khoản
+                  </h2>
+                  <p className="text-gray-600">
+                    Điền thông tin để bắt đầu hành trình chăm sóc sức khỏe
+                  </p>
+                </div>
 
-                <InputField
-                  name="email"
-                  type="email"
-                  placeholder="Địa chỉ email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  error={errors.email}
-                  icon={Mail}
-                />
+                <div className="space-y-2">
+                  <InputField
+                    name="fullName"
+                    placeholder="Họ và tên"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    error={errors.fullName}
+                    icon={User}
+                  />
 
-                <InputField
-                  name="password"
-                  type="password"
-                  placeholder="Mật khẩu"
-                  value={formData.password}
-                  onChange={handleChange}
-                  error={errors.password}
-                  icon={Lock}
-                />
+                  <InputField
+                    name="email"
+                    type="email"
+                    placeholder="Địa chỉ email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    error={errors.email}
+                    icon={Mail}
+                  />
 
-                <InputField
-                  name="confirmPassword"
-                  type="password"
-                  placeholder="Xác nhận mật khẩu"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  error={errors.confirmPassword}
-                  icon={Lock}
-                />
+                  <InputField
+                    name="password"
+                    type="password"
+                    placeholder="Mật khẩu"
+                    value={formData.password}
+                    onChange={handleChange}
+                    error={errors.password}
+                    icon={Lock}
+                  />
 
-                <InputField
-                  name="phoneNumber"
-                  placeholder="Số điện thoại"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  error={errors.phoneNumber}
-                  icon={Phone}
-                />
-              </div>
+                  <InputField
+                    name="confirmPassword"
+                    type="password"
+                    placeholder="Xác nhận mật khẩu"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    error={errors.confirmPassword}
+                    icon={Lock}
+                  />
 
-              <div className="flex flex-col space-y-4 mt-8">
-                <button
-                  onClick={handleRegister}
-                  disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 px-6 rounded-xl 
+                  <InputField
+                    name="phoneNumber"
+                    placeholder="Số điện thoại"
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                    error={errors.phoneNumber}
+                    icon={Phone}
+                  />
+                </div>
+
+                <div className="flex flex-col space-y-4 mt-8">
+                  <button
+                    onClick={handleRegister}
+                    disabled={isLoading}
+                    className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 px-6 rounded-xl 
                            font-semibold text-lg transition-all duration-300 transform hover:scale-105 
                            hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed
                            focus:outline-none focus:ring-4 focus:ring-blue-300"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Đang xử lý...</span>
-                    </div>
-                  ) : (
-                    "Đăng ký tài khoản"
-                  )}
-                </button>
-
-                <div className="flex space-x-3">
-                  <motion.button
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.8 }}
-                    whileHover={{
-                      scale: 1.02,
-                      backgroundColor: "#f8fafc",
-                      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                    }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleGoogleLogin}
-                    type="button"
-                    className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300"
                   >
-                    <motion.div
-                      initial={{ rotate: -180 }}
-                      animate={{ rotate: 0 }}
-                      transition={{ delay: 1, type: "spring" }}
-                      className="flex items-center justify-center"
+                    {isLoading ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Đang xử lý...</span>
+                      </div>
+                    ) : (
+                      "Đăng ký tài khoản"
+                    )}
+                  </button>
+
+                  <div className="flex space-x-3">
+                    <motion.button
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.8 }}
+                      whileHover={{
+                        scale: 1.02,
+                        backgroundColor: "#f8fafc",
+                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      // onClick={handleGoogleLogin}
+                      type="button"
+                      className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300"
                     >
-                      <img
-                        src={GoogleLogo}
-                        alt="Google"
-                        className="w-6 h-6 object-contain"
-                      />
-                    </motion.div>
-                    <span>Đăng nhập với Google</span>
-                  </motion.button>
+                      <motion.div
+                        initial={{ rotate: -180 }}
+                        animate={{ rotate: 0 }}
+                        transition={{ delay: 1, type: "spring" }}
+                        className="flex items-center justify-center"
+                      >
+                        <img
+                          src={GoogleLogo}
+                          alt="Google"
+                          className="w-6 h-6 object-contain"
+                        />
+                      </motion.div>
+                      <span>Đăng ký với Google</span>
+                    </motion.button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Toast notification */}
-      {showToast && (
-        <div
-          className={`fixed top-8 left-1/2 transform -translate-x-1/2 z-50 
+        {/* Toast notification */}
+        {showToast && (
+          <div
+            className={`fixed top-8 left-1/2 transform -translate-x-1/2 z-50 
                         px-6 py-4 rounded-xl shadow-2xl animate-slideDown
                         ${
                           toastType === "success"
                             ? "bg-green-500 text-white"
                             : "bg-red-500 text-white"
                         }`}
-        >
-          <div className="flex items-center space-x-3">
-            {toastType === "success" ? (
-              <CheckCircle className="w-6 h-6" />
-            ) : (
-              <AlertCircle className="w-6 h-6" />
-            )}
-            <span className="font-medium">{toastMessage}</span>
+          >
+            <div className="flex items-center space-x-3">
+              {toastType === "success" ? (
+                <CheckCircle className="w-6 h-6" />
+              ) : (
+                <AlertCircle className="w-6 h-6" />
+              )}
+              <span className="font-medium">{toastMessage}</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <style jsx>{`
-        @keyframes gradientFlow {
-          0%,
-          100% {
-            background: linear-gradient(45deg, #3b82f6, #0ea5e9, #06b6d4);
-            transform: translateX(0%) translateY(0%);
+        <style jsx>{`
+          @keyframes gradientFlow3 {
+            0%,
+            50% {
+              background: linear-gradient(60deg, transparent, #e0f2fe, #dbeafe);
+              transform: translateX(2%) translateY(-3%) scale(1.05);
+            }
+            100% {
+              background: linear-gradient(
+                240deg,
+                transparent,
+                #cffafe,
+                #e0f2fe
+              );
+              transform: translateX(0%) translateY(0%) scale(1);
+            }
           }
-          25% {
-            background: linear-gradient(90deg, #06b6d4, #3b82f6, #0284c7);
-            transform: translateX(-5%) translateY(-2%);
-          }
-          50% {
-            background: linear-gradient(135deg, #0ea5e9, #0284c7, #3b82f6);
-            transform: translateX(2%) translateY(-5%);
-          }
-          75% {
-            background: linear-gradient(180deg, #0284c7, #06b6d4, #0ea5e9);
-            transform: translateX(-3%) translateY(3%);
-          }
-        }
 
-        @keyframes gradientFlow2 {
-          0%,
-          100% {
-            background: linear-gradient(120deg, #dbeafe, transparent, #cffafe);
-            transform: translateX(0%) translateY(0%) rotate(0deg);
+          @keyframes gradientShift {
+            0%,
+            100% {
+              filter: hue-rotate(0deg) brightness(1);
+            }
+            25% {
+              filter: hue-rotate(30deg) brightness(1.1);
+            }
+            50% {
+              filter: hue-rotate(60deg) brightness(0.9);
+            }
+            75% {
+              filter: hue-rotate(90deg) brightness(1.05);
+            }
           }
-          33% {
-            background: linear-gradient(60deg, #cffafe, transparent, #e0f2fe);
-            transform: translateX(3%) translateY(-2%) rotate(60deg);
-          }
-          66% {
-            background: linear-gradient(180deg, #e0f2fe, transparent, #dbeafe);
-            transform: translateX(-2%) translateY(4%) rotate(120deg);
-          }
-        }
 
-        @keyframes gradientFlow3 {
-          0%,
-          100% {
-            background: linear-gradient(240deg, transparent, #cffafe, #e0f2fe);
-            transform: translateX(0%) translateY(0%) scale(1);
+          @keyframes gradientSweep {
+            0%,
+            100% {
+              background: linear-gradient(
+                45deg,
+                rgba(14, 165, 233, 0.2),
+                transparent,
+                rgba(6, 182, 212, 0.2)
+              );
+              transform: translateX(0%) translateY(0%);
+            }
+            50% {
+              background: linear-gradient(
+                225deg,
+                rgba(6, 182, 212, 0.3),
+                transparent,
+                rgba(14, 165, 233, 0.1)
+              );
+              transform: translateX(5%) translateY(-3%);
+            }
           }
-          50% {
-            background: linear-gradient(60deg, transparent, #e0f2fe, #dbeafe);
-            transform: translateX(2%) translateY(-3%) scale(1.05);
-          }
-        }
 
-        @keyframes gradientShift {
-          0%,
-          100% {
-            filter: hue-rotate(0deg) brightness(1);
+          @keyframes float {
+            0%,
+            100% {
+              transform: translateY(0px) rotate(0deg) scale(1);
+            }
+            33% {
+              transform: translateY(-15px) rotate(120deg) scale(1.1);
+            }
+            66% {
+              transform: translateY(-25px) rotate(240deg) scale(0.9);
+            }
           }
-          25% {
-            filter: hue-rotate(30deg) brightness(1.1);
-          }
-          50% {
-            filter: hue-rotate(60deg) brightness(0.9);
-          }
-          75% {
-            filter: hue-rotate(90deg) brightness(1.05);
-          }
-        }
 
-        @keyframes gradientShimmer {
-          0%,
-          100% {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8, #06b6d4);
+          @keyframes float-delay {
+            0%,
+            100% {
+              transform: translateY(0px) rotate(0deg) scale(1);
+            }
+            33% {
+              transform: translateY(-20px) rotate(-120deg) scale(0.95);
+            }
+            66% {
+              transform: translateY(-35px) rotate(-240deg) scale(1.05);
+            }
           }
-          25% {
-            background: linear-gradient(135deg, #1d4ed8, #0ea5e9, #3b82f6);
-          }
-          50% {
-            background: linear-gradient(135deg, #0ea5e9, #06b6d4, #1d4ed8);
-          }
-          75% {
-            background: linear-gradient(135deg, #06b6d4, #3b82f6, #0ea5e9);
-          }
-        }
 
-        @keyframes gradientSweep {
-          0%,
-          100% {
-            background: linear-gradient(
-              45deg,
-              rgba(14, 165, 233, 0.2),
-              transparent,
-              rgba(6, 182, 212, 0.2)
-            );
-            transform: translateX(0%) translateY(0%);
+          @keyframes float-reverse {
+            0%,
+            100% {
+              transform: translateY(0px) rotate(360deg) scale(1);
+            }
+            50% {
+              transform: translateY(20px) rotate(180deg) scale(1.2);
+            }
           }
-          50% {
-            background: linear-gradient(
-              225deg,
-              rgba(6, 182, 212, 0.3),
-              transparent,
-              rgba(14, 165, 233, 0.1)
-            );
-            transform: translateX(5%) translateY(-3%);
-          }
-        }
 
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px) rotate(0deg) scale(1);
+          @keyframes float-slow {
+            0%,
+            100% {
+              transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+              transform: translateY(-10px) rotate(180deg);
+            }
           }
-          33% {
-            transform: translateY(-15px) rotate(120deg) scale(1.1);
-          }
-          66% {
-            transform: translateY(-25px) rotate(240deg) scale(0.9);
-          }
-        }
 
-        @keyframes float-delay {
-          0%,
-          100% {
-            transform: translateY(0px) rotate(0deg) scale(1);
+          @keyframes particle-float {
+            0%,
+            100% {
+              transform: translateY(0px) translateX(0px) opacity(0.6);
+            }
+            25% {
+              transform: translateY(-20px) translateX(10px) opacity(0.8);
+            }
+            50% {
+              transform: translateY(-40px) translateX(-5px) opacity(0.4);
+            }
+            75% {
+              transform: translateY(-20px) translateX(-10px) opacity(0.7);
+            }
           }
-          33% {
-            transform: translateY(-20px) rotate(-120deg) scale(0.95);
-          }
-          66% {
-            transform: translateY(-35px) rotate(-240deg) scale(1.05);
-          }
-        }
 
-        @keyframes float-reverse {
-          0%,
-          100% {
-            transform: translateY(0px) rotate(360deg) scale(1);
+          @keyframes particle-float-delay {
+            0%,
+            100% {
+              transform: translateY(0px) translateX(0px) opacity(0.5);
+            }
+            33% {
+              transform: translateY(-15px) translateX(-8px) opacity(0.8);
+            }
+            66% {
+              transform: translateY(-30px) translateX(12px) opacity(0.3);
+            }
           }
-          50% {
-            transform: translateY(20px) rotate(180deg) scale(1.2);
-          }
-        }
 
-        @keyframes float-slow {
-          0%,
-          100% {
-            transform: translateY(0px) rotate(0deg);
+          @keyframes particle-float-slow {
+            0%,
+            100% {
+              transform: translateY(0px) translateX(0px) opacity(0.4);
+            }
+            50% {
+              transform: translateY(-25px) translateX(15px) opacity(0.7);
+            }
           }
-          50% {
-            transform: translateY(-10px) rotate(180deg);
-          }
-        }
 
-        @keyframes particle-float {
-          0%,
-          100% {
-            transform: translateY(0px) translateX(0px) opacity(0.6);
+          @keyframes particle-float-reverse {
+            0%,
+            100% {
+              transform: translateY(0px) translateX(0px) opacity(0.6);
+            }
+            50% {
+              transform: translateY(25px) translateX(-12px) opacity(0.3);
+            }
           }
-          25% {
-            transform: translateY(-20px) translateX(10px) opacity(0.8);
-          }
-          50% {
-            transform: translateY(-40px) translateX(-5px) opacity(0.4);
-          }
-          75% {
-            transform: translateY(-20px) translateX(-10px) opacity(0.7);
-          }
-        }
 
-        @keyframes particle-float-delay {
-          0%,
-          100% {
-            transform: translateY(0px) translateX(0px) opacity(0.5);
+          @keyframes particle-float-slower {
+            0%,
+            100% {
+              transform: translateY(0px) translateX(0px) opacity(0.45);
+            }
+            50% {
+              transform: translateY(-18px) translateX(8px) opacity(0.8);
+            }
           }
-          33% {
-            transform: translateY(-15px) translateX(-8px) opacity(0.8);
-          }
-          66% {
-            transform: translateY(-30px) translateX(12px) opacity(0.3);
-          }
-        }
 
-        @keyframes particle-float-slow {
-          0%,
-          100% {
-            transform: translateY(0px) translateX(0px) opacity(0.4);
+          @keyframes pulse-slow {
+            0%,
+            100% {
+              opacity: 0.3;
+              transform: scale(1);
+            }
+            50% {
+              opacity: 0.8;
+              transform: scale(1.1);
+            }
           }
-          50% {
-            transform: translateY(-25px) translateX(15px) opacity(0.7);
-          }
-        }
 
-        @keyframes particle-float-reverse {
-          0%,
-          100% {
-            transform: translateY(0px) translateX(0px) opacity(0.6);
+          @keyframes pulse-slower {
+            0%,
+            100% {
+              opacity: 0.2;
+              transform: scale(1);
+            }
+            50% {
+              opacity: 0.6;
+              transform: scale(1.05);
+            }
           }
-          50% {
-            transform: translateY(25px) translateX(-12px) opacity(0.3);
-          }
-        }
 
-        @keyframes particle-float-slower {
-          0%,
-          100% {
-            transform: translateY(0px) translateX(0px) opacity(0.45);
+          @keyframes slideUp {
+            from {
+              opacity: 0;
+              transform: translateY(50px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
           }
-          50% {
-            transform: translateY(-18px) translateX(8px) opacity(0.8);
-          }
-        }
 
-        @keyframes pulse-slow {
-          0%,
-          100% {
-            opacity: 0.3;
-            transform: scale(1);
+          @keyframes slideInRight {
+            from {
+              opacity: 0;
+              transform: translateX(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
           }
-          50% {
-            opacity: 0.8;
-            transform: scale(1.1);
-          }
-        }
 
-        @keyframes pulse-slower {
-          0%,
-          100% {
-            opacity: 0.2;
-            transform: scale(1);
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateX(-10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
           }
-          50% {
-            opacity: 0.6;
-            transform: scale(1.05);
-          }
-        }
 
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(50px);
+          @keyframes slideDown {
+            from {
+              opacity: 0;
+              transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(-50%) translateY(0);
+            }
           }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
 
-        @keyframes slideInRight {
-          from {
-            opacity: 0;
-            transform: translateX(30px);
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 1;
+            }
           }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
 
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(-10px);
+          .animate-gradientFlow {
+            animation: gradientFlow 8s ease-in-out infinite;
           }
-          to {
-            opacity: 1;
-            transform: translateX(0);
+          .animate-gradientFlow2 {
+            animation: gradientFlow2 12s ease-in-out infinite;
           }
-        }
-
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateX(-50%) translateY(-20px);
+          .animate-gradientFlow3 {
+            animation: gradientFlow3 10s ease-in-out infinite;
           }
-          to {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
+          .animate-gradientShift {
+            animation: gradientShift 15s ease-in-out infinite;
           }
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
+          .animate-gradientShimmer {
+            animation: gradientShimmer 6s ease-in-out infinite;
           }
-          to {
-            opacity: 1;
+          .animate-gradientSweep {
+            animation: gradientSweep 8s ease-in-out infinite;
           }
-        }
-
-        .animate-gradientFlow {
-          animation: gradientFlow 8s ease-in-out infinite;
-        }
-        .animate-gradientFlow2 {
-          animation: gradientFlow2 12s ease-in-out infinite;
-        }
-        .animate-gradientFlow3 {
-          animation: gradientFlow3 10s ease-in-out infinite;
-        }
-        .animate-gradientShift {
-          animation: gradientShift 15s ease-in-out infinite;
-        }
-        .animate-gradientShimmer {
-          animation: gradientShimmer 6s ease-in-out infinite;
-        }
-        .animate-gradientSweep {
-          animation: gradientSweep 8s ease-in-out infinite;
-        }
-        .animate-float {
-          animation: float 8s ease-in-out infinite;
-        }
-        .animate-float-delay {
-          animation: float-delay 10s ease-in-out infinite;
-        }
-        .animate-float-reverse {
-          animation: float-reverse 7s ease-in-out infinite;
-        }
-        .animate-float-slow {
-          animation: float-slow 12s ease-in-out infinite;
-        }
-        .animate-pulse-slow {
-          animation: pulse-slow 4s ease-in-out infinite;
-        }
-        .animate-pulse-slower {
-          animation: pulse-slower 6s ease-in-out infinite;
-        }
-        .animate-particle-float {
-          animation: particle-float 6s ease-in-out infinite;
-        }
-        .animate-particle-float-delay {
-          animation: particle-float-delay 8s ease-in-out infinite;
-        }
-        .animate-particle-float-slow {
-          animation: particle-float-slow 10s ease-in-out infinite;
-        }
-        .animate-particle-float-reverse {
-          animation: particle-float-reverse 7s ease-in-out infinite;
-        }
-        .animate-particle-float-slower {
-          animation: particle-float-slower 9s ease-in-out infinite;
-        }
-        .animate-slideUp {
-          animation: slideUp 0.8s ease-out;
-        }
-        .animate-slideInRight {
-          animation: slideInRight 0.8s ease-out 0.2s both;
-        }
-        .animate-slideIn {
-          animation: slideIn 0.3s ease-out;
-        }
-        .animate-slideDown {
-          animation: slideDown 0.3s ease-out;
-        }
-        .animate-fadeIn {
-          animation: fadeIn 1s ease-out 0.5s both;
-        }
-      `}</style>
+          .animate-float {
+            animation: float 8s ease-in-out infinite;
+          }
+          .animate-float-delay {
+            animation: float-delay 10s ease-in-out infinite;
+          }
+          .animate-float-reverse {
+            animation: float-reverse 7s ease-in-out infinite;
+          }
+          .animate-float-slow {
+            animation: float-slow 12s ease-in-out infinite;
+          }
+          .animate-pulse-slow {
+            animation: pulse-slow 4s ease-in-out infinite;
+          }
+          .animate-pulse-slower {
+            animation: pulse-slower 6s ease-in-out infinite;
+          }
+          .animate-particle-float {
+            animation: particle-float 6s ease-in-out infinite;
+          }
+          .animate-particle-float-delay {
+            animation: particle-float-delay 8s ease-in-out infinite;
+          }
+          .animate-particle-float-slow {
+            animation: particle-float-slow 10s ease-in-out infinite;
+          }
+          .animate-particle-float-reverse {
+            animation: particle-float-reverse 7s ease-in-out infinite;
+          }
+          .animate-particle-float-slower {
+            animation: particle-float-slower 9s ease-in-out infinite;
+          }
+          .animate-slideUp {
+            animation: slideUp 0.8s ease-out;
+          }
+          .animate-slideInRight {
+            animation: slideInRight 0.8s ease-out 0.2s both;
+          }
+          .animate-slideIn {
+            animation: slideIn 0.3s ease-out;
+          }
+          .animate-slideDown {
+            animation: slideDown 0.3s ease-out;
+          }
+          .animate-fadeIn {
+            animation: fadeIn 1s ease-out 0.5s both;
+          }
+        `}</style>
+      </div>
     </div>
   );
 };

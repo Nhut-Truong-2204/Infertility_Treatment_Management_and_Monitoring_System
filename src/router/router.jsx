@@ -8,10 +8,14 @@ import ChangePasswordPage from "../pages/customer/ChangePasswordPage";
 import MainLayout from "../components/layout/MainLayout";
 import ViewTestingServiceList from "../../src/components/layout/navbar/blogDropDown/Care/ViewTestingServiceList";
 import BarrenMale from "../components/layout/navbar/blogDropDown/Learn/BarrenMale";
-import BarrenFemale from "../components/layout/navbar/blogDropDown/Learn/BarrenFemale"
+import BarrenFemale from "../components/layout/navbar/blogDropDown/Learn/BarrenFemale";
 import Infertility from "../components/layout//navbar/blogDropDown/Learn/Infertility";
 import NotFound from "../pages/customer/NotFound";
 import BookingAppointment from "../pages/customer/BookingAppointment";
+import DoctorList from "../pages/customer/DoctorList";
+import ClinicIntroduction from "../pages/customer/ClinicIntroduction";
+import ServicesPage from "../pages/customer/Servicepage";
+import DoctorDetail from "../pages/customer/DoctorDetail";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -41,6 +45,22 @@ const router = createBrowserRouter([
         path: "/bookingAppointment",
         element: <BookingAppointment />,
       },
+      {
+        path: "/viewDoctorList",
+        element: <DoctorList />,
+      },
+      {
+        path: "/doctors/:userId",
+        element: <DoctorDetail />,
+      },
+      {
+        path: "/clinicpage",
+        element: <ClinicIntroduction />,
+      },
+      {
+        path: "/servicepage",
+        element: <ServicesPage />,
+      },
     ],
   },
   {
@@ -54,23 +74,23 @@ const router = createBrowserRouter([
   },
 
   {
-  path: "/forgot-password",
-  element: <ForgetPasswordPage />,
+    path: "/forgot-password",
+    element: <ForgetPasswordPage />,
   },
 
   {
-  path: "/change-password",
-  element: <ChangePasswordPage/>,
+    path: "/change-password",
+    element: <ChangePasswordPage />,
   },
 
   {
-  path: "/email-verification",
-  element: <EmailVerificationPage />,
+    path: "/email-verification",
+    element: <EmailVerificationPage />,
   },
 
   {
     path: "*",
-    element: <NotFound  />,
-    },
+    element: <NotFound />,
+  },
 ]);
 export default router;

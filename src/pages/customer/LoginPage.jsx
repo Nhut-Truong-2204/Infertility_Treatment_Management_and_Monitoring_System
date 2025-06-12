@@ -330,11 +330,8 @@ export default function LoginPage() {
                                 transition: { duration: 0.2 }
                             }}
                         >
-                            <Stack direction="row" spacing={2}>
-                                <Avatar sx={{ bgcolor: "#23A0FF" }}>
-                                    <Syringe size={20} weight="fill" color="white" />
-                                </Avatar>
-                            </Stack>
+                            <img src="src/assets/spermatozoon.png" alt="CumIcon"
+                                className="h-10 mb-3" />
                             <motion.span
                                 onClick={() => navigate('/')}
                                 whileTap={{ scale: 0.95 }}
@@ -623,7 +620,7 @@ export default function LoginPage() {
                                 stiffness: 400,
                                 damping: 10
                             }}
-                            className="text-[#23A0FF] font-medium inline-flex items-center space-x-2 mt-4 text-lg"
+                            className="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center space-x-2 mt-4 text-lg"
                             onClick={() => navigate('/')}
                         >
                             <motion.span

@@ -18,7 +18,7 @@ export default function EmailVerificationPage() {
   const [pageLoading, setPageLoading] = useState(true);
 
   const formContainerVariants = {
-    hidden: { 
+    hidden: {
       opacity: 0,
       y: 20
     },
@@ -42,12 +42,12 @@ export default function EmailVerificationPage() {
   };
 
   const formItemVariants = {
-    hidden: { 
+    hidden: {
       opacity: 0,
       x: -20,
       y: 10
     },
-    show: { 
+    show: {
       opacity: 1,
       x: 0,
       y: 0,
@@ -68,69 +68,69 @@ export default function EmailVerificationPage() {
     return () => clearTimeout(timer);
   }, []);
 
-    const handleVerify = async (e) => {
-      e.preventDefault();
-      if (!code) {
-          setError("Vui lòng nhập mã xác thực");
-          return;
-      }
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    if (!code) {
+      setError("Vui lòng nhập mã xác thực");
+      return;
+    }
 
-      if (!email) {
-        setError("Email không hợp lệ");
-        return;
-      }
+    if (!email) {
+      setError("Email không hợp lệ");
+      return;
+    }
 
-      setLoading(true);
-      try {
-          // Giả lập API call với mã xác thực cố định
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Giả lập delay
+    setLoading(true);
+    try {
+      // Giả lập API call với mã xác thực cố định
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Giả lập delay
 
-    if (code === "123456") {
-      setSuccess("Xác thực email thành công!");
-      setTimeout(() => {
-        navigate('/login', {
-          state: {
-            message: "Email đã được xác thực. Vui lòng đăng nhập.",
-            type: "success"
-          }
-        });
-      }, 2000);
+      if (code === "123456") {
+        setSuccess("Xác thực email thành công!");
+        setTimeout(() => {
+          navigate('/login', {
+            state: {
+              message: "Email đã được xác thực. Vui lòng đăng nhập.",
+              type: "success"
+            }
+          });
+        }, 2000);
       } else {
-      throw new Error("Mã xác thực không chính xác");
+        throw new Error("Mã xác thực không chính xác");
       }
     } catch (err) {
-          setError(err?.response?.data?.message || "Xác thực thất bại");
-      } finally {
-          setLoading(false);
-      }
-    };
-
-    const handleResendCode = async () => {
-      if (!email) {
-        setError("Email không hợp lệ");
-        return;
-      }
-      setResending(true);
-      setError("");
-      setSuccess("");
-
-        try {
-            await resendVerificationCode(email);
-            setSuccess("Đã gửi lại mã xác thực. Vui lòng kiểm tra email của bạn.");
-        } catch (err) {
-            setError(err?.response?.data?.message || "Không thể gửi lại mã xác thực");
-        } finally {
-            setResending(false);
-        }
-    };
-
-    if (pageLoading) {
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <CircularProgress />
-        </div>
-      );
+      setError(err?.response?.data?.message || "Xác thực thất bại");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleResendCode = async () => {
+    if (!email) {
+      setError("Email không hợp lệ");
+      return;
+    }
+    setResending(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      await resendVerificationCode(email);
+      setSuccess("Đã gửi lại mã xác thực. Vui lòng kiểm tra email của bạn.");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Không thể gửi lại mã xác thực");
+    } finally {
+      setResending(false);
+    }
+  };
+
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <CircularProgress />
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -138,7 +138,7 @@ export default function EmailVerificationPage() {
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
       className="min-h-screen relative overflow-hidden"
-      style={{ 
+      style={{
         backgroundImage: `url(${Background})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -162,17 +162,14 @@ export default function EmailVerificationPage() {
             whileHover={{ scale: 1.05 }}
             className="flex justify-center mb-5"
           >
-            <motion.div 
+            <motion.div
               initial={{ x: -100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ type: "spring", duration: 1, bounce: 0.5 }}
               className="flex items-center space-x-2 font-semibold text-lg cursor-pointer"
             >
-              <Stack direction="row" spacing={2}>
-                <Avatar sx={{ bgcolor: "#23A0FF" }}>
-                    <Syringe size={20} weight="fill" color="white" />
-                </Avatar>
-              </Stack>
+              <img src="src/assets/spermatozoon.png" alt="CumIcon"
+                className="h-10" />
               <motion.span
                 onClick={() => navigate('/')}
                 whileTap={{ scale: 0.95 }}
@@ -183,7 +180,7 @@ export default function EmailVerificationPage() {
           </motion.div>
 
           <div className="relative mb-5 mt-5">
-            <motion.h2 
+            <motion.h2
               className="text-3xl font-bold text-center font-['Inter'] relative"
               initial={{ opacity: 0, y: -50 }}
               animate={{ opacity: 1, y: 0 }}
@@ -227,8 +224,8 @@ export default function EmailVerificationPage() {
               </Typography>
             </motion.div>
 
-              {success && (
-                <motion.div
+            {success && (
+              <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
@@ -239,7 +236,7 @@ export default function EmailVerificationPage() {
             )}
 
             <motion.div variants={formItemVariants} className="space-y-2 mt-10">
-              <motion.label 
+              <motion.label
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="block text-sm font-medium text-gray-700"
@@ -255,9 +252,8 @@ export default function EmailVerificationPage() {
                   // Clear error when user starts typing
                   if (error) setError("");
                 }}
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  error ? 'border-red-500 bg-red-50/50' : 'border-gray-300'
-                } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200`}
+                className={`w-full px-4 py-3 rounded-lg border ${error ? 'border-red-500 bg-red-50/50' : 'border-gray-300'
+                  } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200`}
                 placeholder="Nhập mã xác thực"
               />
               {error && code === "" && (
@@ -314,7 +310,7 @@ export default function EmailVerificationPage() {
                 font-semibold hover:shadow-lg transition-all duration-300 ${loading ? 'opacity-80' : ''}`}
             >
               {loading ? (
-                <motion.div 
+                <motion.div
                   className="flex items-center justify-center space-x-2"
                   animate={{
                     opacity: [1, 0.7, 1],

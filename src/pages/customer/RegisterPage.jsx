@@ -193,8 +193,12 @@ const RegisterPage = () => {
   const showToastMessage = (message, type) => {
     setToastMessage(message);
     setToastType(type);
+    setToastMessage("Đăng ký thành công! Đang chuyển hướng...");
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
+    setTimeout(() => {
+      navigate("/login"); // Đường dẫn tới trang Đăng nhập
+    }, 2000);
   };
 
   const handleRegister = async () => {

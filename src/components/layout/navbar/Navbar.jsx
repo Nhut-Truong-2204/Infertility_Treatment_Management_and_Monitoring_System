@@ -45,15 +45,22 @@ export default function Navbar() {
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"
-        }`}
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+        isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"
+      }`}
     >
       <nav className="  py-10 px-40 flex items-center justify-between text-white sticky top-0 z-50 ">
         {/* Logo */}
-        <div onClick={routes.goHome} className="flex items-center space-x-2 font-semibold text-lg cursor-pointer hover:bg-blue-900 hover:rounded-2xl hover:py-2 hover:px-4 transition-all duration-300">
-          <img src="src/assets/spermatozoon.png" alt="CumIcon"
-            className="h-10" />
-          <span >ReproTrack</span>
+        <div
+          onClick={routes.goHome}
+          className="flex items-center space-x-2 font-semibold text-lg cursor-pointer hover:bg-blue-900 hover:rounded-2xl hover:py-2 hover:px-4 transition-all duration-300"
+        >
+          <img
+            src="src/assets/spermatozoon.png"
+            alt="CumIcon"
+            className="h-10"
+          />
+          <span>ReproTrack</span>
         </div>
 
         {/* Menu chính */}
@@ -223,11 +230,11 @@ export default function Navbar() {
               }}
               className="w-full h-full flex items-center justify-center relative overflow-hidden"
             >
-              <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">Đăng nhập</span>
+              <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">
+                Đăng nhập
+              </span>
 
-              <span
-                className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"
-              ></span>
+              <span className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"></span>
             </Button>
           </div>
           <div className="relative group w-[140px] h-[50px]">
@@ -245,14 +252,13 @@ export default function Navbar() {
               }}
               className="w-full h-full flex items-center justify-center relative overflow-hidden"
             >
-              <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">Đăng ký</span>
+              <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">
+                Đăng ký
+              </span>
 
-              <span
-                className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"
-              ></span>
+              <span className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"></span>
             </Button>
           </div>
-
         </div>
       </nav>
     </div>

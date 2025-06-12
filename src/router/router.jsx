@@ -8,7 +8,7 @@ import ChangePasswordPage from "../pages/customer/ChangePasswordPage";
 import MainLayout from "../components/layout/MainLayout";
 import ViewTestingServiceList from "../../src/components/layout/navbar/blogDropDown/Care/ViewTestingServiceList";
 import BarrenMale from "../components/layout/navbar/blogDropDown/Learn/BarrenMale";
-import BarrenFemale from "../components/layout/navbar/blogDropDown/Learn/BarrenFemale"
+import BarrenFemale from "../components/layout/navbar/blogDropDown/Learn/BarrenFemale";
 import Infertility from "../components/layout//navbar/blogDropDown/Learn/Infertility";
 import NotFound from "../pages/customer/NotFound";
 import BookingAppointment from "../pages/customer/BookingAppointment";
@@ -47,8 +47,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/viewDoctorList",
-        element:
-          <DoctorList />,
+        element: <DoctorList />,
       },
       {
         path: "/doctors/:userId",

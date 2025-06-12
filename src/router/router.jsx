@@ -16,6 +16,7 @@ import DoctorList from "../pages/customer/DoctorList";
 import ClinicIntroduction from "../pages/customer/ClinicIntroduction";
 import ServicesPage from "../pages/customer/Servicepage";
 import DoctorDetail from "../pages/customer/DoctorDetail";
+import TreatmentHistory from "@/pages/customer/TreatmentHistory";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
       {
         path: "/servicepage",
         element: <ServicesPage />,
+      },
+      {
+        path: "/history",
+        element: <TreatmentHistory />,
       },
     ],
   },

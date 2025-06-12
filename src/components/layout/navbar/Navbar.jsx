@@ -41,6 +41,7 @@ export default function Navbar() {
     goDoctorList: () => navigate("/viewDoctorList"),
     goClinicIntro: () => navigate("/clinicpage"),
     goService: () => navigate("/servicepage"),
+    goHistory: () => navigate("/history"),
   };
 
   return (
@@ -184,8 +185,9 @@ export default function Navbar() {
             {openDropdown === 2 && (
               <ul className="absolute -left-20 min-w-[350px] px-6 py-4 bg-white text-black z-20 rounded-lg shadow-xl border border-gray-200 transition-all duration-200">
                 <div className="grid grid-cols-2 gap-4">
-                  <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                    Link 1
+                  <li  onClick={routes.goHistory}
+                  className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                    Lịch sử điều trị
                   </li>
                   <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                     Link 2

@@ -8,10 +8,14 @@ import Img3 from "../../assets/HiemmuonNam.png";
 import Img4 from "../../assets/HiemmuonNu.png";
 import Img5 from "../../assets/HiemmuonNu2.png";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import Img6 from "../../assets/Hiemmuonnam2.PNG";
 =======
 import Img6 from "../../assets/HiemmuonNam2.PNG";
 >>>>>>> ddaa2d10230345d916f407f31d14e748098a05f3
+=======
+import Img6 from "../../assets/Hiemmuonnam2.PNG";
+>>>>>>> 2900a6d53ff6968542c9de35c1d9ed99198bba18
 import Img7 from "../../assets/HiemmuonNam3.png";
 import Img8 from "../../assets/R.png";
 import { useNavigate } from "react-router-dom";

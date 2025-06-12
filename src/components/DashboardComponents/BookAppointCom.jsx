@@ -38,7 +38,6 @@ export default function BookAppointmentSection() {
     return () => clearInterval(interval);
   }, []);
 
-  // Biến animation để tái sử dụng
   const variants = {
     enter: (direction) => ({
       x: direction > 0 ? 300 : -300,

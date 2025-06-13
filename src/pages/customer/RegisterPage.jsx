@@ -16,7 +16,7 @@ import GoogleLogo from "../../assets/GoogleLogo.png";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../api/customer/registerUser";
 import { toast } from "react-toastify"; // Uncomment if using react-toastify
-// Mock functions to replace imports
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"; // Mock functions to replace imports
 
 const InputField = ({
   name,
@@ -238,7 +238,6 @@ const RegisterPage = () => {
   return (
     <div className="relative bg-[url('https://i.pinimg.com/736x/ed/47/1b/ed471bb12dd54f43cc7b7b5877371853.jpg')] w-screen h-screen bg-cover bg-center bg-no-repeat">
       <div className="absolute inset-0 bg-opacity-50 backdrop-blur-sm"></div>
-
       <div className="min-h-screen relative overflow-hidden animate-gradientShift ">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -281,6 +280,15 @@ const RegisterPage = () => {
                   <Heart className="w-20 h-20 mx-auto mb-4 text-white drop-shadow-lg" />
                 </div>
 
+                {/* //back button */}
+                <div
+                onClick={() => navigate(-1)}
+                  className="absolute flex items-center justify-center w-[77px] h-[77px] -top-30 -left-2 rounded-4xl hover:bg-blue-400 transition-all duration-300"
+                >
+                  <span>
+                    <ArrowBackIcon fontSize="large" />
+                  </span>
+                </div>
                 <h1 className="text-4xl font-bold mb-6 leading-tight">
                   Chào mừng đến với
                   <span className="block text-cyan-200 text-3xl mt-2">

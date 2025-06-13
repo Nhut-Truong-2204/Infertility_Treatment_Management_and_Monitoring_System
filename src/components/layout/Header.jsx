@@ -1,7 +1,7 @@
 import React from "react";
-import { Button } from "@mui/material";
-
+import { useNavigate } from "react-router";
 const Header = () => {
+const navigate = useNavigate();
   return (
     <div className="relative w-full h-screen overflow-hidden">
       {/* Background image */}
@@ -23,9 +23,10 @@ const Header = () => {
 
         {/* Two buttons under the text */}
         <div className="flex space-x-4 mt-4">
-          <utton className="bg-pink-500 hover:bg-pink-600 text-white text-base md:text-xl font-bold px-15 py-6 rounded-4xl transition duration-300 shadow-md" >
+          <button onClick={()=> navigate("/bookingAppointment")}
+           className="bg-pink-500 hover:bg-pink-600 text-white text-base md:text-xl font-bold px-15 py-6 rounded-4xl transition duration-300 shadow-md" >
             Đặt lịch ngay
-          </utton>
+          </button>
           <button className="bg-pink-500 hover:bg-pink-600 text-white text-base md:text-xl font-bold px-15 py-6 rounded-4xl transition duration-300 shadow-md">
             Tìm hiểu thêm
           </button>

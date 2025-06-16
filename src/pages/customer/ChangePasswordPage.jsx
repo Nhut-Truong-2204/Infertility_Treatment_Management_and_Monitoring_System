@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Stack, Avatar } from "@mui/material";
 import { Syringe } from "phosphor-react";
 import Background from "../../assets/UpdatePassword.jpg";
+import { resetPassword } from "../../api/customer/forgotPassword";
 
 export default function ChangePasswordPage() {
     const navigate = useNavigate();
@@ -82,33 +83,60 @@ export default function ChangePasswordPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (loading) return;
 
-        const newErrors = {};
-        if (!formData.newPassword) {
-            newErrors.newPassword = 'Mật khẩu mới là bắt buộc';
-        } else if (!isValidPassword(formData.newPassword)) {
-            newErrors.newPassword = 'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số';
-        }
-
-        if (!formData.confirmPassword) {
-            newErrors.confirmPassword = 'Xác nhận mật khẩu là bắt buộc';
-        } else if (formData.newPassword !== formData.confirmPassword) {
-            newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
-        }
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
+        // Validate mật khẩu
+        if (!formData.newPassword || !formData.confirmPassword) {
+            setError("Vui lòng điền đầy đủ thông tin");
             return;
         }
 
+        if (formData.newPassword !== formData.confirmPassword) {
+            setError("Mật khẩu xác nhận không khớp");
+            return;
+        }
+
+        if (!isValidPassword(formData.newPassword)) {
+            setError("Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số");
+            return;
+        }
+
+        useEffect(() => {
+            const token = new URLSearchParams(window.location.search).get('token');
+            if (!token) {
+                navigate('/forgot-password');
+            }
+        }, [navigate]);
+
         setLoading(true);
         try {
-            // API call would go here
-            setSuccess("Đổi mật khẩu thành công!");
-            setTimeout(() => navigate("/login"), 2000);
+            // Lấy token từ URL
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+
+            if (!token) {
+                throw new Error("Token không hợp lệ");
+            }
+
+            const response = await resetPassword(
+                token,
+                formData.newPassword,
+                formData.confirmPassword
+            );
+
+            if (response.success) {
+                setSuccess("Đổi mật khẩu thành công!");
+                // Chuyển về trang login sau 2 giây
+                setTimeout(() => {
+                    navigate('/login', {
+                        state: {
+                            message: "Đổi mật khẩu thành công. Vui lòng đăng nhập lại.",
+                            type: "success"
+                        }
+                    });
+                }, 2000);
+            }
         } catch (err) {
-            setError("Có lỗi xảy ra khi đổi mật khẩu.");
+            setError(err?.message || "Đổi mật khẩu thất bại. Vui lòng thử lại.");
         } finally {
             setLoading(false);
         }
@@ -120,7 +148,7 @@ export default function ChangePasswordPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
             className="min-h-screen relative overflow-hidden"
-            style={{ 
+            style={{
                 backgroundImage: `url(${Background})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
@@ -145,12 +173,12 @@ export default function ChangePasswordPage() {
                         whileHover={{ scale: 1.05 }}
                         className="flex justify-center mb-5"
                     >
-                        <motion.div 
+                        <motion.div
                             initial={{ x: -100, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             transition={{ type: "spring", duration: 1, bounce: 0.5 }}
                             className="flex items-center space-x-2 font-semibold text-lg cursor-pointer"
-                            whileHover={{ 
+                            whileHover={{
                                 color: "#3B82F6",
                                 transition: { duration: 0.2 }
                             }}
@@ -171,14 +199,14 @@ export default function ChangePasswordPage() {
 
                     {/* Title Section */}
                     <div className="relative mb-5">
-                        <motion.h2 
+                        <motion.h2
                             className="text-4xl font-bold text-center font-['Inter'] relative"
                             initial={{ opacity: 0, y: -50 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ 
-                                duration: 0.8, 
+                            transition={{
+                                duration: 0.8,
                                 type: "spring",
-                                bounce: 0.5 
+                                bounce: 0.5
                             }}
                         >
                             <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent blur-[0.5px]">
@@ -203,7 +231,7 @@ export default function ChangePasswordPage() {
 
                     {/* Error/Success Messages */}
                     {(error || success) && (
-                        <motion.div 
+                        <motion.div
                             className="mb-6"
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -215,7 +243,7 @@ export default function ChangePasswordPage() {
                     )}
 
                     {/* Form Section */}
-                    <motion.form 
+                    <motion.form
                         variants={formContainerVariants}
                         initial="hidden"
                         animate="show"
@@ -232,9 +260,8 @@ export default function ChangePasswordPage() {
                                 name="newPassword"
                                 value={formData.newPassword}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 rounded-lg border ${
-                                    errors.newPassword ? 'border-red-500' : 'border-gray-300'
-                                } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200`}
+                                className={`w-full px-4 py-3 rounded-lg border ${errors.newPassword ? 'border-red-500' : 'border-gray-300'
+                                    } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200`}
                                 placeholder="••••••••"
                             />
                             {errors.newPassword && (
@@ -253,9 +280,8 @@ export default function ChangePasswordPage() {
                                 name="confirmPassword"
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
-                                className={`w-full px-4 py-3 rounded-lg border ${
-                                    errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                                } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200`}
+                                className={`w-full px-4 py-3 rounded-lg border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                                    } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200`}
                                 placeholder="••••••••"
                             />
                             {errors.confirmPassword && (
@@ -306,7 +332,7 @@ export default function ChangePasswordPage() {
                                 </motion.span>
                             </motion.button>
 
-                            <motion.div 
+                            <motion.div
                                 className="mt-6 text-center"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
@@ -314,7 +340,7 @@ export default function ChangePasswordPage() {
                             >
                                 <motion.button
                                     type="button"
-                                    whileHover={{ 
+                                    whileHover={{
                                         scale: 1.05,
                                         color: "#1B7ACD",
                                         transition: {

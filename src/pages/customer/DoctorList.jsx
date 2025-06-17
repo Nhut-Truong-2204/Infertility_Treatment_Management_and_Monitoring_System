@@ -1,35 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import DoctorCard from '../../components/ui/DoctorCard';
-import { Skeleton } from '../../components/ui/skeleton';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from '@/components/ui/pagination';
 import LoadingPage from '../../components/layout/LoadingPage';
+import { getDoctors } from '../../api/customer/doctorList'; // Import từ thư mục api
 
 const DoctorList = () => {
   const [doctors, setDoctors] = useState([]);
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
-  const [limit, setLimit] = useState(6);
+  const [limit] = useState(6);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchDoctors = async (page = 0) => {
+  const fetchDoctors = async (page) => {
     setIsLoading(true);
     try {
-      const url = `https://infertility-treatment-management-and.onrender.com/api/doctors?page=${page}&size=${limit}`;
-      const response = await fetch(url);
-      const contentType = response.headers.get('content-type');
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`Lỗi HTTP ${response.status}: ${text.substring(0, 100)}`);
-      }
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        throw new Error('Phản hồi không phải JSON: ' + text.substring(0, 100));
-      }
-      const data = await response.json();
-      setDoctors(data.data.content || []);
-      setPageCount(data.data.totalPages || 0);
-    } catch (err) {
-      console.error('Lỗi khi tải bác sĩ:', err.message);
+      const data = await getDoctors(page, limit);
+      setDoctors(data.data?.content || []);
+      setPageCount(data.data?.totalPages || 0);
+    } catch (error) {
+      console.error('Error loading doctors:', error);
       setDoctors([]);
       setPageCount(0);
     } finally {

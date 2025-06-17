@@ -9,6 +9,8 @@ import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import InfertilityIcon from "../../../assets/R.png";
 import { Syringe } from "phosphor-react";
+import { useAuth } from "../../../context/AuthContext"; // Import useAuth
+
 const gooeyItems = [
   { label: "Trang chủ", onClick: () => navigate("/") },
   { label: "Giới thiệu", onClick: () => navigate("/clinicpage") },
@@ -20,16 +22,16 @@ export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
-
+  const { user, logout } = useAuth();
   useEffect(() => {
     const handleScroll = () => {
-      // Khi scroll xuống 50px thì bật trạng thái
       setIsScrolled(window.scrollY > 50);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
   const routes = {
     goHome: () => navigate("/"),
     goRegister: () => navigate("/register"),
@@ -49,12 +51,11 @@ export default function Navbar() {
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"
         }`}
     >
-      <nav className="  py-10 px-40 flex items-center justify-between text-white sticky top-0 z-50 ">
+      <nav className="py-10 px-40 flex items-center justify-between text-white sticky top-0 z-50">
         {/* Logo */}
         <div onClick={routes.goHome} className="flex items-center space-x-2 font-semibold text-lg cursor-pointer hover:bg-blue-900 hover:rounded-2xl hover:py-2 hover:px-4 transition-all duration-300">
-          <img src="src/assets/spermatozoon.png" alt="CumIcon"
-            className="h-10" />
-          <span >ReproTrack</span>
+          <img src="src/assets/spermatozoon.png" alt="CumIcon" className="h-10" />
+          <span>ReproTrack</span>
         </div>
 
         {/* Menu chính */}
@@ -185,8 +186,10 @@ export default function Navbar() {
             {openDropdown === 2 && (
               <ul className="absolute -left-20 min-w-[350px] px-6 py-4 bg-white text-black z-20 rounded-lg shadow-xl border border-gray-200 transition-all duration-200">
                 <div className="grid grid-cols-2 gap-4">
-                  <li  onClick={routes.goHistory}
-                  className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                  <li
+                    onClick={routes.goHistory}
+                    className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
+                  >
                     Lịch sử điều trị
                   </li>
                   <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
@@ -204,57 +207,87 @@ export default function Navbar() {
           </li>
         </ul>
 
-        {/* Nút Đăng nhập & Đăng ký */}
+        {/* Nút Đăng nhập & Đăng ký hoặc thông tin tài khoản */}
         <div className="flex space-x-5 gap-2">
-          <div className="relative group w-[140px] h-[50px]">
-            <Button
-              onClick={routes.goLogin}
-              variant="outlined"
-              sx={{
-                color: "white",
-                borderColor: "white",
-                borderRadius: "8px",
-                textTransform: "none",
-                backgroundColor: "#1B7ACD",
-                px: 3,
-                "&:hover": {
-                  backgroundColor: "#20296e",
-                  color: "#white",
+          {user ? (
+            // Nếu đã đăng nhập, hiển thị thông tin tài khoản và nút Đăng xuất
+            <div className="flex items-center space-x-4">
+              <span className="text-white font-semibold">{user.fullName || "Người dùng"}</span>
+              <Avatar sx={{ bgcolor: blue[500] }}>
+                <Syringe size={20} weight="fill" color="white" />
+              </Avatar>
+              <Button
+                onClick={() => {
+                  logout();
+                  navigate("/login");
+                }}
+                variant="outlined"
+                sx={{
+                  color: "white",
                   borderColor: "white",
-                },
-              }}
-              className="w-full h-full flex items-center justify-center relative overflow-hidden"
-            >
-              <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">Đăng nhập</span>
-
-              <span
-                className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"
-              ></span>
-            </Button>
-          </div>
-          <div className="relative group w-[140px] h-[50px]">
-            <Button
-              onClick={routes.goRegister}
-              variant="contained"
-              sx={{
-                backgroundColor: "#f41574",
-                borderRadius: "8px",
-                textTransform: "none",
-                px: 3,
-                "&:hover": {
-                  backgroundColor: "#20296e",
-                },
-              }}
-              className="w-full h-full flex items-center justify-center relative overflow-hidden"
-            >
-              <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">Đăng ký</span>
-
-              <span
-                className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"
-              ></span>
-            </Button>
-          </div>
-
+                  borderRadius: "8px",
+                  textTransform: "none",
+                  backgroundColor: "#1B7ACD",
+                  px: 2,
+                  "&:hover": {
+                    backgroundColor: "#20296e",
+                    color: "white",
+                    borderColor: "white",
+                  },
+                }}
+                className="w-[140px] h-[50px] flex items-center justify-center relative overflow-hidden"
+              >
+                <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">Đăng xuất</span>
+                <span className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"></span>
+              </Button>
+            </div>
+          ) : (
+            // Nếu chưa đăng nhập, hiển thị nút Đăng nhập và Đăng ký
+            <>
+              <div className="relative group w-[140px] h-[50px]">
+                <Button
+                  onClick={routes.goLogin}
+                  variant="outlined"
+                  sx={{
+                    color: "white",
+                    borderColor: "white",
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    backgroundColor: "#1B7ACD",
+                    px: 3,
+                    "&:hover": {
+                      backgroundColor: "#20296e",
+                      color: "white",
+                      borderColor: "white",
+                    },
+                  }}
+                  className="w-full h-full flex items-center justify-center relative overflow-hidden"
+                >
+                  <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">Đăng nhập</span>
+                  <span className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"></span>
+                </Button>
+              </div>
+              <div className="relative group w-[140px] h-[50px]">
+                <Button
+                  onClick={routes.goRegister}
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "#f41574",
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    px: 3,
+                    "&:hover": {
+                      backgroundColor: "#20296e",
+                    },
+                  }}
+                  className="w-full h-full flex items-center justify-center relative overflow-hidden"
+                >
+                  <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">Đăng ký</span>
+                  <span className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"></span>
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </nav>
     </div>

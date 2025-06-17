@@ -1,0 +1,24 @@
+// api/doctorList.js
+export const getDoctors = async (page = 0, limit = 6) => {
+  try {
+    const response = await fetch(
+      `https://infertility-treatment-management-and.onrender.com/api/doctors?page=${page}&size=${limit}`
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
+    }
+
+    const contentType = response.headers.get('content-type');
+    if (!contentType?.includes('application/json')) {
+      const text = await response.text();
+      throw new Error(`Expected JSON but got ${contentType}: ${text.substring(0, 100)}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch doctors:', error);
+    throw error;
+  }
+};

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, CheckCircle, ArrowLeft, X, ChevronRight, ChevronLeft } from 'lucide-react';
-import { getPublicDoctors } from "../../api/customer/doctorList";
+import { getPublicDoctors } from "./doctorList";
 
 // Mock API functions (thay thế bằng các hàm API thực tế của bạn)
 const mockApiCalls = {
@@ -63,16 +63,7 @@ const DoctorSelection = ({ selectedDoctor, onSelectDoctor, onNext, onCancel }) =
   useEffect(() => {
     getPublicDoctors()
       .then((res) => {
-        const doctorList = res.data?.content;
-
-        if (Array.isArray(doctorList)) {
-          setDoctors(doctorList);
-        } else {
-          console.error("API không trả về mảng content:", doctorList);
-          setDoctors([]);
-          setError("Dữ liệu bác sĩ không hợp lệ.");
-        }
-
+        setDoctors(res.data);
         setLoading(false);
       })
       .catch((err) => {
@@ -81,7 +72,6 @@ const DoctorSelection = ({ selectedDoctor, onSelectDoctor, onNext, onCancel }) =
         setLoading(false);
       });
   }, []);
-
 
   return (
     <div className="space-y-4">

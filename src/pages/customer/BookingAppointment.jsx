@@ -17,6 +17,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { createAppointment } from "../../api/customer/appointmentAPI";
+import { useAuth } from "../../context/AuthContext";
 
 //data
 import { serviceList } from "../../data/serviceList";
@@ -975,11 +976,15 @@ const Confirmation = ({
   const formatAppointmentType = (type) => {
     switch (type) {
       case "MEDICAL_EXAMINATION":
-        return "Khám bệnh";
-      case "FOLLOW_UP":
-        return "Tái khám";
+        return "Khám sức khỏe tổng quát";
+      case "TESTS":
+        return "Xét nghiệm";
       case "CONSULTATION":
         return "Tư vấn";
+      case "EXAMNINATION":
+        return "Khám chuyên khoa";
+      case "PROCEDURES":
+        return "Thủ thuật";
       default:
         return "Khác";
     }
@@ -1226,6 +1231,7 @@ const Success = ({ appointmentData, onNewAppointment }) => {
 // Main Component
 const AppointmentBooking = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedService, setSelectedService] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -1267,14 +1273,18 @@ const AppointmentBooking = () => {
     notes: "",
   });
   useEffect(() => {
-    const account = JSON.parse(localStorage.getItem("account"));
-    if (account?.patientProfileId) {
+    if (user?.id) {
       setPatientInfo((prev) => ({
         ...prev,
-        profileId: account.id,
+        profileId: user.id, // BE sẽ tự hiểu đây là ID của patient
+        name: user.fullName || "",
+        email: user.email || "",
+        phone: user.phoneNumber || "",
       }));
     }
-  }, []);
+  }, [user]);
+  console.log("patientProfileId gửi lên:", patientInfo.profileId);
+  console.log("User từ useAuth:", user);
   const handleCancel = async () => {
     const result = await Swal.fire({
       title: "Xác nhận hủy?",
@@ -1344,6 +1354,8 @@ const AppointmentBooking = () => {
       }
       console.log("patientProfileId:", patientInfo.profileId);
       console.log("account:", localStorage.getItem("account"));
+
+      //data gửi đi
       const appointmentData = {
         patientProfileId: patientInfo.profileId,
         doctorUserId: selectedDoctor.userId,
@@ -1354,7 +1366,6 @@ const AppointmentBooking = () => {
         reasonForVisit: patientInfo.symptom || "Khám tổng quát",
         notes: "Đặt lịch online",
       };
-
       console.log("Dữ liệu gửi đi:", appointmentData);
 
       await createAppointment(appointmentData);
@@ -1362,9 +1373,12 @@ const AppointmentBooking = () => {
       setCurrentStep(5);
     } catch (error) {
       console.error("Lỗi tạo lịch hẹn:", error);
-      alert("Có lỗi xảy ra khi đặt lịch. Vui lòng thử lại.");
-    } finally {
-      setIsLoading(false);
+      if (error.response?.data) {
+        console.error("Chi tiết lỗi từ BE:", error.response.data);
+        alert("Lỗi từ server: " + JSON.stringify(error.response.data));
+      } else {
+        alert("Lỗi không xác định, vui lòng thử lại.");
+      }
     }
   };
 

@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("accessToken");
+    console.log("User hiện tại:", user);
 
     // Chỉ parse nếu storedUser là chuỗi hợp lệ
     const parsedUser = storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : null;

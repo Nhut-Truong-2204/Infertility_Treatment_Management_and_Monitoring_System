@@ -75,6 +75,7 @@ export default function Navbar() {
     goClinicIntro: () => navigate("/clinicpage"),
     goService: () => navigate("/servicepage"),
     goHistory: () => navigate("/history"),
+    goPayment: () => navigate("/payment"),
   };
 
   return (
@@ -223,8 +224,11 @@ export default function Navbar() {
                   >
                     Lịch sử điều trị
                   </li>
-                  <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                    Link 2
+                  <li
+                    onClick={routes.goPayment}
+                    className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
+                  >
+                    Quản lý thanh toán
                   </li>
                   <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                     Link 3

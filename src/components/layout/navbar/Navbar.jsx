@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useNavigate } from "react-router-dom";
@@ -8,17 +8,19 @@ import { blue } from "@mui/material/colors";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import InfertilityIcon from "../../../assets/R.png";
-import { Syringe } from "phosphor-react";
-import { useAuth } from "../../../context/AuthContext"; // Import useAuth
+import { useAuth } from "../../../context/AuthContext";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import EventNoteIcon from "@mui/icons-material/EventNote";
+import SettingsIcon from "@mui/icons-material/Settings";
+import LogoutIcon from "@mui/icons-material/Logout";
+import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
+import Swal from "sweetalert2";
+import ChecklistIcon from '@mui/icons-material/Checklist';
 
-const gooeyItems = [
-  { label: "Trang chủ", onClick: () => navigate("/") },
-  { label: "Giới thiệu", onClick: () => navigate("/clinicpage") },
-  { label: "Bác sĩ", onClick: () => navigate("/viewDoctorList") },
-  { label: "Dịch vụ", onClick: () => navigate("/servicepage") },
-];
 
 export default function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
   const [openDropdown, setOpenDropdown] = useState(null);
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,6 +34,35 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+
+  ///avatar
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+  const handleLogout = () => {
+    Swal.fire({
+      title: "Xác nhận đăng xuất?",
+      text: "Bạn sẽ cần đăng nhập lại để tiếp tục.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Đăng xuất",
+      cancelButtonText: "Hủy",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logout();           // Gọi hàm đăng xuất
+        navigate("/login"); // Chuyển hướng về trang đăng nhập
+        Swal.fire("Đã đăng xuất!", "", "success");
+      }
+    });
+  };
   const routes = {
     goHome: () => navigate("/"),
     goRegister: () => navigate("/register"),
@@ -211,35 +242,59 @@ export default function Navbar() {
         <div className="flex space-x-5 gap-2">
           {user ? (
             // Nếu đã đăng nhập, hiển thị thông tin tài khoản và nút Đăng xuất
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 relative" ref={menuRef}>
               <span className="text-white font-semibold">{user.fullName || "Người dùng"}</span>
-              <Avatar sx={{ bgcolor: blue[500] }}>
-                <Syringe size={20} weight="fill" color="white" />
-              </Avatar>
-              <Button
-                onClick={() => {
-                  logout();
-                  navigate("/login");
-                }}
-                variant="outlined"
-                sx={{
-                  color: "white",
-                  borderColor: "white",
-                  borderRadius: "8px",
-                  textTransform: "none",
-                  backgroundColor: "#1B7ACD",
-                  px: 2,
-                  "&:hover": {
-                    backgroundColor: "#20296e",
-                    color: "white",
-                    borderColor: "white",
-                  },
-                }}
-                className="w-[140px] h-[50px] flex items-center justify-center relative overflow-hidden"
-              >
-                <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">Đăng xuất</span>
-                <span className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"></span>
-              </Button>
+
+              <div className="relative">
+                <Avatar
+                  sx={{ bgcolor: blue[600], cursor: "pointer" }}
+                  onClick={() => setMenuOpen(!menuOpen)}
+                >
+                  <MedicalServicesIcon sx={{ color: "white", fontSize: 20 }} />
+                </Avatar>
+
+                {menuOpen && (
+                  <div className="absolute right-0 mt-2 w-52 bg-[#2e6fd8] rounded-md shadow-lg z-20 py-2">
+                    <button
+                      onClick={() => navigate("/profile")}
+                      className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
+                    >
+                      <AccountCircleIcon className="mr-2 text-blue-600" />
+                      Hồ sơ cá nhân
+                    </button>
+                    <button
+                      onClick={() => navigate("/viewAppointment")}
+                      className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
+                    >
+                      <EventNoteIcon className="mr-2 text-green-600" />
+                      Lịch hẹn
+                    </button>
+                    <button
+                      onClick={() => navigate("/viewAppointment")}
+                      className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
+                    >
+                      <ChecklistIcon className="mr-2 text-green-600" />
+                      Kết quả xét nghiệm
+                    </button>
+                    <button
+                      onClick={() => navigate("/settings")}
+                      className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
+                    >
+                      <SettingsIcon className="mr-2 text-yellow-600" />
+                      Cài đặt
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                      }}
+                      className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
+                    >
+                      <LogoutIcon className="mr-2 text-red-600" />
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             // Nếu chưa đăng nhập, hiển thị nút Đăng nhập và Đăng ký

@@ -4,15 +4,14 @@ import { toast, ToastContainer, Flip } from "react-toastify";
 import { Mail, Lock, Eye, EyeOff, AlertCircle, Syringe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "react-toastify/dist/ReactToastify.css";
-import Stack from "@mui/material/Stack";
-import Avatar from "@mui/material/Avatar";
 import { GoogleLogin } from "@react-oauth/google";
 import Background1 from "../../assets/DoctorLogin1.jpg";
 import Background2 from "../../assets/DoctorLogin2.jpg";
 import Background3 from "../../assets/DoctorLogin3.jpg";
 import Background4 from "../../assets/DoctorLogin4.jpg";
 import Background5 from "../../assets/DoctorLogin5.jpg";
-import { useAuth } from "../../context/AuthContext"; // Import useAuth
+import logo from "../../../public/LogoWithoutText.png";
+import { useAuth } from "../../context/AuthContext";
 
 const InputField = ({ name, type = "text", placeholder, value, onChange, error, icon: Icon }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -201,11 +200,7 @@ export default function LoginPage() {
               className="flex items-center space-x-2 font-semibold text-lg cursor-pointer"
               whileHover={{ color: "#3B82F6", transition: { duration: 0.2 } }}
             >
-              <Stack direction="row" spacing={2}>
-                <Avatar sx={{ bgcolor: "#23A0FF" }}>
-                  <Syringe size={20} weight="fill" color="white" />
-                </Avatar>
-              </Stack>
+              <img src={logo} alt="CumIcon" className="h-12" />
               <motion.span onClick={() => navigate("/")} whileTap={{ scale: 0.95 }}>
                 ReproTrack
               </motion.span>

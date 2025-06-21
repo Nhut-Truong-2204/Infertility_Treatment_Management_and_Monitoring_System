@@ -17,6 +17,8 @@ import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import Swal from "sweetalert2";
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import logo from "../../../../public/LogoWithoutText.png";
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -57,8 +59,8 @@ export default function Navbar() {
       cancelButtonText: "Hủy",
     }).then((result) => {
       if (result.isConfirmed) {
-        logout();           // Gọi hàm đăng xuất
-        navigate("/login"); // Chuyển hướng về trang đăng nhập
+        logout();
+        navigate("/login");
         Swal.fire("Đã đăng xuất!", "", "success");
       }
     });
@@ -224,11 +226,8 @@ export default function Navbar() {
                   >
                     Lịch sử điều trị
                   </li>
-                  <li
-                    onClick={routes.goPayment}
-                    className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
-                  >
-                    Quản lý thanh toán
+                  <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
+                    Link 2
                   </li>
                   <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                     Link 3
@@ -274,11 +273,18 @@ export default function Navbar() {
                       Lịch hẹn
                     </button>
                     <button
-                      onClick={() => navigate("/viewAppointment")}
+                      onClick={() => navigate("/")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
                       <ChecklistIcon className="mr-2 text-green-600" />
                       Kết quả xét nghiệm
+                    </button>
+                    <button
+                      onClick={() => navigate("/payment")}
+                      className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
+                    >
+                      <AccountBalanceWalletIcon className="mr-2 text-green-600" />
+                      Quản lý thanh toán
                     </button>
                     <button
                       onClick={() => navigate("/settings")}

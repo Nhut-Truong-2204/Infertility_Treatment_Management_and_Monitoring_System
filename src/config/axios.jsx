@@ -4,7 +4,7 @@ import axios from 'axios';
 // Tạo một instance Axios với các cấu hình mặc định
 const instance = axios.create({
   baseURL: 'https://infertility-treatment-management-and.onrender.com' ,
-  timeout: 10000, // thời gian chờ tối đa
+  timeout: 30000, // thời gian chờ tối đa
   headers: {
     'Content-Type': 'application/json',
   },

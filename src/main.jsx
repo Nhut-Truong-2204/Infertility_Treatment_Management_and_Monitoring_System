@@ -7,6 +7,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { AuthProvider } from "./context/AuthContext";
 import router from "./router/router";
 import { RouterProvider } from "react-router-dom";
+import "./i18n";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

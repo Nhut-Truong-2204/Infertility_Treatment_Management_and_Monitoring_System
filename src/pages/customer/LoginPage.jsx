@@ -45,6 +45,19 @@ import { useAuth } from "../../context/AuthContext";
 // khi người dùng đăng nhập thành công thì sẽ có jwt và user info
 
 
+// LƯU Ý: Để đăng nhập Google OAuth2 hoạt động với backend Spring Boot:
+// 1. Khi đăng nhập Google thành công, bạn sẽ nhận được credential (Google ID Token) từ GoogleLogin.
+// 2. Gửi token này lên backend qua endpoint /api/auth/oauth2 (POST, raw string hoặc JSON tuỳ backend).
+// 3. Backend xác thực token, trả về JWT và user info. FE lưu JWT vào localStorage/sessionStorage.
+// 4. Đảm bảo biến VITE_GOOGLE_CLIENT_ID đúng với client-id trên Google Cloud.
+// 5. Đảm bảo backend cho phép CORS từ domain FE.
+
+// là client đăng nhập vào hệ thống , gg sẽ cấp token frontend gửi token này lên backend để xác thực
+// sau đó be lưu và trả về jwt cho frontend lưu vào localStorage/sessionStorage
+// frontend sẽ lưu vào cookie
+// khi người dùng đăng nhập thành công thì sẽ có jwt và user info
+
+
 const InputField = ({ name, type = "text", placeholder, value, onChange, error, icon: Icon }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);

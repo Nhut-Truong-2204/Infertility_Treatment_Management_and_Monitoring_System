@@ -46,9 +46,13 @@
     "react-toastify": "^11.0.5",
     "react-transition-group": "^4.4.5",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "socket.io-client": "^4.8.1",
     "sweetalert": "^2.1.2",
     "sweetalert2": "^11.22.0",
+=======
+    "sweetalert2": "^11.6.13",
+>>>>>>> 93a9f6403134307b8295309d008bc9f2651b2afb
 =======
     "sweetalert2": "^11.6.13",
 >>>>>>> 93a9f6403134307b8295309d008bc9f2651b2afb

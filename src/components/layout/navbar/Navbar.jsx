@@ -16,7 +16,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import Swal from "sweetalert2";
 import ChecklistIcon from '@mui/icons-material/Checklist';
-
+import logo from "../../../../public/LogoWithoutText.png";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -86,7 +86,7 @@ export default function Navbar() {
       <nav className="py-10 px-40 flex items-center justify-between text-white sticky top-0 z-50">
         {/* Logo */}
         <div onClick={routes.goHome} className="flex items-center space-x-2 font-semibold text-lg cursor-pointer hover:bg-blue-900 hover:rounded-2xl hover:py-2 hover:px-4 transition-all duration-300">
-          <img src="src/assets/spermatozoon.png" alt="CumIcon" className="h-10" />
+          <img src={logo} alt="CumIcon" className="h-12" />
           <span>ReproTrack</span>
         </div>
 

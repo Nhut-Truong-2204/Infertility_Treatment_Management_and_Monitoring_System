@@ -77,6 +77,7 @@ export default function Navbar() {
     goService: () => navigate("/servicepage"),
     goHistory: () => navigate("/history"),
     goPayment: () => navigate("/payment"),
+    goFeedback: () => navigate("/feedback"),
   };
 
   return (
@@ -220,13 +221,16 @@ export default function Navbar() {
               <ul className="absolute -left-20 min-w-[350px] px-6 py-4 bg-white text-black z-20 rounded-lg shadow-xl border border-gray-200 transition-all duration-200">
                 <div className="grid grid-cols-2 gap-4">
                   <li
+                    onClick={routes.goFeedback}
+                    className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
+                  >
+                    Đánh giá dịch vụ
+                  </li>
+                  <li
                     onClick={routes.goHistory}
                     className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
                   >
                     Lịch sử điều trị
-                  </li>
-                  <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                    Link 2
                   </li>
                   <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
                     Link 3

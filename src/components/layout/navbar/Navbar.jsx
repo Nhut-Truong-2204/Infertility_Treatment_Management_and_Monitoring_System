@@ -1,22 +1,33 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@mui/material";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import { blue } from "@mui/material/colors";
-import MaleIcon from "@mui/icons-material/Male";
-import FemaleIcon from "@mui/icons-material/Female";
-import InfertilityIcon from "../../../assets/R.png";
 import { useAuth } from "../../../context/AuthContext";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import EventNoteIcon from "@mui/icons-material/EventNote";
-import SettingsIcon from "@mui/icons-material/Settings";
-import LogoutIcon from "@mui/icons-material/Logout";
-import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
-import Swal from "sweetalert2";
-import ChecklistIcon from '@mui/icons-material/Checklist';
 import logo from "../../../../public/LogoWithoutText.png";
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+// Icons
+import {
+  ArrowDropDown as ArrowDropDownIcon,
+  Male as MaleIcon,
+  Female as FemaleIcon,
+  AccountCircle as AccountCircleIcon,
+  EventNote as EventNoteIcon,
+  Settings as SettingsIcon,
+  Logout as LogoutIcon,
+  MedicalServices as MedicalServicesIcon,
+  AccountBalanceWallet as AccountBalanceWalletIcon,
+  School as SchoolIcon,
+  HealthAndSafety as HealthAndSafetyIcon,
+  Groups as GroupsIcon,
+  RateReview as RateReviewIcon,
+  History as HistoryIcon,
+  MedicalInformation as MedicalInformationIcon,
+  PersonSearch as PersonSearchIcon,
+  LocalHospital as LocalHospitalIcon,
+  VideoCall as VideoCallIcon,
+  Science as ScienceIcon,
+  Business as BusinessIcon,
+} from "@mui/icons-material";
 
 
 export default function Navbar() {
@@ -81,10 +92,7 @@ export default function Navbar() {
   };
 
   return (
-    <div
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"
-        }`}
-    >
+    <div className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"}`}>
       <nav className="py-10 px-40 flex items-center justify-between text-white sticky top-0 z-50">
         {/* Logo */}
         <div onClick={routes.goHome} className="flex items-center space-x-2 font-semibold text-lg cursor-pointer hover:bg-blue-900 hover:rounded-2xl hover:py-2 hover:px-4 transition-all duration-300">
@@ -94,64 +102,83 @@ export default function Navbar() {
 
         {/* Menu chính */}
         <ul className="flex space-x-10">
-          {/* Học */}
+          {/* Tìm hiểu thêm */}
           <li
             className="relative group"
             onMouseEnter={() => setOpenDropdown(0)}
             onMouseLeave={() => setOpenDropdown(null)}
           >
-            <button
-              className="flex px-4 py-2 items-center gap-1 font-semibold uppercase 
-                       transition-all duration-300 
-                       group-hover:text-[#032F6C] 
-                       group-hover:bg-white 
-                       group-hover:shadow
-                       rounded-md"
-            >
+            <button className="flex px-4 py-2 items-center gap-1 font-semibold uppercase transition-all duration-300 group-hover:text-[#032F6C] group-hover:bg-white group-hover:shadow rounded-md">
               Tìm hiểu thêm
               <ArrowDropDownIcon />
             </button>
 
+            {/* Tìm hiểu thêm Dropdown */}
             {openDropdown === 0 && (
-              <ul className="absolute -left-20 min-w-[350px] px-6 py-4 bg-white text-black z-20 rounded-lg shadow-xl border border-gray-200 transition-all duration-200">
-                <p className="text-[#132b6c] font-bold ml-3 mb-3">
-                  TÌM HIỂU THÊM
-                </p>
-                <div className="grid grid-cols-2 gap-4">
-                  <li
-                    onClick={routes.goBarrenMale}
-                    className="flex items-center gap-2 px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
-                  >
-                    Hiếm muộn Nam <MaleIcon fontSize="small" />
-                  </li>
-                  <li
-                    onClick={routes.goBarrenFeMale}
-                    className="flex items-center gap-2 px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
-                  >
-                    Hiếm muộn Nữ <FemaleIcon fontSize="small" />
-                  </li>
-                  <li
-                    onClick={routes.goInfertility}
-                    className="flex items-center gap-2 px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition relative"
-                  >
-                    Vô sinh
-                    <img
-                      src={InfertilityIcon}
-                      alt="infertility"
-                      className="w-[26px] absolute right-4 top-1/2 -translate-y-1/2"
-                    />
-                  </li>
-                  <li
-                    onClick={routes.goClinicIntro}
-                    className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
-                  >
-                    Clinic Information
-                  </li>
-                  <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                    Link 3
-                  </li>
+              <div className="absolute -left-20 w-[400px] bg-white text-gray-800 z-20 rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
+                <div className="p-4 bg-gradient-to-r from-blue-600 to-blue-400">
+                  <h3 className="text-white text-lg font-bold flex items-center gap-2">
+                    <SchoolIcon /> Tìm hiểu về hiếm muộn
+                  </h3>
+                  <p className="text-blue-100 text-sm mt-1">Khám phá thông tin chi tiết về vấn đề hiếm muộn</p>
                 </div>
-              </ul>
+
+                <div className="p-4">
+                  <div className="grid grid-cols-1 gap-3">
+                    <div
+                      onClick={routes.goBarrenMale}
+                      className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"
+                    >
+                      <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-all">
+                        <MaleIcon className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Hiếm muộn Nam</h4>
+                        <p className="text-sm text-gray-500">Khám phá các vấn đề hiếm muộn ở nam giới</p>
+                      </div>
+                    </div>
+
+                    <div
+                      onClick={routes.goBarrenFeMale}
+                      className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"
+                    >
+                      <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-all">
+                        <FemaleIcon className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Hiếm muộn Nữ</h4>
+                        <p className="text-sm text-gray-500">Khám phá các vấn đề hiếm muộn ở nữ giới</p>
+                      </div>
+                    </div>
+
+                    <div
+                      onClick={routes.goInfertility}
+                      className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"
+                    >
+                      <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-all">
+                        <ScienceIcon className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Vô sinh</h4>
+                        <p className="text-sm text-gray-500">Thông tin chuyên sâu về vô sinh và điều trị</p>
+                      </div>
+                    </div>
+
+                    <div
+                      onClick={routes.goClinicIntro}
+                      className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"
+                    >
+                      <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-all">
+                        <BusinessIcon className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Giới thiệu phòng khám</h4>
+                        <p className="text-sm text-gray-500">Tìm hiểu về cơ sở vật chất và chuyên môn</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </li>
 
@@ -161,41 +188,63 @@ export default function Navbar() {
             onMouseEnter={() => setOpenDropdown(1)}
             onMouseLeave={() => setOpenDropdown(null)}
           >
-            <button
-              className="flex px-4 py-2 items-center gap-1 font-semibold uppercase 
-                       transition-all duration-300 
-                       group-hover:text-[#032F6C] 
-                       group-hover:bg-white 
-                       group-hover:shadow 
-                       rounded-md"
-            >
+            <button className="flex px-4 py-2 items-center gap-1 font-semibold uppercase transition-all duration-300 group-hover:text-[#032F6C] group-hover:bg-white group-hover:shadow rounded-md">
               Chăm sóc
               <ArrowDropDownIcon />
             </button>
-
+            {/* Chăm sóc Dropdown */}
             {openDropdown === 1 && (
-              <ul className="absolute -left-20 min-w-[350px] px-6 py-4 bg-white text-black z-20 rounded-lg shadow-xl border border-gray-200 transition-all duration-200">
-                <div className="grid grid-cols-2 gap-4">
-                  <li
-                    onClick={routes.goTestingList}
-                    className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
-                  >
-                    Dịch vụ của chúng tôi
-                  </li>
-                  <li
-                    onClick={routes.goDoctorList}
-                    className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
-                  >
-                    Danh sách bác sĩ
-                  </li>
-                  <li
-                    onClick={routes.goService}
-                    className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
-                  >
-                    Dịch vụ bệnh viện
-                  </li>
+              <div className="absolute -left-20 w-[400px] bg-white text-gray-800 z-20 rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
+                <div className="p-4 bg-gradient-to-r from-blue-600 to-blue-400">
+                  <h3 className="text-white text-lg font-bold flex items-center gap-2">
+                    <HealthAndSafetyIcon /> Dịch vụ chăm sóc
+                  </h3>
+                  <p className="text-blue-100 text-sm mt-1">Khám phá các dịch vụ y tế chất lượng cao</p>
                 </div>
-              </ul>
+
+                <div className="p-4">
+                  <div className="grid grid-cols-1 gap-3">
+                    <div
+                      onClick={routes.goTestingList}
+                      className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"
+                    >
+                      <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-all">
+                        <MedicalInformationIcon className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Dịch vụ xét nghiệm</h4>
+                        <p className="text-sm text-gray-500">Các gói xét nghiệm toàn diện</p>
+                      </div>
+                    </div>
+
+                    <div
+                      onClick={routes.goDoctorList}
+                      className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"
+                    >
+                      <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-all">
+                        <PersonSearchIcon className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Đội ngũ bác sĩ</h4>
+                        <p className="text-sm text-gray-500">Đội ngũ chuyên gia giàu kinh nghiệm</p>
+                      </div>
+                    </div>
+
+                    <div
+                      onClick={routes.goService}
+                      className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"
+                    >
+                      <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-all">
+                        <LocalHospitalIcon className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Dịch vụ điều trị</h4>
+                        <p className="text-sm text-gray-500">Các phương pháp điều trị tiên tiến</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </li>
 
@@ -205,41 +254,50 @@ export default function Navbar() {
             onMouseEnter={() => setOpenDropdown(2)}
             onMouseLeave={() => setOpenDropdown(null)}
           >
-            <button
-              className="flex px-4 py-2 items-center gap-1 font-semibold uppercase 
-                       transition-all duration-300 
-                       group-hover:text-[#032F6C] 
-                       group-hover:bg-white 
-                       group-hover:shadow 
-                       rounded-md"
-            >
+            <button className="flex px-4 py-2 items-center gap-1 font-semibold uppercase transition-all duration-300 group-hover:text-[#032F6C] group-hover:bg-white group-hover:shadow rounded-md">
               Tham gia
               <ArrowDropDownIcon />
             </button>
-
+            {/* Tham gia Dropdown */}
             {openDropdown === 2 && (
-              <ul className="absolute -left-20 min-w-[350px] px-6 py-4 bg-white text-black z-20 rounded-lg shadow-xl border border-gray-200 transition-all duration-200">
-                <div className="grid grid-cols-2 gap-4">
-                  <li
-                    onClick={routes.goFeedback}
-                    className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
-                  >
-                    Đánh giá dịch vụ
-                  </li>
-                  <li
-                    onClick={routes.goHistory}
-                    className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition"
-                  >
-                    Lịch sử điều trị
-                  </li>
-                  <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                    Link 3
-                  </li>
-                  <li className="px-4 py-2 hover:bg-blue-100 cursor-pointer rounded transition">
-                    Link 4
-                  </li>
+              <div className="absolute -left-20 w-[400px] bg-white text-gray-800 z-20 rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
+                <div className="p-4 bg-gradient-to-r from-blue-600 to-blue-400">
+                  <h3 className="text-white text-lg font-bold flex items-center gap-2">
+                    <GroupsIcon /> Tham gia cùng chúng tôi
+                  </h3>
+                  <p className="text-blue-100 text-sm mt-1">Chia sẻ và theo dõi hành trình của bạn</p>
                 </div>
-              </ul>
+
+                <div className="p-4">
+                  <div className="grid grid-cols-1 gap-3">
+                    <div
+                      onClick={routes.goFeedback}
+                      className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"
+                    >
+                      <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-all">
+                        <RateReviewIcon className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Đánh giá dịch vụ</h4>
+                        <p className="text-sm text-gray-500">Chia sẻ trải nghiệm của bạn</p>
+                      </div>
+                    </div>
+
+                    <div
+                      onClick={routes.goHistory}
+                      className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"
+                    >
+                      <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-all">
+                        <HistoryIcon className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Lịch sử điều trị</h4>
+                        <p className="text-sm text-gray-500">Theo dõi quá trình điều trị</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </li>
         </ul>

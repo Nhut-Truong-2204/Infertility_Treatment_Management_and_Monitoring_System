@@ -1,4 +1,4 @@
-import instance from "../../config/axios"; 
+import instance from "../../config/axios";
 
 // // Lấy danh sách bác sĩ công khai
 // export const getPublicDoctors = () =>
@@ -11,10 +11,10 @@ import instance from "../../config/axios";
 // api/doctorList.js
 export const getDoctors = async (page = 0, limit = 6) => {
   try {
-    const response = await fetch(
-      `https://infertility-treatment-management-and.onrender.com/api/doctors?page=${page}&size=${limit}`
-    );
-
+    // const response = await fetch(
+    //   `https://infertility-treatment-management-and.onrender.com/api/doctors?page=${page}&size=${limit}`
+    // );
+    const response = await instance.get(`/api/doctors?page=${page}&size=${limit}`)
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);

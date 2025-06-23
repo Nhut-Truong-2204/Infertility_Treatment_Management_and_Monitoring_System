@@ -265,7 +265,7 @@ export default function Navbar() {
                       onClick={() => navigate("/profile")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <AccountCircleIcon className="mr-2 text-blue-600" />
+                      <AccountCircleIcon color="action" className="mr-2 text-blue-600" />
                       Hồ sơ cá nhân
                     </button>
                     <button

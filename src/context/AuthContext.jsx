@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post("/api/auth/login", credentials); // Gọi API login
       const { accessToken, user: userData } = response.data.data;
-        console.log("userData after destructuring:", userData); // THÊM DÒNG NÀY ĐỂ DEBUG
+      console.log("userData after destructuring:", userData); // THÊM DÒNG NÀY ĐỂ DEBUG
       console.log("Login response:", response.data); // Debug dữ liệu trả về
 
       // Lưu token và user vào localStorage
@@ -45,11 +45,35 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Hàm đăng xuất
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
+  // Hàm đăng xuất
+  const logout = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+
+      if (!token) {
+        throw new Error("Không tìm thấy access token");
+      }
+
+      // Gửi yêu cầu logout lên backend
+      await instance.post("/api/auth/logout", null, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Xoá dữ liệu người dùng sau khi logout thành công
+      setUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+    } catch (error) {
+      console.error("Lỗi khi logout:", error);
+      // Dù lỗi vẫn xoá local để đảm bảo đăng xuất khỏi client
+      setUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+    }
   };
+
 
   // Hàm lấy thông tin người dùng
   const fetchUser = async () => {

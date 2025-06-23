@@ -18,9 +18,10 @@ import { useNavigate } from "react-router";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { createAppointment } from "../../api/customer/appointmentAPI";
 import { useAuth } from "../../context/AuthContext";
-
+import instance from "@/config/axios";
+import axios from "axios";
 //data
-import { serviceList } from "../../data/serviceList";
+
 // Step Progress Component
 const StepProgress = ({ currentStep, steps }) => {
   return (
@@ -30,13 +31,12 @@ const StepProgress = ({ currentStep, steps }) => {
           <div key={index} className="flex items-center">
             <div className="flex flex-col items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
-                  index < currentStep
-                    ? "bg-blue-600 text-white"
-                    : index === currentStep
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${index < currentStep
+                  ? "bg-blue-600 text-white"
+                  : index === currentStep
                     ? "bg-blue-100 text-blue-600 border-2 border-blue-600"
                     : "bg-gray-200 text-gray-500"
-                }`}
+                  }`}
               >
                 {index < currentStep ? (
                   <CheckCircle className="w-5 h-5" />
@@ -45,18 +45,16 @@ const StepProgress = ({ currentStep, steps }) => {
                 )}
               </div>
               <span
-                className={`mt-2 text-sm font-medium ${
-                  index <= currentStep ? "text-gray-900" : "text-gray-500"
-                }`}
+                className={`mt-2 text-sm font-medium ${index <= currentStep ? "text-gray-900" : "text-gray-500"
+                  }`}
               >
                 {step}
               </span>
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`flex-1 h-1 mx-4 rounded transition-all duration-200 ${
-                  index < currentStep ? "bg-blue-600" : "bg-gray-200"
-                }`}
+                className={`flex-1 h-1 mx-4 rounded transition-all duration-200 ${index < currentStep ? "bg-blue-600" : "bg-gray-200"
+                  }`}
               />
             )}
           </div>
@@ -68,29 +66,36 @@ const StepProgress = ({ currentStep, steps }) => {
 
 //Service selection Component
 
-const ServiceSelection = ({
-  selectedService,
-  onSelectService,
-  onNext,
-  onCancel,
-}) => {
+
+const ALLOWED_TYPES = ["MEDICAL_EXAM", "CONSULTATION"];
+
+const ServiceSelection = ({ selectedService, onSelectService, onNext, onCancel }) => {
   const [services, setServices] = useState([]);
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [loadingDetailId, setLoadingDetailId] = useState(null);
 
   useEffect(() => {
-    // Giả lập loading
-    setTimeout(() => {
-      setServices(serviceList);
-    }, 300);
+    const fetchServices = async () => {
+      try {
+        const res = await instance.get("/api/appointment-types");
+        console.log(res.data);
+
+        // const filtered = res.data.data.filter(service =>
+        //   ALLOWED_TYPES.includes(service.typeName)
+        // );
+        // setServices(filtered);
+      } catch (error) {
+        console.error("Lỗi khi tải loại dịch vụ:", error);
+      }
+    };
+
+    fetchServices();
   }, []);
 
-  const fetchServiceDetail = (serviceId) => {
-    setLoadingDetailId(serviceId);
+  const fetchServiceDetail = (serviceTypeName) => {
+    setLoadingDetailId(serviceTypeName);
     setTimeout(() => {
-      const detail = serviceList.find(
-        (service) => service.ServiceDefinitionID === serviceId
-      );
+      const detail = services.find(s => s.typeName === serviceTypeName);
       setSelectedDetail(detail);
       setLoadingDetailId(null);
     }, 300); // giả delay
@@ -98,72 +103,56 @@ const ServiceSelection = ({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Chọn dịch vụ</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">Chọn loại dịch vụ</h2>
 
       {services.length === 0 ? (
         <p>Đang tải danh sách dịch vụ...</p>
       ) : (
         <div className="grid gap-4">
           {services.map((service) => {
-            const isSelected =
-              selectedService?.ServiceDefinitionID ===
-              service.ServiceDefinitionID;
+            const isSelected = selectedService?.typeName === service.typeName;
             return (
               <div
-                key={service.ServiceDefinitionID}
-                className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-lg ${
-                  isSelected
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
+                key={service.typeName}
+                className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-lg ${isSelected
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-200 hover:border-gray-300"
+                  }`}
               >
                 <div className="flex items-start space-x-4">
                   <div className="text-3xl">🩺</div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">
-                      {service.ServiceName}
+                      {service.description}
                     </h3>
-                    <p className="text-sm text-gray-700">
-                      {service.Description || "Không có mô tả"}
+                    <p className="text-sm text-gray-500">
+                      Mã loại: <strong>{service.typeName}</strong>
                     </p>
                     <div className="mt-2 text-sm text-gray-500 space-x-6">
-                      <span>
-                        Loại: <strong>{service.ServiceType}</strong>
-                      </span>
-                      <span>
-                        Thời lượng: {service.EstimatedDurationMinutes || "?"}{" "}
-                        phút
-                      </span>
-
                       <button
-                        onClick={() =>
-                          fetchServiceDetail(service.ServiceDefinitionID)
-                        }
+                        onClick={() => fetchServiceDetail(service.typeName)}
                         className="text-blue-600 underline hover:text-blue-800 ml-2"
                       >
                         Xem chi tiết
                       </button>
-                      {loadingDetailId === service.ServiceDefinitionID && (
+                      {loadingDetailId === service.typeName && (
                         <span className="text-blue-500 animate-pulse ml-2">
                           Đang tải...
                         </span>
                       )}
-                      {selectedDetail?.ServiceDefinitionID ===
-                        service.ServiceDefinitionID && (
+                      {selectedDetail?.typeName === service.typeName && (
                         <span className="text-xs text-gray-600 animate-bounce ml-2 flex items-center gap-1">
-                          Xem ở bên dưới{" "}
-                          <ArrowDownwardIcon className="w-4 h-4" />
+                          Xem ở bên dưới <ArrowDownwardIcon className="w-4 h-4" />
                         </span>
                       )}
                     </div>
                   </div>
 
                   <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      isSelected
-                        ? "border-blue-500 bg-blue-500"
-                        : "border-gray-300"
-                    }`}
+                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected
+                      ? "border-blue-500 bg-blue-500"
+                      : "border-gray-300"
+                      }`}
                     onClick={() => onSelectService(service)}
                   >
                     {isSelected && (
@@ -179,25 +168,13 @@ const ServiceSelection = ({
 
       {selectedDetail && (
         <div className="mt-6 p-6 border rounded-xl bg-gray-50 shadow-sm">
-          <h3 className="text-xl font-bold mb-4 text-gray-800">
-            Chi tiết dịch vụ
-          </h3>
+          <h3 className="text-xl font-bold mb-4 text-gray-800">Chi tiết dịch vụ</h3>
           <div className="grid gap-2 text-gray-700 text-sm">
             <p>
-              <strong>Tên dịch vụ:</strong> {selectedDetail.ServiceName}
+              <strong>Tên loại:</strong> {selectedDetail.typeName}
             </p>
             <p>
-              <strong>Mô tả:</strong> {selectedDetail.Description || "Không có"}
-            </p>
-            <p>
-              <strong>Loại:</strong> {selectedDetail.ServiceType}
-            </p>
-            <p>
-              <strong>Thời lượng:</strong>{" "}
-              {selectedDetail.EstimatedDurationMinutes || "?"} phút
-            </p>
-            <p>
-              <strong>Ghi chú:</strong> {selectedDetail.Notes || "Không có"}
+              <strong>Mô tả:</strong> {selectedDetail.description}
             </p>
           </div>
         </div>
@@ -214,11 +191,10 @@ const ServiceSelection = ({
         <button
           onClick={onNext}
           disabled={!selectedService}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-            selectedService
-              ? "bg-blue-600 text-white hover:bg-blue-700"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+          className={`px-6 py-2 rounded-lg font-medium transition-colors ${selectedService
+            ? "bg-blue-600 text-white hover:bg-blue-700"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
         >
           Tiếp tục
           <ChevronRight className="w-4 h-4 inline ml-2" />
@@ -227,6 +203,8 @@ const ServiceSelection = ({
     </div>
   );
 };
+
+
 
 // Doctor Selection Component
 const DoctorSelection = ({
@@ -311,11 +289,10 @@ const DoctorSelection = ({
             return (
               <div
                 key={doctor.id}
-                className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-lg ${
-                  isSelected
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
+                className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-lg ${isSelected
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-200 hover:border-gray-300"
+                  }`}
               >
                 {loadingDetail && (
                   <div className="text-center text-blue-500 font-medium py-4 animate-pulse">
@@ -365,11 +342,10 @@ const DoctorSelection = ({
                   </div>
 
                   <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      isSelected
-                        ? "border-blue-500 bg-blue-500"
-                        : "border-gray-300"
-                    }`}
+                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected
+                      ? "border-blue-500 bg-blue-500"
+                      : "border-gray-300"
+                      }`}
                     onClick={() => onSelectDoctor(doctor)}
                   >
                     {isSelected && (
@@ -457,11 +433,10 @@ const DoctorSelection = ({
         <button
           onClick={onNext}
           disabled={!selectedDoctor}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-            selectedDoctor
-              ? "bg-blue-600 text-white hover:bg-blue-700"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+          className={`px-6 py-2 rounded-lg font-medium transition-colors ${selectedDoctor
+            ? "bg-blue-600 text-white hover:bg-blue-700"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
         >
           Tiếp tục
           <ChevronRight className="w-4 h-4 inline ml-2" />
@@ -472,6 +447,7 @@ const DoctorSelection = ({
 };
 
 // Date and Time Selection Component
+
 const DateTimeSelection = ({
   selectedDate,
   selectedTime,
@@ -508,6 +484,7 @@ const DateTimeSelection = ({
 
     const days = [];
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // So sánh chỉ theo ngày
 
     for (let i = 0; i < 42; i++) {
       const currentDate = new Date(startDate);
@@ -515,6 +492,7 @@ const DateTimeSelection = ({
 
       const isCurrentMonth = currentDate.getMonth() === month;
       const isPast = currentDate < today;
+      const isSunday = currentDate.getDay() === 0;
       const isSelected =
         selectedDate &&
         currentDate.toDateString() === selectedDate.toDateString();
@@ -524,6 +502,7 @@ const DateTimeSelection = ({
         isCurrentMonth,
         isPast,
         isSelected,
+        isSunday,
         day: currentDate.getDate(),
       });
     }
@@ -531,28 +510,32 @@ const DateTimeSelection = ({
     return days;
   };
 
+  const handleTimeSelect = (timeStr) => {
+    if (!selectedDate) return;
+
+    const [hour, minute] = timeStr.split(":");
+    const dateWithTime = new Date(selectedDate);
+    dateWithTime.setHours(parseInt(hour));
+    dateWithTime.setMinutes(parseInt(minute));
+    dateWithTime.setSeconds(0);
+    dateWithTime.setMilliseconds(0);
+
+    // Trả về đúng định dạng ISO 8601 như yêu cầu
+    const isoTime = dateWithTime.toISOString();
+    onSelectTime(isoTime);
+  };
+
   const monthNames = [
-    "Tháng 1",
-    "Tháng 2",
-    "Tháng 3",
-    "Tháng 4",
-    "Tháng 5",
-    "Tháng 6",
-    "Tháng 7",
-    "Tháng 8",
-    "Tháng 9",
-    "Tháng 10",
-    "Tháng 11",
-    "Tháng 12",
+    "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4",
+    "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8",
+    "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12",
   ];
 
   const weekDays = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">
-        Chọn ngày và giờ khám
-      </h2>
+      <h2 className="text-2xl font-bold text-gray-900">Chọn ngày và giờ khám</h2>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Calendar */}
@@ -565,10 +548,7 @@ const DateTimeSelection = ({
               <button
                 onClick={() =>
                   setCurrentMonth(
-                    new Date(
-                      currentMonth.getFullYear(),
-                      currentMonth.getMonth() - 1
-                    )
+                    new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
                   )
                 }
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -578,10 +558,7 @@ const DateTimeSelection = ({
               <button
                 onClick={() =>
                   setCurrentMonth(
-                    new Date(
-                      currentMonth.getFullYear(),
-                      currentMonth.getMonth() + 1
-                    )
+                    new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
                   )
                 }
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -593,10 +570,7 @@ const DateTimeSelection = ({
 
           <div className="grid grid-cols-7 gap-1">
             {weekDays.map((day) => (
-              <div
-                key={day}
-                className="p-2 text-center text-sm font-medium text-gray-500"
-              >
+              <div key={day} className="p-2 text-center text-sm font-medium text-gray-500">
                 {day}
               </div>
             ))}
@@ -604,16 +578,15 @@ const DateTimeSelection = ({
               <button
                 key={index}
                 onClick={() =>
-                  !day.isPast && day.isCurrentMonth && onSelectDate(day.date)
+                  !day.isPast && day.isCurrentMonth && !day.isSunday && onSelectDate(day.date)
                 }
-                disabled={day.isPast || !day.isCurrentMonth}
-                className={`p-2 text-sm rounded-lg transition-colors ${
-                  day.isSelected
-                    ? "bg-blue-600 text-white"
-                    : day.isCurrentMonth && !day.isPast
+                disabled={day.isPast || !day.isCurrentMonth || day.isSunday}
+                className={`p-2 text-sm rounded-lg transition-colors ${day.isSelected
+                  ? "bg-blue-600 text-white"
+                  : day.isCurrentMonth && !day.isPast && !day.isSunday
                     ? "hover:bg-blue-100 text-gray-900"
                     : "text-gray-400 cursor-not-allowed"
-                }`}
+                  }`}
               >
                 {day.day}
               </button>
@@ -628,15 +601,14 @@ const DateTimeSelection = ({
             {availableTimes.map((time) => (
               <button
                 key={time}
-                onClick={() => onSelectTime(time)}
+                onClick={() => handleTimeSelect(time)}
                 disabled={!selectedDate}
-                className={`p-3 text-sm rounded-lg border transition-colors ${
-                  selectedTime === time
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : selectedDate
+                className={`p-3 text-sm rounded-lg border transition-colors ${selectedTime?.includes(time)
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : selectedDate
                     ? "border-gray-300 hover:border-blue-500 hover:bg-blue-50"
                     : "border-gray-200 text-gray-400 cursor-not-allowed"
-                }`}
+                  }`}
               >
                 {time}
               </button>
@@ -664,11 +636,10 @@ const DateTimeSelection = ({
           <button
             onClick={onNext}
             disabled={!selectedDate || !selectedTime}
-            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-              selectedDate && selectedTime
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+            className={`px-6 py-2 rounded-lg font-medium transition-colors ${selectedDate && selectedTime
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
           >
             Tiếp tục
             <ChevronRight className="w-4 h-4 inline ml-2" />
@@ -678,6 +649,7 @@ const DateTimeSelection = ({
     </div>
   );
 };
+
 
 // Patient Information Component
 const PatientInformation = ({
@@ -919,11 +891,10 @@ const PatientInformation = ({
           <button
             onClick={onNext}
             disabled={!isFormValid}
-            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-              isFormValid
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+            className={`px-6 py-2 rounded-lg font-medium transition-colors ${isFormValid
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
           >
             Xem lại thông tin
             <ChevronRight className="w-4 h-4 inline ml-2" />
@@ -1242,9 +1213,9 @@ const AppointmentBooking = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const steps = [
+    "Chọn dịch vụ",
     "Chọn bác sĩ",
     "Chọn ngày giờ",
-    "Chọn dịch vụ khám",
     "Thông tin",
     "Xác nhận",
     "Hoàn thành",
@@ -1404,6 +1375,7 @@ const AppointmentBooking = () => {
     switch (currentStep) {
       case 0:
         return (
+          //
           <DoctorSelection
             selectedDoctor={selectedDoctor}
             onSelectDoctor={setSelectedDoctor}
@@ -1413,6 +1385,15 @@ const AppointmentBooking = () => {
         );
       case 1:
         return (
+          <ServiceSelection
+            selectedService={selectedService}
+            onSelectService={(s) => setSelectedService(s)}
+            onNext={handleNext}
+            onCancel={handleCancel}
+          />
+        );
+      case 2:
+        return (
           <DateTimeSelection
             selectedDate={selectedDate}
             selectedTime={selectedTime}
@@ -1420,15 +1401,6 @@ const AppointmentBooking = () => {
             onSelectTime={setSelectedTime}
             onNext={handleNext}
             onBack={handleBack}
-            onCancel={handleCancel}
-          />
-        );
-      case 2:
-        return (
-          <ServiceSelection
-            selectedService={selectedService}
-            onSelectService={(s) => setSelectedService(s)}
-            onNext={handleNext}
             onCancel={handleCancel}
           />
         );
@@ -1469,9 +1441,9 @@ const AppointmentBooking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <div className="mt-20 container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-[#6cb0ff]">
+      <div className=" container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto mt-20">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">

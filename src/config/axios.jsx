@@ -8,17 +8,33 @@ const instance = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true, // Luôn gửi cookie nếu có
+
 });
 
 // Interceptor cho response: xử lý lỗi toàn cục
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Xử lý lỗi 401 (chưa xác thực)
     if (error.response && error.response.status === 401) {
-      console.warn('Hết hạn đăng nhập hoặc không có quyền!');
-      // Có thể redirect về login, xóa token, v.v.
+      // Nếu token hết hạn hoặc không hợp lệ
+      Swal.fire({
+        icon: "warning",
+        title: "Phiên đăng nhập hết hạn",
+        text: "Vui lòng đăng nhập lại để tiếp tục.",
+        confirmButtonText: "Đăng nhập lại",
+        allowOutsideClick: false,
+      }).then(() => {
+        // 👉 Sau khi user bấm OK:
+        // 1. Xóa localStorage/sessionStorage nếu có:
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // 2. Optional: gọi hàm logout từ AuthContext nếu bạn có (ví dụ useAuth().logout())
+        // 3. Chuyển hướng về trang login
+        window.location.href = "/login"; // hoặc navigate("/login") nếu dùng trong component
+      });
     }
+
     return Promise.reject(error);
   }
 );

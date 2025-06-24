@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Alert, CircularProgress } from "@mui/material";
+import { Typography, Alert, CircularProgress, Avatar, Stack } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyEmail, resendVerificationCode } from "../../api/customer/verifyEmail";
 import { motion } from "framer-motion";
+import { Syringe } from "phosphor-react";
 import Background from "../../assets/VerificationPage.jpg";
-import logo from "../../../public/LogoWithoutText.png";
 
 export default function EmailVerificationPage() {
   const navigate = useNavigate();
@@ -165,7 +165,11 @@ export default function EmailVerificationPage() {
               transition={{ type: "spring", duration: 1, bounce: 0.5 }}
               className="flex items-center space-x-2 font-semibold text-lg cursor-pointer"
             >
-              <img src={logo} alt="CumIcon" className="h-12" />
+              <Stack direction="row" spacing={2}>
+                <Avatar sx={{ bgcolor: "#23A0FF" }}>
+                  <Syringe size={20} weight="fill" color="white" />
+                </Avatar>
+              </Stack>
               <motion.span
                 onClick={() => navigate('/')}
                 whileTap={{ scale: 0.95 }}

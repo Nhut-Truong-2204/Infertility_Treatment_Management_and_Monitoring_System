@@ -1,4 +1,4 @@
-// src/components/historyApi.jsx
+// src/api/customer/historyApi.jsx (đổi tên thư mục nếu cần, ví dụ từ components sang api)
 import instance from '../../config/axios'; // Import the axios instance
 
 export const getTreatmentHistory = async () => {
@@ -10,7 +10,6 @@ export const getTreatmentHistory = async () => {
       return { success: false, error: 'Không thể tải lịch sử điều trị' };
     }
   } catch (err) {
-    // Axios errors have a response object
     if (err.response && err.response.status === 401) {
         return { success: false, error: 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.' };
     } else {

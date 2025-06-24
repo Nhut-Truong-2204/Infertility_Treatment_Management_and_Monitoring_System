@@ -7,23 +7,23 @@ const TreatmentHistory = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchHistory = async () => {
-      setLoading(true);
-      const result = await getTreatmentHistory(); // Call the API function
-      if (result.success) {
-        setData(result.data);
-      } else {
-        setError(result.error);
-      }
-      setLoading(false);
-    };
+  // useEffect(() => {
+  //   const fetchHistory = async () => {
+  //     setLoading(true);
+  //     const result = await getTreatmentHistory(); // Call the API function
+  //     if (result.success) {
+  //       setData(result.data);
+  //     } else {
+  //       setError(result.error);
+  //     }
+  //     setLoading(false);
+  //   };
 
-    fetchHistory();
-  }, []);
+  //   fetchHistory();
+  // }, []);
 
-  if (loading) return <div className="text-center mt-10">Đang tải...</div>;
-  if (error) return <div className="text-center mt-10 text-red-500">{error}</div>;
+  // if (loading) return <div className="text-center mt-10">Đang tải...</div>;
+  // if (error) return <div className="text-center mt-10 text-red-500">{error}</div>;
 
   return (
     
@@ -66,7 +66,8 @@ const TreatmentHistory = () => {
               <div key={index} className="bg-white p-4 rounded-lg shadow">
                 <p><strong>Tên:</strong> {protocol.protocolName}</p>
                 <p><strong>Ngày bắt đầu:</strong> {new Date(protocol.startDate).toLocaleDateString()}</p>
-                <p><strong>Trạng thái:</strong> {protocol.status}</p>
+                {/* Sửa từ protocol.status thành protocol.status.status */}
+                <p><strong>Trạng thái:</strong> {protocol.status.status}</p>
               </div>
             ))}
           </div>
@@ -83,7 +84,8 @@ const TreatmentHistory = () => {
             {data.visits.map((visit, index) => (
               <div key={index} className="bg-white p-4 rounded-lg shadow">
                 <p><strong>Ngày khám:</strong> {new Date(visit.visitDate).toLocaleDateString()}</p>
-                <p><strong>Chẩn đoán:</strong> {visit.diagnosisSummary}</p>
+                {/* Sửa từ visit.diagnosisSummary thành visit.diagnosis */}
+                <p><strong>Chẩn đoán:</strong> {visit.diagnosis}</p>
               </div>
             ))}
           </div>

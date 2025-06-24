@@ -3,7 +3,7 @@ import Footer from "./Footer";
 import { Outlet } from "react-router-dom";
 // import MiniChatWidget from "../../components/chat/MiniChat"; // hoặc đúng path của bạn
 import { useLocation } from 'react-router-dom';
-import MiniChat from '../chat/MiniChat';
+// import MiniChat from '../chat/MiniChat';
 const MainLayout = () => {
   const location = useLocation();
   const isChatPage = location.pathname === '/chatcustomer';
@@ -18,7 +18,7 @@ const MainLayout = () => {
       <Footer />
 
       {/* Chat xuất hiện mọi lúc */}
-      {!isChatPage && <MiniChat />}
+      {/* {!isChatPage && <MiniChat />} */}
     </div>
   );
 };

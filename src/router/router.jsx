@@ -19,7 +19,7 @@ import DoctorDetail from "../pages/customer/DoctorDetail";
 import TreatmentHistory from "@/pages/customer/TreatmentHistory";
 import ViewAppointment from "../pages/customer/ViewAppointment";
 import PaymentPage from "@/pages/customer/PaymentPage";
-import ChatWidget from "@/components/chat/ChatCustomer";
+// import ChatWidget from "@/components/chat/ChatCustomer";
 import Feedback from "../pages/customer/Feedback";
 const router = createBrowserRouter([
   {
@@ -79,10 +79,10 @@ const router = createBrowserRouter([
         path: "/payment",
         element: <PaymentPage />,
       },
-      {
-        path: "/chatcustomer",
-        element: <ChatWidget />,
-      },
+      // {
+      //   path: "/chatcustomer",
+      //   element: <ChatWidget />,
+      // },
       {
         path: "/feedback",
         element: <Feedback />,

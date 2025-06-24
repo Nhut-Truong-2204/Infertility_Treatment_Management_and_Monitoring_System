@@ -9,7 +9,7 @@ import instance from "../../config/axios";
 //     instance.get(`/api/doctors/${userId}`);
 
 // api/doctorList.js
-export const getDoctors = async (page = 0, limit = 6) => {
+export const getDoctors = async (page = 0, limit = 10) => {
   try {
     const response = await instance.get(`/api/doctors?page=${page}&size=${limit}`);
 
@@ -20,7 +20,10 @@ export const getDoctors = async (page = 0, limit = 6) => {
     }
 
     const contentType = response.headers['content-type'];
+    onsole.log('Content-Type:', contentTypec);
     if (!contentType?.includes('application/json')) {
+
+      
       const content = String(response.data?.data || 'No content');
       throw new Error(`Expected JSON but got ${contentType}: ${content.substring(0, 100)}`);
     }

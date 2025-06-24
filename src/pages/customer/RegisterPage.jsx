@@ -37,17 +37,19 @@ const InputField = ({
   return (
     <div className="relative mb-6 group">
       <div
-        className={`relative transition-all duration-300 ${isFocused ? "transform scale-105" : ""
-          }`}
+        className={`relative transition-all duration-300 ${
+          isFocused ? "transform scale-105" : ""
+        }`}
       >
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
           <Icon
-            className={`h-5 w-5 transition-colors duration-300 ${isFocused
+            className={`h-5 w-5 transition-colors duration-300 ${
+              isFocused
                 ? "text-blue-500"
                 : error
-                  ? "text-red-400"
-                  : "text-gray-400"
-              }`}
+                ? "text-red-400"
+                : "text-gray-400"
+            }`}
           />
         </div>
 
@@ -62,9 +64,10 @@ const InputField = ({
           className={`w-full pl-12 pr-12 py-4 bg-white/80 backdrop-blur-sm border-2 rounded-xl
             transition-all duration-300 text-gray-800 placeholder-gray-500
             focus:outline-none focus:ring-0 focus:shadow-lg focus:shadow-blue-500/20
-            ${error
-              ? "border-red-300 focus:border-red-500 bg-red-50/50"
-              : isFocused
+            ${
+              error
+                ? "border-red-300 focus:border-red-500 bg-red-50/50"
+                : isFocused
                 ? "border-blue-400 focus:border-blue-500"
                 : "border-gray-200 hover:border-gray-300"
             }
@@ -279,7 +282,7 @@ const RegisterPage = () => {
 
                 {/* //back button */}
                 <div
-                  onClick={() => navigate(-1)}
+                onClick={() => navigate(-1)}
                   className="absolute flex items-center justify-center w-[77px] h-[77px] -top-30 -left-2 rounded-4xl hover:bg-blue-400 transition-all duration-300"
                 >
                   <span>
@@ -436,10 +439,11 @@ const RegisterPage = () => {
           <div
             className={`fixed top-8 left-1/2 transform -translate-x-1/2 z-50 
                         px-6 py-4 rounded-xl shadow-2xl animate-slideDown
-                        ${toastType === "success"
-                ? "bg-green-500 text-white"
-                : "bg-red-500 text-white"
-              }`}
+                        ${
+                          toastType === "success"
+                            ? "bg-green-500 text-white"
+                            : "bg-red-500 text-white"
+                        }`}
           >
             <div className="flex items-center space-x-3">
               {toastType === "success" ? (

@@ -1,29 +1,36 @@
 // src/components/TreatmentHistory.jsx
 import React, { useEffect, useState } from 'react';
-import { getTreatmentHistory } from '../../api/customer/historyApi'; // Import the API function
 
 const TreatmentHistory = () => {
   const [data, setData] = useState({ protocols: [], visits: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // useEffect(() => {
-  //   const fetchHistory = async () => {
-  //     setLoading(true);
-  //     const result = await getTreatmentHistory(); // Call the API function
-  //     if (result.success) {
-  //       setData(result.data);
-  //     } else {
-  //       setError(result.error);
-  //     }
-  //     setLoading(false);
-  //   };
+//   useEffect(() => {
+//     const fetchTreatmentHistory = async () => {
+//       try {
+//         // Gọi API thực tế: GET /api/customer/treatment-history
+//         const response = await fetch('/api/customer/treatment-history', {
+//           headers: { Authorization: 'Bearer <your-token-here>' }, // Thay bằng token thực
+//         });
+//         const result = await response.json();
+//         if (result.success) {
+//           setData(result.data);
+//         } else {
+//           setError('Không thể tải lịch sử điều trị');
+//         }
+//       } catch (err) {
+//         setError('Lỗi khi lấy dữ liệu');
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
 
-  //   fetchHistory();
-  // }, []);
+//     fetchTreatmentHistory();
+//   }, []);
 
-  // if (loading) return <div className="text-center mt-10">Đang tải...</div>;
-  // if (error) return <div className="text-center mt-10 text-red-500">{error}</div>;
+//   if (loading) return <div className="text-center mt-10">Đang tải...</div>;
+//   if (error) return <div className="text-center mt-10 text-red-500">{error}</div>;
 
   return (
     
@@ -66,8 +73,7 @@ const TreatmentHistory = () => {
               <div key={index} className="bg-white p-4 rounded-lg shadow">
                 <p><strong>Tên:</strong> {protocol.protocolName}</p>
                 <p><strong>Ngày bắt đầu:</strong> {new Date(protocol.startDate).toLocaleDateString()}</p>
-                {/* Sửa từ protocol.status thành protocol.status.status */}
-                <p><strong>Trạng thái:</strong> {protocol.status.status}</p>
+                <p><strong>Trạng thái:</strong> {protocol.status}</p>
               </div>
             ))}
           </div>
@@ -84,8 +90,7 @@ const TreatmentHistory = () => {
             {data.visits.map((visit, index) => (
               <div key={index} className="bg-white p-4 rounded-lg shadow">
                 <p><strong>Ngày khám:</strong> {new Date(visit.visitDate).toLocaleDateString()}</p>
-                {/* Sửa từ visit.diagnosisSummary thành visit.diagnosis */}
-                <p><strong>Chẩn đoán:</strong> {visit.diagnosis}</p>
+                <p><strong>Chẩn đoán:</strong> {visit.diagnosisSummary}</p>
               </div>
             ))}
           </div>

@@ -103,7 +103,7 @@ const PaymentPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white pt-32">
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 to-white pt-30 pb-20">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <motion.div
@@ -111,7 +111,7 @@ const PaymentPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-blue-900 mb-7">
+          <h1 className="text-4xl font-bold text-blue-900 mb-5">
             Quản lý Thanh toán
           </h1>
           <p className="text-gray-600 text-lg">

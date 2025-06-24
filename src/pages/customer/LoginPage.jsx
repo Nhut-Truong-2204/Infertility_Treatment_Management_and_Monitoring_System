@@ -4,15 +4,59 @@ import { toast, ToastContainer, Flip } from "react-toastify";
 import { Mail, Lock, Eye, EyeOff, AlertCircle, Syringe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "react-toastify/dist/ReactToastify.css";
-import Stack from "@mui/material/Stack";
-import Avatar from "@mui/material/Avatar";
 import { GoogleLogin } from "@react-oauth/google";
 import Background1 from "../../assets/DoctorLogin1.jpg";
 import Background2 from "../../assets/DoctorLogin2.jpg";
+import axios from "../../config/axios";
+const handleGoogleLogin = async (credentialResponse) => {
+  try {
+    setLoading(true);
+    const credential = credentialResponse.credential;
+    // Gửi credential lên backend
+    const response = await axios.post("/api/auth/oauth2", credential, {
+      headers: { "Content-Type": "application/json" }
+    });
+    // Xử lý response: lưu token, user, chuyển trang...
+    toast.success("Đăng nhập Google thành công!");
+    navigate("/");
+  } catch (error) {
+    toast.error("Đăng nhập Google thất bại!");
+    console.error("Google login error:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 import Background3 from "../../assets/DoctorLogin3.jpg";
 import Background4 from "../../assets/DoctorLogin4.jpg";
 import Background5 from "../../assets/DoctorLogin5.jpg";
-import { useAuth } from "../../context/AuthContext"; // Import useAuth
+import logo from "../../../public/LogoWithoutText.png";
+import { useAuth } from "../../context/AuthContext";
+
+// LƯU Ý: Để đăng nhập Google OAuth2 hoạt động với backend Spring Boot:
+// 1. Khi đăng nhập Google thành công, bạn sẽ nhận được credential (Google ID Token) từ GoogleLogin.
+// 2. Gửi token này lên backend qua endpoint /api/auth/oauth2 (POST, raw string hoặc JSON tuỳ backend).
+// 3. Backend xác thực token, trả về JWT và user info. FE lưu JWT vào localStorage/sessionStorage.
+// 4. Đảm bảo biến VITE_GOOGLE_CLIENT_ID đúng với client-id trên Google Cloud.
+// 5. Đảm bảo backend cho phép CORS từ domain FE.
+
+// là client đăng nhập vào hệ thống , gg sẽ cấp token frontend gửi token này lên backend để xác thực
+// sau đó be lưu và trả về jwt cho frontend lưu vào localStorage/sessionStorage
+// frontend sẽ lưu vào cookie
+// khi người dùng đăng nhập thành công thì sẽ có jwt và user info
+
+
+// LƯU Ý: Để đăng nhập Google OAuth2 hoạt động với backend Spring Boot:
+// 1. Khi đăng nhập Google thành công, bạn sẽ nhận được credential (Google ID Token) từ GoogleLogin.
+// 2. Gửi token này lên backend qua endpoint /api/auth/oauth2 (POST, raw string hoặc JSON tuỳ backend).
+// 3. Backend xác thực token, trả về JWT và user info. FE lưu JWT vào localStorage/sessionStorage.
+// 4. Đảm bảo biến VITE_GOOGLE_CLIENT_ID đúng với client-id trên Google Cloud.
+// 5. Đảm bảo backend cho phép CORS từ domain FE.
+
+// là client đăng nhập vào hệ thống , gg sẽ cấp token frontend gửi token này lên backend để xác thực
+// sau đó be lưu và trả về jwt cho frontend lưu vào localStorage/sessionStorage
+// frontend sẽ lưu vào cookie
+// khi người dùng đăng nhập thành công thì sẽ có jwt và user info
+
 
 const InputField = ({ name, type = "text", placeholder, value, onChange, error, icon: Icon }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -159,21 +203,23 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async (credentialResponse) => {
-    try {
-      setLoading(true);
-      const credential = credentialResponse.credential;
-      // TODO: Gọi API để xác thực Google credential
-      // Ví dụ: const response = await axios.post("/api/auth/google", { credential });
-      // await login(response.data.user, response.data.accessToken);
-      toast.success("Đăng nhập Google thành công!");
-      navigate("/dashboard");
-    } catch (error) {
-      toast.error("Đăng nhập Google thất bại!");
-      console.error("Google login error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const credential = credentialResponse.credential;
+    // Gửi credential lên backend
+    const response = await axios.post("/api/auth/oauth2", credential, {
+      headers: { "Content-Type": "application/json" }
+    });
+    // Xử lý response: lưu token, user, chuyển trang...
+    toast.success("Đăng nhập Google thành công!");
+    navigate("/");
+  } catch (error) {
+    toast.error("Đăng nhập Google thất bại!");
+    console.error("Google login error:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="min-h-screen relative overflow-hidden">
@@ -201,11 +247,7 @@ export default function LoginPage() {
               className="flex items-center space-x-2 font-semibold text-lg cursor-pointer"
               whileHover={{ color: "#3B82F6", transition: { duration: 0.2 } }}
             >
-              <Stack direction="row" spacing={2}>
-                <Avatar sx={{ bgcolor: "#23A0FF" }}>
-                  <Syringe size={20} weight="fill" color="white" />
-                </Avatar>
-              </Stack>
+              <img src={logo} alt="CumIcon" className="h-12" />
               <motion.span onClick={() => navigate("/")} whileTap={{ scale: 0.95 }}>
                 ReproTrack
               </motion.span>

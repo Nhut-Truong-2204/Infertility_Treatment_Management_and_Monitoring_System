@@ -1,4 +1,4 @@
-import instance from "../../config/axios";
+import instance from "../../config/axios"; 
 
 // // Lấy danh sách bác sĩ công khai
 // export const getPublicDoctors = () =>
@@ -11,21 +11,22 @@ import instance from "../../config/axios";
 // api/doctorList.js
 export const getDoctors = async (page = 0, limit = 6) => {
   try {
-    const response = await instance.get(`/api/doctors?page=${page}&size=${limit}`);
+    const response = await fetch(
+      `https://infertility-treatment-management-and.onrender.com/api/doctors?page=${page}&size=${limit}`
+    );
 
-    // Axios không dùng `ok` như fetch nên đoạn này cần sửa lại:
-    if (response.status < 200 || response.status >= 300) {
-      const errorText = String(response.data?.data || 'Unknown error');
+    if (!response.ok) {
+      const errorText = await response.text();
       throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
     }
 
-    const contentType = response.headers['content-type'];
+    const contentType = response.headers.get('content-type');
     if (!contentType?.includes('application/json')) {
-      const content = String(response.data?.data || 'No content');
-      throw new Error(`Expected JSON but got ${contentType}: ${content.substring(0, 100)}`);
+      const text = await response.text();
+      throw new Error(`Expected JSON but got ${contentType}: ${text.substring(0, 100)}`);
     }
 
-    return response.data;
+    return await response.json();
   } catch (error) {
     console.error('Failed to fetch doctors:', error);
     throw error;
@@ -33,21 +34,27 @@ export const getDoctors = async (page = 0, limit = 6) => {
 };
 
 
-
 //getDoctorDetail 
 export const getDoctorDetail = async (userId) => {
   try {
-    const response = await instance.get(`/api/doctors/${userId}`);
+    const response = await fetch(
+      `https://infertility-treatment-management-and.onrender.com/api/doctors/${userId}`
+    );
 
-    const contentType = response.headers['content-type'];
-    if (!contentType?.includes('application/json')) {
-      const content = String(response.data || 'Không rõ nội dung');
-      throw new Error(`Expected JSON but got ${contentType}: ${content.substring(0, 100)}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
     }
 
-    return response.data;
+    const contentType = response.headers.get('content-type');
+    if (!contentType?.includes('application/json')) {
+      const text = await response.text();
+      throw new Error(`Expected JSON but got ${contentType}: ${text.substring(0, 100)}`);
+    }
+
+    return await response.json();
   } catch (error) {
-    console.error(`❌ Failed to fetch doctor detail for ID ${userId}:`, error);
+    console.error(`Failed to fetch doctor detail for ID ${userId}:`, error);
     throw error;
   }
 };

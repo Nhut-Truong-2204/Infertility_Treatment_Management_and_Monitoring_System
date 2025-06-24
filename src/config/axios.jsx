@@ -1,41 +1,23 @@
+// src/config/axios.js
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
-// Tạo một instance Axios với các cấu hình mặc định
+// Tạo instance
 const instance = axios.create({
   baseURL: 'https://infertility-treatment-management-and.onrender.com',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Cho phép gửi kèm cookie trong các request
+  withCredentials: true, // QUAN TRỌNG: để cookie được gửi theo request
 });
 
-// Interceptor cho request: thêm access token vào header nếu có trong cookie
-instance.interceptors.request.use(
-  (config) => {
-    // Lấy accessToken từ cookie
-    const getCookie = (name) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    };
-
-    const accessToken = getCookie('accessToken');
-
-    if (accessToken) {
-      config.headers['Authorization'] = `Bearer ${accessToken}`;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Interceptor cho response: xử lý lỗi toàn cục
+// Response interceptor: xử lý lỗi hết hạn phiên
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
+      deleteCookie('accessToken');
       Swal.fire({
         icon: "warning",
         title: "Phiên đăng nhập hết hạn",
@@ -43,14 +25,17 @@ instance.interceptors.response.use(
         confirmButtonText: "Đăng nhập lại",
         allowOutsideClick: false,
       }).then(() => {
-        localStorage.clear();
-        sessionStorage.clear();
         window.location.href = "/login";
       });
     }
-
     return Promise.reject(error);
   }
 );
 
+// Hàm xóa cookie
+const deleteCookie = (name) => {
+  document.cookie = `${name}=; Max-Age=0; path=/;`;
+};
+
 export default instance;
+export { deleteCookie };

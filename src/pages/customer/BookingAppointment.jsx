@@ -19,8 +19,6 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import { createAppointment } from "../../api/customer/appointmentAPI";
 import { useAuth } from "../../context/AuthContext";
 import instance from "@/config/axios";
-import axios from "axios";
-//data
 
 // Step Progress Component
 const StepProgress = ({ currentStep, steps }) => {
@@ -64,154 +62,13 @@ const StepProgress = ({ currentStep, steps }) => {
   );
 };
 
-//Service selection Component
-
-
-const ALLOWED_TYPES = ["MEDICAL_EXAM", "CONSULTATION"];
-
-const ServiceSelection = ({ selectedService, onSelectService, onNext, onCancel }) => {
-  const [services, setServices] = useState([]);
-  const [selectedDetail, setSelectedDetail] = useState(null);
-  const [loadingDetailId, setLoadingDetailId] = useState(null);
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const res = await instance.get("/api/appointment-types");
-        console.log(res.data);
-
-        // const filtered = res.data.data.filter(service =>
-        //   ALLOWED_TYPES.includes(service.typeName)
-        // );
-        // setServices(filtered);
-      } catch (error) {
-        console.error("Lỗi khi tải loại dịch vụ:", error);
-      }
-    };
-
-    fetchServices();
-  }, []);
-
-  const fetchServiceDetail = (serviceTypeName) => {
-    setLoadingDetailId(serviceTypeName);
-    setTimeout(() => {
-      const detail = services.find(s => s.typeName === serviceTypeName);
-      setSelectedDetail(detail);
-      setLoadingDetailId(null);
-    }, 300); // giả delay
-  };
-
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Chọn loại dịch vụ</h2>
-
-      {services.length === 0 ? (
-        <p>Đang tải danh sách dịch vụ...</p>
-      ) : (
-        <div className="grid gap-4">
-          {services.map((service) => {
-            const isSelected = selectedService?.typeName === service.typeName;
-            return (
-              <div
-                key={service.typeName}
-                className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-lg ${isSelected
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-gray-300"
-                  }`}
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="text-3xl">🩺</div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {service.description}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      Mã loại: <strong>{service.typeName}</strong>
-                    </p>
-                    <div className="mt-2 text-sm text-gray-500 space-x-6">
-                      <button
-                        onClick={() => fetchServiceDetail(service.typeName)}
-                        className="text-blue-600 underline hover:text-blue-800 ml-2"
-                      >
-                        Xem chi tiết
-                      </button>
-                      {loadingDetailId === service.typeName && (
-                        <span className="text-blue-500 animate-pulse ml-2">
-                          Đang tải...
-                        </span>
-                      )}
-                      {selectedDetail?.typeName === service.typeName && (
-                        <span className="text-xs text-gray-600 animate-bounce ml-2 flex items-center gap-1">
-                          Xem ở bên dưới <ArrowDownwardIcon className="w-4 h-4" />
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected
-                      ? "border-blue-500 bg-blue-500"
-                      : "border-gray-300"
-                      }`}
-                    onClick={() => onSelectService(service)}
-                  >
-                    {isSelected && (
-                      <CheckCircle className="w-5 h-5 text-white" />
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {selectedDetail && (
-        <div className="mt-6 p-6 border rounded-xl bg-gray-50 shadow-sm">
-          <h3 className="text-xl font-bold mb-4 text-gray-800">Chi tiết dịch vụ</h3>
-          <div className="grid gap-2 text-gray-700 text-sm">
-            <p>
-              <strong>Tên loại:</strong> {selectedDetail.typeName}
-            </p>
-            <p>
-              <strong>Mô tả:</strong> {selectedDetail.description}
-            </p>
-          </div>
-        </div>
-      )}
-
-      <div className="flex justify-between pt-6">
-        <button
-          onClick={onCancel}
-          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-        >
-          <X className="w-4 h-4 inline mr-2" />
-          Hủy
-        </button>
-        <button
-          onClick={onNext}
-          disabled={!selectedService}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${selectedService
-            ? "bg-blue-600 text-white hover:bg-blue-700"
-            : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-        >
-          Tiếp tục
-          <ChevronRight className="w-4 h-4 inline ml-2" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-
-
 // Doctor Selection Component
 const DoctorSelection = ({
   selectedDoctor,
   onSelectDoctor,
   onNext,
   onCancel,
+  onBack,
 }) => {
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [loadingDoctorId, setLoadingDoctorId] = useState(null);
@@ -424,30 +281,40 @@ const DoctorSelection = ({
 
       <div className="flex justify-between pt-6">
         <button
-          onClick={onCancel}
-          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+          onClick={onBack}
+          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
         >
-          <X className="w-4 h-4 inline mr-2" />
-          Hủy
+          <ChevronLeft className="w-4 h-4 inline mr-2" />
+          Quay lại
         </button>
-        <button
-          onClick={onNext}
-          disabled={!selectedDoctor}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${selectedDoctor
-            ? "bg-blue-600 text-white hover:bg-blue-700"
-            : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-        >
-          Tiếp tục
-          <ChevronRight className="w-4 h-4 inline ml-2" />
-        </button>
+        <div className="space-x-3">
+          <button
+            onClick={onCancel}
+            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <X className="w-4 h-4 inline mr-2" />
+            Hủy
+          </button>
+          <button
+            onClick={onNext}
+            disabled={!selectedDoctor}
+            className={`px-6 py-2 rounded-lg font-medium transition-colors ${selectedDoctor
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+          >
+            Tiếp tục
+            <ChevronRight className="w-4 h-4 inline ml-2" />
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-// Date and Time Selection Component
 
+
+// Date and Time Selection Component
 const DateTimeSelection = ({
   selectedDate,
   selectedTime,
@@ -666,13 +533,7 @@ const PatientInformation = ({
   const [isFormValidate, setIsFormValidate] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const appointmentTypeOptions = [
-    { label: "Khám sức khỏe tổng quát", value: "MEDICAL_EXAMINATION" },
-    { label: "Khám chuyên khoa", value: "EXAMINATION" },
-    { label: "Xét nghiệm", value: "TESTS" },
-    { label: "Tư vấn", value: "CONSULTATION" },
-    { label: "Thủ thuật", value: "PROCEDURES" },
-  ];
+
   const validateForm = () => {
     const errors = {};
 
@@ -689,13 +550,13 @@ const PatientInformation = ({
       errors.appointmentType = "Vui lòng chọn loại cuộc hẹn.";
     }
 
-    if (!patientInfo.phone || !/^\d{9,11}$/.test(patientInfo.phone)) {
+    if (!patientInfo.phone || !/^\d{9, 11}$/.test(patientInfo.phone)) {
       errors.phone = "Số điện thoại không hợp lệ (9-11 chữ số).";
     }
 
     if (
       patientInfo.email &&
-      !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(patientInfo.email)
+      !/^[\w-.]+@([\w-]+\.)+[\w-]{2, 4}$/.test(patientInfo.email)
     ) {
       errors.email = "Email không hợp lệ.";
     }
@@ -802,30 +663,13 @@ const PatientInformation = ({
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Loại cuộc hẹn *
-          </label>
-          <select
-            value={patientInfo.appointmentType || ""}
-            onChange={(e) =>
-              handleInputChange("appointmentType", e.target.value)
-            }
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="">-- Chọn loại cuộc hẹn --</option>
-            {appointmentTypeOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          {formErrors.appointmentType && (
-            <p className="text-red-500 text-sm mt-1">
-              {formErrors.appointmentType}
-            </p>
-          )}
-        </div>
+        <p>
+          <span className="font-medium">Loại cuộc hẹn:</span>{" "}
+          <span className="inline-flex items-center px-2 py-1 rounded bg-blue-100 text-blue-800 text-sm font-medium">
+            <Stethoscope className="w-4 h-4 mr-1" />
+            {formatAppointmentType("EXAMNINATION")}
+          </span>
+        </p>
 
         <div className="space-y-4">
           <div>
@@ -906,24 +750,6 @@ const PatientInformation = ({
 };
 
 // Confirmation Component
-const serviceNameMap = {
-  1: "Không xác định",
-  2: "Siêu âm đầu dò âm đạo theo dõi nang noãn",
-  3: "Xét nghiệm tinh dịch đồ (Phân tích cơ bản)",
-  4: "Xét nghiệm nội tiết tố nữ cơ bản (AMH, FSH, LH, E2)",
-  5: "Thực hiện kỹ thuật IUI (Bơm tinh trùng vào buồng tử cung)",
-  6: "Gói kích thích buồng trứng IVF (Thuốc + Theo dõi)",
-  7: "Công thức máu",
-  8: "Trữ đông tinh trùng",
-  9: "Trữ đông noãn (trứng)",
-  10: "Xét nghiệm Di truyền Tiền làm tổ (PGT-A)",
-  11: "Tư vấn Di truyền Sinh sản",
-  12: "Siêu âm thai 4D",
-  13: "Khám thai định kỳ",
-  14: "Xét nghiệm NIPT (Sàng lọc trước sinh không xâm lấn)",
-  15: "Test",
-};
-
 const Confirmation = ({
   selectedDoctor,
   selectedDate,
@@ -1208,12 +1034,12 @@ const AppointmentBooking = () => {
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
-
+  const [hasVisitedBefore, setHasVisitedBefore] = useState(null);
   const [appointmentData, setAppointmentData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const steps = [
-    "Chọn dịch vụ",
+    "Xác nhận lần khám",
     "Chọn bác sĩ",
     "Chọn ngày giờ",
     "Thông tin",
@@ -1221,9 +1047,15 @@ const AppointmentBooking = () => {
     "Hoàn thành",
   ];
 
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+  const handleNext = async () => {
+    if (currentStep === 0 && hasVisitedBefore === false) {
+      // Nếu là lần đầu, bỏ qua bước chọn bác sĩ
+      await fetchRandomDoctor();
+      setCurrentStep(2);
+    } else {
+      if (currentStep < steps.length - 1) {
+        setCurrentStep(currentStep + 1);
+      }
     }
   };
 
@@ -1232,6 +1064,48 @@ const AppointmentBooking = () => {
       setCurrentStep(currentStep - 1);
     }
   };
+  const InitialStep = ({ onNext, onSetVisited }) => {
+    return (
+      <div className="text-center">
+        <h2 className="text-2xl font-semibold mb-4">Bạn có tái khám hay không?</h2>
+        <div className="flex justify-center gap-6">
+          <button
+            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600"
+            onClick={() => {
+              onSetVisited(true);
+              onNext();
+            }}
+          >
+            Rồi, tôi từng khám
+          </button>
+          <button
+            className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600"
+            onClick={() => {
+              onSetVisited(false);
+              onNext();
+            }}
+          >
+            Chưa, lần đây là lần đầu tiên
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+
+  const fetchRandomDoctor = async () => {
+    try {
+      const res = await instance.get("/api/doctors");
+      const doctors = res.data?.data || [];
+      if (doctors.length > 0) {
+        const randomDoctor = doctors[Math.floor(Math.random() * doctors.length)];
+        setSelectedDoctor(randomDoctor);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy bác sĩ ngẫu nhiên:", error);
+    }
+  };
+
 
   const [patientInfo, setPatientInfo] = useState({
     profileId: null,
@@ -1330,10 +1204,10 @@ const AppointmentBooking = () => {
       const appointmentData = {
         patientProfileId: patientInfo.profileId,
         doctorUserId: selectedDoctor.userId,
-        serviceDefinitionId: selectedService.ServiceDefinitionID,
+        serviceDefinitionId: "CONSULTATION",
         appointmentDateTime: appointmentDateTime.toISOString(),
         estimatedDurationMinutes: 30,
-        appointmentType: selectedService.type || "MEDICAL_EXAMINATION",
+        appointmentType: "EXAMNINATION",
         reasonForVisit: patientInfo.symptom || "Khám tổng quát",
         notes: "Đặt lịch online",
       };
@@ -1375,21 +1249,21 @@ const AppointmentBooking = () => {
     switch (currentStep) {
       case 0:
         return (
-          //
-          <DoctorSelection
-            selectedDoctor={selectedDoctor}
-            onSelectDoctor={setSelectedDoctor}
+          <InitialStep
             onNext={handleNext}
+            onSetVisited={setHasVisitedBefore}
+            onBack={handleBack}
             onCancel={handleCancel}
           />
         );
       case 1:
         return (
-          <ServiceSelection
-            selectedService={selectedService}
-            onSelectService={(s) => setSelectedService(s)}
+          <DoctorSelection
+            selectedDoctor={selectedDoctor}
+            onSelectDoctor={setSelectedDoctor}
             onNext={handleNext}
             onCancel={handleCancel}
+            onBack={handleBack}
           />
         );
       case 2:

@@ -1,71 +1,81 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import axios from "../config/axios"; // Giả sử bạn có file axios config
-import instance from "../config/axios";
+import axios from "../config/axios";
+import Cookies from "js-cookie";
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Lưu thông tin người dùng
-  const [loading, setLoading] = useState(true); // Trạng thái tải
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Kiểm tra trạng thái đăng nhập khi ứng dụng khởi động
+  // Đọc user và token từ cookie
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("accessToken");
-    console.log("User hiện tại:", user);
+    const token = Cookies.get("accessToken");
+    const storedUser = Cookies.get("user");
 
-    // Chỉ parse nếu storedUser là chuỗi hợp lệ
-    const parsedUser = storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : null;
-
-    if (parsedUser && token) {
-      setUser(parsedUser);
+    if (storedUser && token) {
+      setUser(JSON.parse(storedUser));
+      setLoading(false);
     } else if (token) {
-      fetchUser();
+      fetchUser(); // Lấy user nếu chỉ có token
     } else {
-      setLoading(false); // Chỉ set loading = false nếu không có token
+      setLoading(false);
     }
   }, []);
 
-  // Hàm đăng nhập
+  // Đăng nhập
   const login = async (credentials) => {
     try {
-      const response = await axios.post("/api/auth/login", credentials); // Gọi API login
+      const response = await axios.post("/api/auth/login", credentials);
       const { accessToken, user: userData } = response.data.data;
-        console.log("userData after destructuring:", userData); // THÊM DÒNG NÀY ĐỂ DEBUG
-      console.log("Login response:", response.data); // Debug dữ liệu trả về
 
-      // Lưu token và user vào localStorage
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("user", JSON.stringify(userData));
+      Cookies.set("accessToken", accessToken, {
+        expires: 1, // 1 ngày
+        secure: true, // ✅ chỉ dùng HTTPS
+        sameSite: "Strict", // ✅ bảo vệ CSRF
+      });
 
-      setUser(userData); // Cập nhật trạng thái user
+      Cookies.set("user", JSON.stringify(userData), {
+        expires: 1,
+        secure: true,
+        sameSite: "Strict",
+      });
+
+      setUser(userData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;
     }
   };
 
-  // Hàm đăng xuất
+  // Đăng xuất
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
+    Cookies.remove("accessToken");
+    Cookies.remove("user");
   };
 
-  // Hàm lấy thông tin người dùng
+  // Gọi API lấy user nếu token hợp lệ
   const fetchUser = async () => {
     try {
-      const response = await axios.get("/api/auth/me", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
-      });
+      const token = Cookies.get("accessToken");
+      if (!token) throw new Error("Token không tồn tại");
+
+      const response = await axios.get("/api/auth/me");
+
       const userData = response.data;
-      console.log("Fetch user response:", response.data); // Debug dữ liệu trả về
       setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
+
+      Cookies.set("user", JSON.stringify(userData), {
+        expires: 1,
+        secure: true,
+        sameSite: "Strict",
+      });
     } catch (error) {
       console.error("Error fetching user:", error);
-      logout(); // Đăng xuất nếu không lấy được thông tin người dùng
+      logout();
     } finally {
-      setLoading(false); // Đảm bảo set loading = false sau khi fetch hoàn tất
+      setLoading(false);
     }
   };
 
@@ -76,11 +86,10 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// Custom hook
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
 

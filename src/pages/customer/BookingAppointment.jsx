@@ -1,1510 +1,515 @@
-import React, { useState, useEffect } from "react";
-import {
-  Calendar,
-  Clock,
-  User,
-  CheckCircle,
-  ArrowLeft,
-  Stethoscope,
-  ClipboardList,
-  X,
-  ChevronRight,
-  ChevronLeft,
-  FileText,
-} from "lucide-react";
-import { getDoctors, getDoctorDetail } from "../../api/customer/doctorList";
-import Swal from "sweetalert2";
-import { useNavigate } from "react-router";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import { createAppointment } from "../../api/customer/appointmentAPI";
-import { useAuth } from "../../context/AuthContext";
-
-//data
-import { serviceList } from "../../data/serviceList";
-// Step Progress Component
-const StepProgress = ({ currentStep, steps }) => {
-  return (
-    <div className="w-full py-6">
-      <div className="flex items-center justify-between">
-        {steps.map((step, index) => (
-          <div key={index} className="flex items-center">
-            <div className="flex flex-col items-center">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
-                  index < currentStep
-                    ? "bg-blue-600 text-white"
-                    : index === currentStep
-                    ? "bg-blue-100 text-blue-600 border-2 border-blue-600"
-                    : "bg-gray-200 text-gray-500"
-                }`}
-              >
-                {index < currentStep ? (
-                  <CheckCircle className="w-5 h-5" />
-                ) : (
-                  index + 1
-                )}
-              </div>
-              <span
-                className={`mt-2 text-sm font-medium ${
-                  index <= currentStep ? "text-gray-900" : "text-gray-500"
-                }`}
-              >
-                {step}
-              </span>
-            </div>
-            {index < steps.length - 1 && (
-              <div
-                className={`flex-1 h-1 mx-4 rounded transition-all duration-200 ${
-                  index < currentStep ? "bg-blue-600" : "bg-gray-200"
-                }`}
-              />
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-//Service selection Component
-
-const ServiceSelection = ({
-  selectedService,
-  onSelectService,
-  onNext,
-  onCancel,
-}) => {
-  const [services, setServices] = useState([]);
-  const [selectedDetail, setSelectedDetail] = useState(null);
-  const [loadingDetailId, setLoadingDetailId] = useState(null);
-
-  useEffect(() => {
-    // Giả lập loading
-    setTimeout(() => {
-      setServices(serviceList);
-    }, 300);
-  }, []);
-
-  const fetchServiceDetail = (serviceId) => {
-    setLoadingDetailId(serviceId);
-    setTimeout(() => {
-      const detail = serviceList.find(
-        (service) => service.ServiceDefinitionID === serviceId
-      );
-      setSelectedDetail(detail);
-      setLoadingDetailId(null);
-    }, 300); // giả delay
-  };
-
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Chọn dịch vụ</h2>
-
-      {services.length === 0 ? (
-        <p>Đang tải danh sách dịch vụ...</p>
-      ) : (
-        <div className="grid gap-4">
-          {services.map((service) => {
-            const isSelected =
-              selectedService?.ServiceDefinitionID ===
-              service.ServiceDefinitionID;
-            return (
-              <div
-                key={service.ServiceDefinitionID}
-                className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-lg ${
-                  isSelected
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="text-3xl">🩺</div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {service.ServiceName}
-                    </h3>
-                    <p className="text-sm text-gray-700">
-                      {service.Description || "Không có mô tả"}
-                    </p>
-                    <div className="mt-2 text-sm text-gray-500 space-x-6">
-                      <span>
-                        Loại: <strong>{service.ServiceType}</strong>
-                      </span>
-                      <span>
-                        Thời lượng: {service.EstimatedDurationMinutes || "?"}{" "}
-                        phút
-                      </span>
-
-                      <button
-                        onClick={() =>
-                          fetchServiceDetail(service.ServiceDefinitionID)
-                        }
-                        className="text-blue-600 underline hover:text-blue-800 ml-2"
-                      >
-                        Xem chi tiết
-                      </button>
-                      {loadingDetailId === service.ServiceDefinitionID && (
-                        <span className="text-blue-500 animate-pulse ml-2">
-                          Đang tải...
-                        </span>
-                      )}
-                      {selectedDetail?.ServiceDefinitionID ===
-                        service.ServiceDefinitionID && (
-                        <span className="text-xs text-gray-600 animate-bounce ml-2 flex items-center gap-1">
-                          Xem ở bên dưới{" "}
-                          <ArrowDownwardIcon className="w-4 h-4" />
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      isSelected
-                        ? "border-blue-500 bg-blue-500"
-                        : "border-gray-300"
-                    }`}
-                    onClick={() => onSelectService(service)}
-                  >
-                    {isSelected && (
-                      <CheckCircle className="w-5 h-5 text-white" />
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {selectedDetail && (
-        <div className="mt-6 p-6 border rounded-xl bg-gray-50 shadow-sm">
-          <h3 className="text-xl font-bold mb-4 text-gray-800">
-            Chi tiết dịch vụ
-          </h3>
-          <div className="grid gap-2 text-gray-700 text-sm">
-            <p>
-              <strong>Tên dịch vụ:</strong> {selectedDetail.ServiceName}
-            </p>
-            <p>
-              <strong>Mô tả:</strong> {selectedDetail.Description || "Không có"}
-            </p>
-            <p>
-              <strong>Loại:</strong> {selectedDetail.ServiceType}
-            </p>
-            <p>
-              <strong>Thời lượng:</strong>{" "}
-              {selectedDetail.EstimatedDurationMinutes || "?"} phút
-            </p>
-            <p>
-              <strong>Ghi chú:</strong> {selectedDetail.Notes || "Không có"}
-            </p>
-          </div>
-        </div>
-      )}
-
-      <div className="flex justify-between pt-6">
-        <button
-          onClick={onCancel}
-          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-        >
-          <X className="w-4 h-4 inline mr-2" />
-          Hủy
-        </button>
-        <button
-          onClick={onNext}
-          disabled={!selectedService}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-            selectedService
-              ? "bg-blue-600 text-white hover:bg-blue-700"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
-        >
-          Tiếp tục
-          <ChevronRight className="w-4 h-4 inline ml-2" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// Doctor Selection Component
-const DoctorSelection = ({
-  selectedDoctor,
-  onSelectDoctor,
-  onNext,
-  onCancel,
-}) => {
-  const [selectedDetail, setSelectedDetail] = useState(null);
-  const [loadingDoctorId, setLoadingDoctorId] = useState(null);
-  const [errorDetail, setErrorDetail] = useState(null);
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, Calendar, Clock, User, FileText, Check, X, Phone, Mail, Award, BookOpen, Languages, DollarSign } from 'lucide-react';
+import instance from '../../config/axios';
+import { getDoctors, getDoctorDetail } from '../../api/customer/doctorList'; // Adjust the import path as needed
+const BookingAppointment = () => {
+  const [currentStep, setCurrentStep] = useState(1);
   const [doctors, setDoctors] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [loadingDetail, setLoadingDetail] = useState(false);
-  const [selectedDetailUserId, setSelectedDetailUserId] = useState(null);
-
-  useEffect(() => {
-    getDoctors()
-      .then(async (res) => {
-        const doctorList = res.data?.content || [];
-
-        // Gọi song song getDoctorDetail() cho từng doctor
-        const detailedDoctors = await Promise.all(
-          doctorList.map(async (doctor) => {
-            try {
-              const detail = await getDoctorDetail(doctor.userId);
-              return {
-                ...doctor,
-                consultationFee: detail.data.consultationFee,
-              };
-            } catch {
-              return {
-                ...doctor,
-                consultationFee: null,
-              };
-            }
-          })
-        );
-
-        setDoctors(detailedDoctors);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Không thể tải danh sách bác sĩ.");
-        setLoading(false);
-      });
-  }, []);
-
-  const fetchDoctorDetail = async (doctorId) => {
-    setSelectedDetailUserId(doctorId);
-    setErrorDetail(null);
-    try {
-      const doctorDetail = await getDoctorDetail(doctorId);
-      console.log("Chi tiết bác sĩ:", doctorDetail);
-      setSelectedDetail(doctorDetail.data);
-    } catch (err) {
-      console.error("Lỗi khi lấy chi tiết bác sĩ", err);
-      setErrorDetail("Không thể tải chi tiết bác sĩ.");
-      setSelectedDetail(null);
-    } finally {
-      setLoadingDoctorId(null);
-      setLoadingDetail(false);
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Chọn bác sĩ</h2>
-
-      {loading && <p>Đang tải danh sách bác sĩ...</p>}
-      {error && <p className="text-red-600">{error}</p>}
-
-      {!loading && !error && (
-        <div className="grid gap-4">
-          {doctors.map((doctor) => {
-            const isSelected =
-              selectedDoctor?.id === doctor.id &&
-              selectedDoctor?.fullName === doctor.fullName;
-            const isLoadingThisDoctor = loadingDoctorId === doctor.id;
-
-            return (
-              <div
-                key={doctor.id}
-                className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:shadow-lg ${
-                  isSelected
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                {loadingDetail && (
-                  <div className="text-center text-blue-500 font-medium py-4 animate-pulse">
-                    Đang tải thông tin bác sĩ...
-                  </div>
-                )}
-
-                <div className="flex items-center space-x-4">
-                  <div className="text-4xl">👨‍⚕️</div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {doctor.fullName}
-                    </h3>
-                    <p className="text-blue-600 font-medium">
-                      {doctor.specializationName || "Chưa rõ chuyên khoa"}
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      {doctor.shortBio || "Kinh nghiệm chưa rõ"}
-                    </p>
-
-                    <div className="flex items-center mt-2 space-x-10">
-                      <span className="text-green-600 font-semibold">
-                        Phí tư vấn:&nbsp;
-                        <span className="text-sm text-green-600">
-                          {doctor.consultationFee
-                            ? `${doctor.consultationFee.toLocaleString()} VNĐ`
-                            : "Chưa rõ"}
-                        </span>
-                      </span>
-
-                      <button
-                        onClick={() => fetchDoctorDetail(doctor.userId)}
-                        className="text-sm text-blue-600 underline hover:text-blue-800"
-                      >
-                        Xem chi tiết
-                      </button>
-                      {selectedDetailUserId === doctor.userId &&
-                        !loadingDetail && (
-                          <p className="text-xs text-gray-600 mt-1 flex items-center gap-1 animate-bounce">
-                            Xem ở bên dưới
-                            <span className="text-lg">
-                              <ArrowDownwardIcon />
-                            </span>
-                          </p>
-                        )}
-                    </div>
-                  </div>
-
-                  <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      isSelected
-                        ? "border-blue-500 bg-blue-500"
-                        : "border-gray-300"
-                    }`}
-                    onClick={() => onSelectDoctor(doctor)}
-                  >
-                    {isSelected && (
-                      <CheckCircle className="w-5 h-5 text-white" />
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {selectedDetail && (
-        <div className="mt-6 p-6 border rounded-xl bg-gray-50 shadow-sm">
-          <h3 className="text-xl font-bold mb-4 text-gray-800">
-            Thông tin chi tiết bác sĩ
-          </h3>
-
-          <div className="grid gap-2 text-gray-700 text-sm">
-            <p>
-              <strong>Tiểu sử ngắn:</strong>{" "}
-              {selectedDetail.shortBio || "Chưa có"}
-            </p>
-            <p>
-              <strong>Bằng cấp:</strong>{" "}
-              {selectedDetail.qualifications || "Chưa có"}
-            </p>
-            <p>
-              <strong>Bằng cấp chi tiết:</strong>{" "}
-              {selectedDetail.detailedQualifications || "Chưa có"}
-            </p>
-            <p>
-              <strong>Số năm kinh nghiệm:</strong>{" "}
-              {selectedDetail.experienceYears || "Không rõ"}
-            </p>
-            <p>
-              <strong>Kinh nghiệm làm việc:</strong>{" "}
-              {selectedDetail.workExperience || "Không rõ"}
-            </p>
-            <p>
-              <strong>Học vấn:</strong> {selectedDetail.education || "Không rõ"}
-            </p>
-            <p>
-              <strong>Chứng chỉ:</strong>{" "}
-              {selectedDetail.certifications || "Không rõ"}
-            </p>
-            <p>
-              <strong>Ấn phẩm:</strong>{" "}
-              {selectedDetail.publications || "Không rõ"}
-            </p>
-            <p>
-              <strong>Thành viên chuyên môn:</strong>{" "}
-              {selectedDetail.professionalMemberships || "Không rõ"}
-            </p>
-            <p>
-              <strong>Ngôn ngữ sử dụng:</strong>{" "}
-              {selectedDetail.languagesSpoken || "Không rõ"}
-            </p>
-            <p>
-              <strong>Phí tư vấn:</strong>{" "}
-              {selectedDetail.consultationFee
-                ? `${selectedDetail.consultationFee} VND`
-                : "Không rõ"}
-            </p>
-            {selectedDetail.doctorProfilePictureUrl && (
-              <img
-                src={selectedDetail.doctorProfilePictureUrl}
-                alt="Hình bác sĩ"
-                className="w-32 h-32 rounded-full mt-4 object-cover border"
-              />
-            )}
-          </div>
-        </div>
-      )}
-
-      <div className="flex justify-between pt-6">
-        <button
-          onClick={onCancel}
-          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-        >
-          <X className="w-4 h-4 inline mr-2" />
-          Hủy
-        </button>
-        <button
-          onClick={onNext}
-          disabled={!selectedDoctor}
-          className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-            selectedDoctor
-              ? "bg-blue-600 text-white hover:bg-blue-700"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
-        >
-          Tiếp tục
-          <ChevronRight className="w-4 h-4 inline ml-2" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// Date and Time Selection Component
-const DateTimeSelection = ({
-  selectedDate,
-  selectedTime,
-  onSelectDate,
-  onSelectTime,
-  onNext,
-  onBack,
-  onCancel,
-}) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-
-  const availableTimes = [
-    "08:00",
-    "08:30",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-  ];
-
-  const generateCalendarDays = () => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay());
-
-    const days = [];
-    const today = new Date();
-
-    for (let i = 0; i < 42; i++) {
-      const currentDate = new Date(startDate);
-      currentDate.setDate(startDate.getDate() + i);
-
-      const isCurrentMonth = currentDate.getMonth() === month;
-      const isPast = currentDate < today;
-      const isSelected =
-        selectedDate &&
-        currentDate.toDateString() === selectedDate.toDateString();
-
-      days.push({
-        date: currentDate,
-        isCurrentMonth,
-        isPast,
-        isSelected,
-        day: currentDate.getDate(),
-      });
-    }
-
-    return days;
-  };
-
-  const monthNames = [
-    "Tháng 1",
-    "Tháng 2",
-    "Tháng 3",
-    "Tháng 4",
-    "Tháng 5",
-    "Tháng 6",
-    "Tháng 7",
-    "Tháng 8",
-    "Tháng 9",
-    "Tháng 10",
-    "Tháng 11",
-    "Tháng 12",
-  ];
-
-  const weekDays = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">
-        Chọn ngày và giờ khám
-      </h2>
-
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Calendar */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">
-              {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-            </h3>
-            <div className="flex space-x-2">
-              <button
-                onClick={() =>
-                  setCurrentMonth(
-                    new Date(
-                      currentMonth.getFullYear(),
-                      currentMonth.getMonth() - 1
-                    )
-                  )
-                }
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() =>
-                  setCurrentMonth(
-                    new Date(
-                      currentMonth.getFullYear(),
-                      currentMonth.getMonth() + 1
-                    )
-                  )
-                }
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-7 gap-1">
-            {weekDays.map((day) => (
-              <div
-                key={day}
-                className="p-2 text-center text-sm font-medium text-gray-500"
-              >
-                {day}
-              </div>
-            ))}
-            {generateCalendarDays().map((day, index) => (
-              <button
-                key={index}
-                onClick={() =>
-                  !day.isPast && day.isCurrentMonth && onSelectDate(day.date)
-                }
-                disabled={day.isPast || !day.isCurrentMonth}
-                className={`p-2 text-sm rounded-lg transition-colors ${
-                  day.isSelected
-                    ? "bg-blue-600 text-white"
-                    : day.isCurrentMonth && !day.isPast
-                    ? "hover:bg-blue-100 text-gray-900"
-                    : "text-gray-400 cursor-not-allowed"
-                }`}
-              >
-                {day.day}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Time Slots */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Chọn giờ khám</h3>
-          <div className="grid grid-cols-3 gap-2">
-            {availableTimes.map((time) => (
-              <button
-                key={time}
-                onClick={() => onSelectTime(time)}
-                disabled={!selectedDate}
-                className={`p-3 text-sm rounded-lg border transition-colors ${
-                  selectedTime === time
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : selectedDate
-                    ? "border-gray-300 hover:border-blue-500 hover:bg-blue-50"
-                    : "border-gray-200 text-gray-400 cursor-not-allowed"
-                }`}
-              >
-                {time}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-between pt-6">
-        <button
-          onClick={onBack}
-          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4 inline mr-2" />
-          Quay lại
-        </button>
-        <div className="space-x-3">
-          <button
-            onClick={onCancel}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <X className="w-4 h-4 inline mr-2" />
-            Hủy
-          </button>
-          <button
-            onClick={onNext}
-            disabled={!selectedDate || !selectedTime}
-            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-              selectedDate && selectedTime
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            Tiếp tục
-            <ChevronRight className="w-4 h-4 inline ml-2" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Patient Information Component
-const PatientInformation = ({
-  patientInfo,
-  onUpdatePatientInfo,
-  onNext,
-  onBack,
-  onCancel,
-}) => {
-  const handleInputChange = (field, value) => {
-    onUpdatePatientInfo({ ...patientInfo, [field]: value });
-  };
-  const [formErrors, setFormErrors] = useState({});
-  const [isFormValidate, setIsFormValidate] = useState(false);
-  const [errors, setErrors] = useState({});
-
-  const appointmentTypeOptions = [
-    { label: "Khám sức khỏe tổng quát", value: "MEDICAL_EXAMINATION" },
-    { label: "Khám chuyên khoa", value: "EXAMINATION" },
-    { label: "Xét nghiệm", value: "TESTS" },
-    { label: "Tư vấn", value: "CONSULTATION" },
-    { label: "Thủ thuật", value: "PROCEDURES" },
-  ];
-  const validateForm = () => {
-    const errors = {};
-
-    if (!patientInfo.name || patientInfo.name.trim().length < 2) {
-      errors.name = "Họ và tên phải có ít nhất 2 ký tự.";
-    } else if (!/^[a-zA-ZÀ-ỹ\s]+$/.test(patientInfo.name)) {
-      errors.name = "Tên không được chứa ký tự đặc biệt hoặc số.";
-    }
-
-    if (
-      !patientInfo.appointmentType ||
-      patientInfo.appointmentType.trim() === ""
-    ) {
-      errors.appointmentType = "Vui lòng chọn loại cuộc hẹn.";
-    }
-
-    if (!patientInfo.phone || !/^\d{9,11}$/.test(patientInfo.phone)) {
-      errors.phone = "Số điện thoại không hợp lệ (9-11 chữ số).";
-    }
-
-    if (
-      patientInfo.email &&
-      !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(patientInfo.email)
-    ) {
-      errors.email = "Email không hợp lệ.";
-    }
-
-    if (!patientInfo.reason || patientInfo.reason.trim().length < 5) {
-      errors.reason = "Lý do khám phải có ít nhất 5 ký tự.";
-    }
-
-    if (patientInfo.birthDate) {
-      const birth = new Date(patientInfo.birthDate);
-      const today = new Date();
-
-      if (isNaN(birth.getTime())) {
-        errors.birthDate = "Ngày sinh không hợp lệ.";
-      } else if (birth > today) {
-        errors.birthDate = "Ngày sinh không được ở tương lai.";
-      }
-    }
-
-    return errors;
-  };
-  useEffect(() => {
-    const errors = validateForm();
-    setFormErrors(errors);
-    setIsFormValidate(Object.keys(errors).length === 0);
-  }, [patientInfo]);
-  const isFormValid =
-    patientInfo.name &&
-    patientInfo.phone &&
-    patientInfo.reason &&
-    patientInfo.appointmentType;
-
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 min-h-20">
-        Thông tin bệnh nhân
-      </h2>
-
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Họ và tên *
-            </label>
-            <input
-              type="text"
-              value={patientInfo.name || ""}
-              onChange={(e) => handleInputChange("name", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Nhập họ và tên"
-            />
-            {formErrors.name && (
-              <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Số điện thoại *
-            </label>
-            <input
-              type="tel"
-              value={patientInfo.phone || ""}
-              onChange={(e) => handleInputChange("phone", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Nhập số điện thoại"
-            />
-            {formErrors.phone && (
-              <p className="text-red-500 text-sm mt-1">{formErrors.phone}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              value={patientInfo.email || ""}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Nhập địa chỉ email"
-            />
-            {formErrors.email && (
-              <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ngày sinh
-            </label>
-            <input
-              type="date"
-              value={patientInfo.birthDate || ""}
-              onChange={(e) => handleInputChange("birthDate", e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            {formErrors.birthDate && (
-              <p className="text-red-500 text-sm mt-1">
-                {formErrors.birthDate}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Loại cuộc hẹn *
-          </label>
-          <select
-            value={patientInfo.appointmentType || ""}
-            onChange={(e) =>
-              handleInputChange("appointmentType", e.target.value)
-            }
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="">-- Chọn loại cuộc hẹn --</option>
-            {appointmentTypeOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          {formErrors.appointmentType && (
-            <p className="text-red-500 text-sm mt-1">
-              {formErrors.appointmentType}
-            </p>
-          )}
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Lý do khám *
-            </label>
-            <textarea
-              value={patientInfo.reason || ""}
-              onChange={(e) => handleInputChange("reason", e.target.value)}
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              placeholder="Mô tả triệu chứng hoặc lý do khám bệnh"
-            />
-            {formErrors.reason && (
-              <p className="text-red-500 text-sm mt-1">{formErrors.reason}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Địa chỉ
-            </label>
-            <textarea
-              value={patientInfo.address || ""}
-              onChange={(e) => handleInputChange("address", e.target.value)}
-              rows={3}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              placeholder="Nhập địa chỉ"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ghi chú
-            </label>
-            <textarea
-              value={patientInfo.notes || ""}
-              onChange={(e) => handleInputChange("notes", e.target.value)}
-              rows={2}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              placeholder="Ghi chú thêm (nếu có)"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-between pt-6">
-        <button
-          onClick={onBack}
-          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4 inline mr-2" />
-          Quay lại
-        </button>
-        <div className="space-x-3">
-          <button
-            onClick={onCancel}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <X className="w-4 h-4 inline mr-2" />
-            Hủy
-          </button>
-          <button
-            onClick={onNext}
-            disabled={!isFormValid}
-            className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-              isFormValid
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            Xem lại thông tin
-            <ChevronRight className="w-4 h-4 inline ml-2" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Confirmation Component
-const serviceNameMap = {
-  1: "Không xác định",
-  2: "Siêu âm đầu dò âm đạo theo dõi nang noãn",
-  3: "Xét nghiệm tinh dịch đồ (Phân tích cơ bản)",
-  4: "Xét nghiệm nội tiết tố nữ cơ bản (AMH, FSH, LH, E2)",
-  5: "Thực hiện kỹ thuật IUI (Bơm tinh trùng vào buồng tử cung)",
-  6: "Gói kích thích buồng trứng IVF (Thuốc + Theo dõi)",
-  7: "Công thức máu",
-  8: "Trữ đông tinh trùng",
-  9: "Trữ đông noãn (trứng)",
-  10: "Xét nghiệm Di truyền Tiền làm tổ (PGT-A)",
-  11: "Tư vấn Di truyền Sinh sản",
-  12: "Siêu âm thai 4D",
-  13: "Khám thai định kỳ",
-  14: "Xét nghiệm NIPT (Sàng lọc trước sinh không xâm lấn)",
-  15: "Test",
-};
-
-const Confirmation = ({
-  selectedDoctor,
-  selectedDate,
-  selectedTime,
-  patientInfo,
-  selectedService,
-  onConfirm,
-  onBack,
-  onCancel,
-  isLoading,
-}) => {
-  const formatDate = (date) => {
-    return date.toLocaleDateString("vi-VN", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const formatAppointmentType = (type) => {
-    switch (type) {
-      case "MEDICAL_EXAMINATION":
-        return "Khám sức khỏe tổng quát";
-      case "TESTS":
-        return "Xét nghiệm";
-      case "CONSULTATION":
-        return "Tư vấn";
-      case "EXAMNINATION":
-        return "Khám chuyên khoa";
-      case "PROCEDURES":
-        return "Thủ thuật";
-      default:
-        return "Khác";
-    }
-  };
-
-  const getServiceName = (id) => {
-    return serviceNameMap[id] || "Dịch vụ không xác định";
-  };
-
-  const getServiceTypeLabel = (type) => {
-    switch (type) {
-      case "Procedure":
-        return "Thủ thuật";
-      case "LabTest":
-        return "Xét nghiệm";
-      case "Package":
-        return "Gói dịch vụ";
-      case "Consultation":
-        return "Tư vấn";
-      default:
-        return "Không rõ";
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">
-        Xác nhận thông tin đặt lịch
-      </h2>
-
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Thông tin bác sĩ & thời gian */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <User className="w-5 h-5 text-blue-600" />
-              <div>
-                <h3 className="font-semibold text-gray-900">Bác sĩ</h3>
-                <p className="text-gray-700">{selectedDoctor?.fullName}</p>
-                <p className="text-sm text-blue-600">
-                  {selectedDoctor?.specialty}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <Calendar className="w-5 h-5 text-blue-600" />
-              <div>
-                <h3 className="font-semibold text-gray-900">Ngày khám</h3>
-                <p className="text-gray-700">{formatDate(selectedDate)}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <Clock className="w-5 h-5 text-blue-600" />
-              <div>
-                <h3 className="font-semibold text-gray-900">Giờ khám</h3>
-                <p className="text-gray-700">{selectedTime}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Thông tin bệnh nhân */}
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Thông tin bệnh nhân
-              </h3>
-              <div className="space-y-1 text-sm">
-                <p>
-                  <span className="font-medium">Tên:</span> {patientInfo.name}
-                </p>
-                <p>
-                  <span className="font-medium">Điện thoại:</span>{" "}
-                  {patientInfo.phone}
-                </p>
-                {patientInfo.email && (
-                  <p>
-                    <span className="font-medium">Email:</span>{" "}
-                    {patientInfo.email}
-                  </p>
-                )}
-                {patientInfo.birthDate && (
-                  <p>
-                    <span className="font-medium">Ngày sinh:</span>{" "}
-                    {new Date(patientInfo.birthDate).toLocaleDateString(
-                      "vi-VN"
-                    )}
-                  </p>
-                )}
-                {patientInfo.appointmentType && (
-                  <p>
-                    <span className="font-medium">Loại cuộc hẹn:</span>{" "}
-                    <span className="inline-flex items-center px-2 py-1 rounded bg-blue-100 text-blue-800 text-sm font-medium">
-                      <Stethoscope className="w-4 h-4 mr-1" />
-                      {formatAppointmentType(patientInfo.appointmentType)}
-                    </span>
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Lý do khám */}
-            {patientInfo.reason && (
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Lý do khám</h3>
-                <p className="text-sm text-gray-700 bg-white p-3 rounded-lg">
-                  {patientInfo.reason}
-                </p>
-              </div>
-            )}
-
-            {/* Dịch vụ khám */}
-            {selectedService && (
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">
-                  Dịch vụ khám
-                </h3>
-                <div className="bg-white p-4 rounded-lg shadow text-sm space-y-2 border border-gray-200">
-                  <p>
-                    <span className="font-medium text-gray-800">
-                      <ClipboardList className="inline w-4 h-4 mr-1 text-indigo-500" />
-                      Tên dịch vụ:
-                    </span>{" "}
-                    {getServiceName(selectedService.ServiceDefinitionID)}
-                  </p>
-                  <p>
-                    <span className="font-medium text-gray-800">
-                      <FileText className="inline w-4 h-4 mr-1 text-teal-500" />
-                      Loại dịch vụ:
-                    </span>{" "}
-                    {getServiceTypeLabel(selectedService.ServiceType)}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Tổng chi phí */}
-        <div className="mt-6 p-4 bg-white rounded-lg border">
-          <div className="flex justify-between items-center">
-            <span className="text-lg font-semibold text-gray-900">
-              Tổng chi phí:
-            </span>
-            <span className="text-2xl font-bold text-green-600">
-              {selectedDoctor?.consultationFee?.toLocaleString("vi-VN", {
-                style: "currency",
-                currency: "VND",
-              })}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Nút điều hướng */}
-      <div className="flex justify-between pt-6">
-        <button
-          onClick={onBack}
-          disabled={isLoading}
-          className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
-        >
-          <ChevronLeft className="w-4 h-4 inline mr-2" />
-          Quay lại
-        </button>
-        <div className="space-x-3">
-          <button
-            onClick={onCancel}
-            disabled={isLoading}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
-          >
-            <X className="w-4 h-4 inline mr-2" />
-            Hủy
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isLoading}
-            className="px-8 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Đang xử lý...
-              </>
-            ) : (
-              <>
-                <CheckCircle className="w-5 h-5 mr-2" />
-                Xác nhận đặt lịch
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Success Component
-const Success = ({ appointmentData, onNewAppointment }) => {
-  return (
-    <div className="text-center space-y-6">
-      <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-        <CheckCircle className="w-10 h-10 text-green-600" />
-      </div>
-
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Đặt lịch thành công!
-        </h2>
-        <p className="text-gray-600">
-          Lịch khám của bạn đã được đặt thành công. Chúng tôi sẽ liên hệ với bạn
-          để xác nhận trong thời gian sớm nhất.
-        </p>
-      </div>
-
-      <div className="bg-green-50 border border-green-200 rounded-xl p-6 max-w-md mx-auto">
-        <h3 className="font-semibold text-green-800 mb-3">Mã đặt lịch</h3>
-        <p className="text-2xl font-bold text-green-600 mb-4">
-          #{appointmentData?.id || "APT001"}
-        </p>
-        <p className="text-sm text-green-700">
-          Vui lòng lưu mã này để tra cứu thông tin lịch khám
-        </p>
-      </div>
-
-      <div className="space-y-3">
-        <button
-          onClick={onNewAppointment}
-          className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
-        >
-          Đặt lịch mới
-        </button>
-        <button
-          onClick={() => (window.location.href = "/")}
-          className="w-full px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-        >
-          Về trang chủ
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// Main Component
-const AppointmentBooking = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [selectedService, setSelectedService] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
+  const [doctorDetails, setDoctorDetails] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const [appointmentData, setAppointmentData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    patientProfileId: 1, // Default value
+    doctorUserId: 0,
+    serviceDefinitionId: 1, // Default for CONSULTATION
+    appointmentDateTime: '',
+    estimatedDurationMinutes: 30,
+    appointmentType: {
+      typeName: 'EXAMINATION',
+      description: 'Regular medical examination'
+    },
+    reasonForVisit: '',
+    notes: ''
+  });
 
   const steps = [
-    "Chọn bác sĩ",
-    "Chọn ngày giờ",
-    "Chọn dịch vụ khám",
-    "Thông tin",
-    "Xác nhận",
-    "Hoàn thành",
+    { id: 1, title: 'Xác nhận lần khám', icon: Check },
+    { id: 2, title: 'Chọn bác sĩ', icon: User },
+    { id: 3, title: 'Chọn ngày giờ', icon: Calendar },
+    { id: 4, title: 'Thông tin', icon: FileText },
+    { id: 5, title: 'Xác nhận', icon: Check }
   ];
 
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
+  // Fetch doctors list là một trong những bước đầu tiên
+
+  const fetchDoctors = async (page = 0, limit = 10) => {
+    setLoading(true);
+    try {
+      const response = await getDoctors(page = 0, limit = 10);
+      if (!response.ok) {
+        
+        console.error("Đã có lỗi xảy ra:", error);
+         throw new Error('Failed to fetch doctors');
+        const data = await response.json();}
+       
+      if (data.success) {
+        setDoctors(data.data.content || []);
+      } else {
+        setError('Failed to load doctors');
+      }
+    } catch (err) {
+      setError('Error loading doctors: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch doctor details
+  const fetchDoctorDetails = async (userId) => {
+    setLoading(true);
+    try {
+      const response = await getDoctorDetail();
+      if (!response.ok) throw new Error('Failed to fetch doctor details');
+      const data = await response.json();
+      if (data.success) {
+        setDoctorDetails(data.data);
+      } else {
+        setError('Failed to load doctor details');
+      }
+    } catch (err) {
+      setError('Error loading doctor details: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Submit appointment
+  const submitAppointment = async () => {
+    setLoading(true);
+    try {
+      const response = await instance.post('/api/appointments');
+
+      if (!response.ok) throw new Error('Failed to create appointment');
+
+      // Success - redirect to home
+      window.location.href = '/';
+    } catch (err) {
+      setError('Error creating appointment: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const nextStep = () => {
+    if (currentStep < 5) {
+      if (currentStep === 1) {
+        fetchDoctors();
+      }
       setCurrentStep(currentStep + 1);
     }
   };
 
-  const handleBack = () => {
-    if (currentStep > 0) {
+  const prevStep = () => {
+    if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
 
-  const [patientInfo, setPatientInfo] = useState({
-    profileId: null,
-    name: "",
-    phone: "",
-    email: "",
-    birthDate: "",
-    address: "",
-    reason: "",
-    notes: "",
-  });
-  useEffect(() => {
-    if (user?.id) {
-      setPatientInfo((prev) => ({
-        ...prev,
-        profileId: user.id, // BE sẽ tự hiểu đây là ID của patient
-        name: user.fullName || "",
-        email: user.email || "",
-        phone: user.phoneNumber || "",
-      }));
-    }
-  }, [user]);
-  console.log("patientProfileId gửi lên:", patientInfo.profileId);
-  console.log("User từ useAuth:", user);
-  const handleCancel = async () => {
-    const result = await Swal.fire({
-      title: "Xác nhận hủy?",
-      text: "Bạn có chắc chắn muốn hủy đặt lịch?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Có, hủy ngay!",
-      cancelButtonText: "Không",
+  const selectDoctor = (doctor) => {
+    setSelectedDoctor(doctor);
+    setFormData({ ...formData, doctorUserId: doctor.userId });
+    fetchDoctorDetails(doctor.userId);
+    nextStep();
+  };
+
+  const handleCancel = () => {
+    window.location.href = '/';
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount);
+  };
+
+  const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return '';
+    const date = new Date(dateTimeString);
+    return date.toLocaleString('vi-VN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
-
-    if (result.isConfirmed) {
-      // Reset form
-      setCurrentStep(0);
-      setSelectedDoctor(null);
-      setSelectedDate(null);
-      setSelectedTime(null);
-      setPatientInfo({
-        name: "",
-        phone: "",
-        email: "",
-        birthDate: "",
-        address: "",
-        reason: "",
-        notes: "",
-      });
-
-      // Thông báo hủy thành công
-      await Swal.fire({
-        title: "Đã hủy đặt lịch!",
-        text: "Bạn sẽ được chuyển về trang chính.",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-      navigate("/homapage");
-    }
   };
 
-  //Submit
-  const handleConfirm = async () => {
-    setIsLoading(true);
-    try {
-      if (!selectedDate || !selectedTime) {
-        alert("Vui lòng chọn ngày và giờ khám hợp lệ.");
-        return;
-      }
-
-      if (!selectedService) {
-        alert("Vui lòng chọn dịch vụ khám.");
-        return;
-      }
-
-      const formatDate = (dateObj) => {
-        const year = dateObj.getFullYear();
-        const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-        const day = String(dateObj.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
-      };
-
-      const appointmentDateTime = new Date(
-        `${formatDate(selectedDate)}T${selectedTime}:00`
-      );
-      if (isNaN(appointmentDateTime)) {
-        alert("Thời gian không hợp lệ.");
-        return;
-      }
-      console.log("patientProfileId:", patientInfo.profileId);
-      console.log("account:", localStorage.getItem("account"));
-
-      //data gửi đi
-      const appointmentData = {
-        patientProfileId: patientInfo.profileId,
-        doctorUserId: selectedDoctor.userId,
-        serviceDefinitionId: selectedService.ServiceDefinitionID,
-        appointmentDateTime: appointmentDateTime.toISOString(),
-        estimatedDurationMinutes: 30,
-        appointmentType: selectedService.type || "MEDICAL_EXAMINATION",
-        reasonForVisit: patientInfo.symptom || "Khám tổng quát",
-        notes: "Đặt lịch online",
-      };
-      console.log("Dữ liệu gửi đi:", appointmentData);
-
-      await createAppointment(appointmentData);
-      setAppointmentData(appointmentData);
-      setCurrentStep(5);
-    } catch (error) {
-      console.error("Lỗi tạo lịch hẹn:", error);
-      if (error.response?.data) {
-        console.error("Chi tiết lỗi từ BE:", error.response.data);
-        alert("Lỗi từ server: " + JSON.stringify(error.response.data));
-      } else {
-        alert("Lỗi không xác định, vui lòng thử lại.");
-      }
-    }
-  };
-
-  const handleNewAppointment = () => {
-    setCurrentStep(0);
-    setSelectedDoctor(null);
-    setSelectedDate(null);
-    setSelectedTime(null);
-    setSelectedService(null);
-    setPatientInfo({
-      name: "",
-      phone: "",
-      email: "",
-      birthDate: "",
-      address: "",
-      reason: "",
-      notes: "",
-    });
-    setAppointmentData(null);
-  };
-
-  const renderCurrentStep = () => {
+  const renderStepContent = () => {
     switch (currentStep) {
-      case 0:
-        return (
-          <DoctorSelection
-            selectedDoctor={selectedDoctor}
-            onSelectDoctor={setSelectedDoctor}
-            onNext={handleNext}
-            onCancel={handleCancel}
-          />
-        );
       case 1:
         return (
-          <DateTimeSelection
-            selectedDate={selectedDate}
-            selectedTime={selectedTime}
-            onSelectDate={setSelectedDate}
-            onSelectTime={setSelectedTime}
-            onNext={handleNext}
-            onBack={handleBack}
-            onCancel={handleCancel}
-          />
+          <div className="text-center space-y-6">
+            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+              <Check className="w-10 h-10 text-blue-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800">Xác nhận đặt lịch khám bệnh</h2>
+            <p className="text-gray-600 max-w-md mx-auto">
+              Chúng tôi sẽ hướng dẫn bạn qua từng bước để đặt lịch khám bệnh một cách dễ dàng và nhanh chóng.
+            </p>
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <p className="text-sm text-blue-800">
+                Quy trình đặt lịch chỉ mất vài phút và bạn sẽ nhận được xác nhận ngay lập tức.
+              </p>
+            </div>
+          </div>
         );
+
       case 2:
         return (
-          <ServiceSelection
-            selectedService={selectedService}
-            onSelectService={(s) => setSelectedService(s)}
-            onNext={handleNext}
-            onCancel={handleCancel}
-          />
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-800 text-center">Chọn bác sĩ</h2>
+            {loading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Đang tải danh sách bác sĩ...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-8">
+                <p className="text-red-600">{error}</p>
+                <button
+                  onClick={fetchDoctors}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Thử lại
+                </button>
+              </div>
+            ) : (
+              <div className="grid gap-4 max-h-96 overflow-y-auto">
+                {doctors.map((doctor) => (
+                  <div
+                    key={doctor.userId}
+                    onClick={() => selectDoctor(doctor)}
+                    className="border rounded-lg p-4 hover:border-blue-500 hover:shadow-md cursor-pointer transition-all"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-16 h-16 bg-gray-200 rounded-full overflow-hidden">
+                        {doctor.profilePictureUrl ? (
+                          <img
+                            src={doctor.profilePictureUrl}
+                            alt={doctor.fullName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <User className="w-8 h-8 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-800">{doctor.fullName}</h3>
+                        <p className="text-blue-600 text-sm">{doctor.specializationName}</p>
+                        <p className="text-gray-600 text-sm mt-1">{doctor.shortBio}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         );
+
       case 3:
         return (
-          <PatientInformation
-            patientInfo={patientInfo}
-            onUpdatePatientInfo={setPatientInfo}
-            onNext={handleNext}
-            onBack={handleBack}
-            onCancel={handleCancel}
-          />
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-800 text-center">Chọn ngày và giờ khám</h2>
+
+            {selectedDoctor && (
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden">
+                    {selectedDoctor.profilePictureUrl ? (
+                      <img
+                        src={selectedDoctor.profilePictureUrl}
+                        alt={selectedDoctor.fullName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <User className="w-6 h-6 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800">{selectedDoctor.fullName}</p>
+                    <p className="text-blue-600 text-sm">{selectedDoctor.specializationName}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ngày và giờ khám *
+                </label>
+                <input
+                  type="datetime-local"
+                  value={formData.appointmentDateTime}
+                  onChange={(e) => setFormData({ ...formData, appointmentDateTime: e.target.value })}
+                  min={new Date().toISOString().slice(0, 16)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Thời gian dự kiến (phút)
+                </label>
+                <select
+                  value={formData.estimatedDurationMinutes}
+                  onChange={(e) => setFormData({ ...formData, estimatedDurationMinutes: parseInt(e.target.value) })}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value={30}>30 phút</option>
+                  <option value={45}>45 phút</option>
+                  <option value={60}>60 phút</option>
+                  <option value={90}>90 phút</option>
+                </select>
+              </div>
+            </div>
+          </div>
         );
+
       case 4:
         return (
-          <Confirmation
-            selectedDoctor={selectedDoctor}
-            selectedDate={selectedDate}
-            selectedTime={selectedTime}
-            selectedService={selectedService}
-            patientInfo={patientInfo}
-            onConfirm={handleConfirm}
-            onBack={handleBack}
-            onCancel={handleCancel}
-            isLoading={isLoading}
-          />
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-800 text-center">Thông tin khám bệnh</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Lý do khám *
+                </label>
+                <textarea
+                  value={formData.reasonForVisit}
+                  onChange={(e) => setFormData({ ...formData, reasonForVisit: e.target.value })}
+                  placeholder="Vui lòng mô tả triệu chứng hoặc lý do cần khám..."
+                  rows={4}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ghi chú thêm
+                </label>
+                <textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  placeholder="Thông tin bổ sung hoặc yêu cầu đặc biệt..."
+                  rows={3}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+          </div>
         );
+
       case 5:
         return (
-          <Success
-            appointmentData={appointmentData}
-            onNewAppointment={handleNewAppointment}
-          />
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-800 text-center">Xác nhận thông tin</h2>
+
+            <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+              <div className="flex items-center justify-between py-2 border-b">
+                <span className="text-gray-600">Bác sĩ:</span>
+                <span className="font-semibold">{selectedDoctor?.fullName}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b">
+                <span className="text-gray-600">Chuyên khoa:</span>
+                <span className="font-semibold">{selectedDoctor?.specializationName}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b">
+                <span className="text-gray-600">Ngày giờ:</span>
+                <span className="font-semibold">{formatDateTime(formData.appointmentDateTime)}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b">
+                <span className="text-gray-600">Thời gian:</span>
+                <span className="font-semibold">{formData.estimatedDurationMinutes} phút</span>
+              </div>
+
+              {doctorDetails?.consultationFee && (
+                <div className="flex items-center justify-between py-2 border-b">
+                  <span className="text-gray-600">Chi phí:</span>
+                  <span className="font-semibold text-green-600">{formatCurrency(doctorDetails.consultationFee)}</span>
+                </div>
+              )}
+
+              <div className="py-2">
+                <span className="text-gray-600">Lý do khám:</span>
+                <p className="mt-1 text-gray-800">{formData.reasonForVisit}</p>
+              </div>
+
+              {formData.notes && (
+                <div className="py-2">
+                  <span className="text-gray-600">Ghi chú:</span>
+                  <p className="mt-1 text-gray-600">{formData.notes}</p>
+                </div>
+              )}
+            </div>
+
+            {doctorDetails && (
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-800 mb-2">Thông tin bác sĩ</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  {doctorDetails.experienceYears && (
+                    <div className="flex items-center space-x-2">
+                      <Award className="w-4 h-4 text-blue-600" />
+                      <span>{doctorDetails.experienceYears} năm kinh nghiệm</span>
+                    </div>
+                  )}
+                  {doctorDetails.userEmail && (
+                    <div className="flex items-center space-x-2">
+                      <Mail className="w-4 h-4 text-blue-600" />
+                      <span>{doctorDetails.userEmail}</span>
+                    </div>
+                  )}
+                  {doctorDetails.userPhoneNumber && (
+                    <div className="flex items-center space-x-2">
+                      <Phone className="w-4 h-4 text-blue-600" />
+                      <span>{doctorDetails.userPhoneNumber}</span>
+                    </div>
+                  )}
+                  {doctorDetails.languagesSpoken && (
+                    <div className="flex items-center space-x-2">
+                      <Languages className="w-4 h-4 text-blue-600" />
+                      <span>{doctorDetails.languagesSpoken}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         );
+
       default:
         return null;
     }
   };
 
+  const canProceed = () => {
+    switch (currentStep) {
+      case 1:
+        return true;
+      case 2:
+        return selectedDoctor !== null;
+      case 3:
+        return formData.appointmentDateTime !== '';
+      case 4:
+        return formData.reasonForVisit.trim() !== '';
+      case 5:
+        return true;
+      default:
+        return false;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <div className="mt-20 container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Đặt lịch khám bệnh
-            </h1>
-            <p className="text-gray-600">
-              Chọn bác sĩ và thời gian phù hợp cho cuộc hên của bạn
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Đặt lịch khám bệnh</h1>
+          <p className="text-gray-600">Chọn bác sĩ và thời gian phù hợp cho cuộc hẹn của bạn</p>
+        </div>
+
+        {/* Progress Steps */}
+        <div className="flex justify-center mb-8">
+          <div className="flex items-center space-x-4">
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              const isActive = step.id === currentStep;
+              const isCompleted = step.id < currentStep;
+
+              return (
+                <React.Fragment key={step.id}>
+                  <div className="flex flex-col items-center">
+                    <div className={`
+                      w-12 h-12 rounded-full flex items-center justify-center
+                      ${isCompleted ? 'bg-green-500 text-white' :
+                        isActive ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400'}
+                    `}>
+                      {isCompleted ? <Check className="w-6 h-6" /> :
+                        isActive ? <Icon className="w-6 h-6" /> :
+                          <span className="text-sm font-semibold">{step.id}</span>}
+                    </div>
+                    <span className={`mt-2 text-xs font-medium ${isActive ? 'text-blue-600' : 'text-gray-500'
+                      }`}>
+                      {step.title}
+                    </span>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div className={`w-8 h-0.5 ${step.id < currentStep ? 'bg-green-500' : 'bg-gray-300'
+                      }`} />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-800">{error}</p>
+              </div>
+            )}
+
+            {renderStepContent()}
           </div>
 
-          {/* Progress Steps */}
-          {currentStep < 5 && (
-            <div className="mb-8">
-              <StepProgress
-                currentStep={currentStep}
-                steps={steps.slice(0, 5)}
-              />
+          {/* Navigation */}
+          <div className="flex justify-between items-center mt-8">
+            <div className="flex space-x-4">
+              {currentStep > 1 && (
+                <button
+                  onClick={prevStep}
+                  className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Quay lại</span>
+                </button>
+              )}
+
+              <button
+                onClick={handleCancel}
+                className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:text-red-800 transition-colors"
+              >
+                <X className="w-4 h-4" />
+                <span>Hủy</span>
+              </button>
             </div>
-          )}
 
-          {/* Main Content */}
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            {renderCurrentStep()}
-          </div>
-
-          {/* Footer */}
-          <div className="text-center mt-8 text-sm text-gray-500">
-            <p>
-              Cần hỗ trợ? Liên hệ với tư vấn viên ngay:{" "}
-              <a href="tel:1900xxxx" className="text-blue-600 hover:underline">
-                Chat tại đây!
-              </a>
-            </p>
+            <div>
+              {currentStep < 5 ? (
+                <button
+                  onClick={nextStep}
+                  disabled={!canProceed() || loading}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  {loading ? 'Đang xử lý...' : 'Tiếp tục'}
+                </button>
+              ) : (
+                <button
+                  onClick={submitAppointment}
+                  disabled={!canProceed() || loading}
+                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  {loading ? 'Đang đặt lịch...' : 'Xác nhận đặt lịch'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -1512,4 +517,4 @@ const AppointmentBooking = () => {
   );
 };
 
-export default AppointmentBooking;
+export default BookingAppointment;

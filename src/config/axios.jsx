@@ -3,20 +3,39 @@ import axios from 'axios';
 // Tạo một instance Axios với các cấu hình mặc định
 const instance = axios.create({
   baseURL: 'https://infertility-treatment-management-and.onrender.com',
-  timeout: 30000, // thời gian chờ tối đa
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Luôn gửi cookie nếu có
-
+  withCredentials: true, // Cho phép gửi kèm cookie trong các request
 });
+
+// Interceptor cho request: thêm access token vào header nếu có trong cookie
+instance.interceptors.request.use(
+  (config) => {
+    // Lấy accessToken từ cookie
+    const getCookie = (name) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    };
+
+    const accessToken = getCookie('accessToken');
+
+    if (accessToken) {
+      config.headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Interceptor cho response: xử lý lỗi toàn cục
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Nếu token hết hạn hoặc không hợp lệ
       Swal.fire({
         icon: "warning",
         title: "Phiên đăng nhập hết hạn",
@@ -24,14 +43,9 @@ instance.interceptors.response.use(
         confirmButtonText: "Đăng nhập lại",
         allowOutsideClick: false,
       }).then(() => {
-        // 👉 Sau khi user bấm OK:
-        // 1. Xóa localStorage/sessionStorage nếu có:
         localStorage.clear();
         sessionStorage.clear();
-
-        // 2. Optional: gọi hàm logout từ AuthContext nếu bạn có (ví dụ useAuth().logout())
-        // 3. Chuyển hướng về trang login
-        window.location.href = "/login"; // hoặc navigate("/login") nếu dùng trong component
+        window.location.href = "/login";
       });
     }
 
@@ -39,4 +53,4 @@ instance.interceptors.response.use(
   }
 );
 
-export default instance; 
+export default instance;

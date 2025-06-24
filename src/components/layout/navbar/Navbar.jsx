@@ -28,7 +28,8 @@ import {
   Science as ScienceIcon,
   Business as BusinessIcon,
 } from "@mui/icons-material";
-
+import Swal from "sweetalert2";
+import ChecklistIcon from '@mui/icons-material/Checklist'; // đúng tên gốc
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);

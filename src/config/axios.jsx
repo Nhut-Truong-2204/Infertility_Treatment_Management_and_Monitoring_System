@@ -1,19 +1,18 @@
-// src/config/axios.js
 import axios from 'axios';
+import Cookies from 'js-cookie'; // Thêm dòng này
 
-// Tạo một instance Axios với các cấu hình mặc định
 const instance = axios.create({
-  baseURL: 'https://infertility-treatment-management-and.onrender.com' ,
-  timeout: 10000, // thời gian chờ tối đa
+  baseURL: 'https://infertility-treatment-management-and.onrender.com',
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Interceptor cho request: thêm token nếu có
+// Lấy token từ cookie thay vì localStorage
 instance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken'); // hoặc từ redux/store
+    const token = Cookies.get('accessToken'); // ⬅ Lấy token từ cookie
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -22,14 +21,11 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor cho response: xử lý lỗi toàn cục
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Xử lý lỗi 401 (chưa xác thực)
     if (error.response && error.response.status === 401) {
       console.warn('Hết hạn đăng nhập hoặc không có quyền!');
-      // Có thể redirect về login, xóa token, v.v.
     }
     return Promise.reject(error);
   }

@@ -59,7 +59,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   const handleLogout = () => {
-    Swal.fire({
+    P.fire({
       title: "Xác nhận đăng xuất?",
       text: "Bạn sẽ cần đăng nhập lại để tiếp tục.",
       icon: "warning",

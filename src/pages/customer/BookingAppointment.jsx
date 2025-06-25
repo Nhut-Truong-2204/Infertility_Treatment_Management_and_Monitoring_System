@@ -103,22 +103,27 @@ const BookingAppointment = () => {
 
   // API calls
   const fetchDoctors = async (page = 0, limit = 10) => {
-    setLoading(true);
-    try {
-      const response = await getDoctors(page, limit);
+  setLoading(true);
+  try {
+    const response = await getDoctors(page, limit);
 
-      if (response.success) {
-        setDoctors(response.data.content || []);
-      } else {
-        setError("Không thể tải danh sách bác sĩ");
-      }
-    } catch (err) {
-      console.error("Error loading doctors:", err);
-      setError("Lỗi khi tải danh sách bác sĩ: " + err.message);
-    } finally {
-      setLoading(false);
+    if (response.success) {
+      const doctorsList = response.data.content || [];
+      setDoctors(doctorsList);
+      return doctorsList; // ✅ Trả về danh sách để dùng bên ngoài
+    } else {
+      setError("Không thể tải danh sách bác sĩ");
+      return []; // ✅ Tránh lỗi undefined
     }
-  };
+  } catch (err) {
+    console.error("Error loading doctors:", err);
+    setError("Lỗi khi tải danh sách bác sĩ: " + err.message);
+    return []; // ✅ Tránh lỗi undefined
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const fetchDoctorDetails = async (userId) => {
     setLoadingDetail(true);
@@ -216,7 +221,34 @@ const BookingAppointment = () => {
         fetchDoctors();
         setCurrentStep(2);
       } else {
-        setCurrentStep(3);
+        // 👉 Nếu là khách mới (chưa từng khám)
+        setIsLoading(true); // 👈 Bắt đầu loading
+        fetchDoctors()
+          .then((list) => {
+            if (list.length > 0) {
+              const randomDoctor =
+                list[Math.floor(Math.random() * list.length)];
+              setSelectedDoctor(randomDoctor);
+              setFormData((prev) => ({
+                ...prev,
+                doctorUserId: randomDoctor.userId,
+              }));
+              setCurrentStep(3); // 👉 Bỏ qua bước chọn bác sĩ
+            } else {
+              Swal.fire(
+                "Thông báo",
+                "Không có bác sĩ nào khả dụng!",
+                "warning"
+              );
+            }
+          })
+          .catch((err) => {
+            console.error("Lỗi lấy bác sĩ:", err);
+            Swal.fire("Lỗi", "Không thể lấy danh sách bác sĩ", "error");
+          })
+          .finally(() => {
+            setIsLoading(false); // 👈 Kết thúc loading
+          });
       }
     } else if (currentStep === 2) {
       if (selectedDoctor) {

@@ -16,7 +16,6 @@ const Feedback = () => {
         content: '',
     });
 
-    // Animation variants
     const containerVariants = {
         hidden: { opacity: 0, y: 20 },
         visible: {
@@ -40,7 +39,7 @@ const Feedback = () => {
         }
     };
 
-    // Mock feedback data với nhiều trường hợp đa dạng
+    // Mock feedback data
     const mockFeedbacks = [
         {
             id: 1,
@@ -135,7 +134,6 @@ const Feedback = () => {
         console.log('Submitting feedback:', newFeedback);
     };
 
-    // Animation variants cho feedback cards
     const feedbackCardVariants = {
         hidden: { opacity: 0, y: 20 },
         visible: (index) => ({
@@ -194,7 +192,6 @@ const Feedback = () => {
                     transition={{ duration: 0.5 }}
                 >
                     {activeTab === 'view' ? (
-                        // View Feedbacks Section với animation cho từng card
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {feedbacks.map((feedback, index) => (
                                 <motion.div

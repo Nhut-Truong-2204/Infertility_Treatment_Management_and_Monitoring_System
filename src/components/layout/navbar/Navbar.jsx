@@ -24,9 +24,9 @@ import {
   MedicalInformation as MedicalInformationIcon,
   PersonSearch as PersonSearchIcon,
   LocalHospital as LocalHospitalIcon,
-  VideoCall as VideoCallIcon,
   Science as ScienceIcon,
   Business as BusinessIcon,
+  Checklist as ChecklistIcon,
 } from "@mui/icons-material";
 
 

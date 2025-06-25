@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Stack, Avatar } from "@mui/material";
+import { Syringe } from "phosphor-react";
 import Background from "../../assets/UpdatePassword.jpg";
 import { resetPassword } from "../../api/customer/forgotPassword";
-import logo from "../../../public/LogoWithoutText.png";
 
 export default function ChangePasswordPage() {
     const navigate = useNavigate();
@@ -182,7 +183,11 @@ export default function ChangePasswordPage() {
                                 transition: { duration: 0.2 }
                             }}
                         >
-                            <img src={logo} alt="CumIcon" className="h-12" />
+                            <Stack direction="row" spacing={2}>
+                                <Avatar sx={{ bgcolor: "#23A0FF" }}>
+                                    <Syringe size={20} weight="fill" color="white" />
+                                </Avatar>
+                            </Stack>
                             <motion.span
                                 onClick={() => navigate('/')}
                                 whileTap={{ scale: 0.95 }}

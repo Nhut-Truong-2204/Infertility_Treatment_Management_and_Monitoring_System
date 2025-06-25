@@ -1,13 +1,11 @@
-// src/App.jsx (Nếu là component layout chung)
-import React from 'react';
+// src/App.jsx
+import React from "react";
+import "react-toastify/dist/ReactToastify.css";
 
-function App({ children }) { // Nhận children prop
+function App({ children }) {
   return (
     <div className="app-layout">
-      {/* Các phần tử layout chung khác có thể ở đây, ví dụ: */}
-      {/* <GlobalHeader /> */}
-      {children} {/* Nơi các route của bạn sẽ được render */}
-      {/* <GlobalFooter /> */}
+      {children}
     </div>
   );
 }

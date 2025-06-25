@@ -1,24 +1,29 @@
 import Navbar from "./navbar/Navbar";
 import Footer from "./Footer";
-import { Outlet } from "react-router-dom";
-// import MiniChatWidget from "../../components/chat/MiniChat"; // hoặc đúng path của bạn
-import { useLocation } from 'react-router-dom';
-import MiniChat from '../chat/MiniChat';
+import { Outlet, useLocation } from "react-router-dom";
+
 const MainLayout = () => {
   const location = useLocation();
-  const isChatPage = location.pathname === '/chatcustomer';
+
+  // Danh sách các route cần ẩn Navbar + Footer
+  const hiddenLayoutRoutes = [
+    "/bookingAppointment",
+    "/viewAppointment"
+    // Thêm route khác nếu cần
+  ];
+
+  // Kiểm tra route hiện tại có nằm trong danh sách không
+  const shouldHideLayout = hiddenLayoutRoutes.includes(location.pathname);
+
   return (
-    <div className="relative min-h-screen flex flex-col">
-      <Navbar />
+    <div>
+      {!shouldHideLayout && <Navbar />}
 
-      <main className="flex-1 ">
+      <div>
         <Outlet />
-      </main>
+      </div>
 
-      <Footer />
-
-      {/* Chat xuất hiện mọi lúc */}
-      {!isChatPage && <MiniChat />}
+      {!shouldHideLayout && <Footer />}
     </div>
   );
 };

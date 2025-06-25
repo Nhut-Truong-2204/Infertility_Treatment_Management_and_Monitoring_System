@@ -1,60 +1,36 @@
 import instance from "../../config/axios";
 
-// // Lấy danh sách bác sĩ công khai
-// export const getPublicDoctors = () =>
-//     instance.get("/api/doctors");
-
-// // Lấy thông tin chi tiết một bác sĩ
-// export const getDoctorDetail = (userId) =>
-//     instance.get(`/api/doctors/${userId}`);
-
-// api/doctorList.js
-export const getDoctors = async (page = 0, limit = 6) => {
+// Lấy danh sách bác sĩ
+export const getDoctors = async (page = 0, limit = 10) => {
   try {
-    // const response = await fetch(
-    //   `https://infertility-treatment-management-and.onrender.com/api/doctors?page=${page}&size=${limit}`
-    // );
-    const response = await instance.get(`/api/doctors?page=${page}&size=${limit}`)
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
+    const response = await instance.get(`/api/doctors?page=${page}&size=${limit}`);
+    
+    const contentType = response.headers["content-type"];
+    console.log("Content-Type:", contentType);
+    if (!contentType?.includes("application/json")) {
+      throw new Error(`Expected JSON but got ${contentType}`);
     }
 
-    const contentType = response.headers.get('content-type');
-    if (!contentType?.includes('application/json')) {
-      const text = await response.text();
-      throw new Error(`Expected JSON but got ${contentType}: ${text.substring(0, 100)}`);
-    }
-
-    return await response.json();
+    return response.data; // axios trả sẵn JSON rồi
   } catch (error) {
-    console.error('Failed to fetch doctors:', error);
+    console.error("❌ Failed to fetch doctors:", error);
     throw error;
   }
 };
 
-
-//getDoctorDetail 
+// Lấy chi tiết bác sĩ
 export const getDoctorDetail = async (userId) => {
   try {
-    const response = await fetch(
-      `https://infertility-treatment-management-and.onrender.com/api/doctors/${userId}`
-    );
+    const response = await instance.get(`/api/doctors/${userId}`);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
+    const contentType = response.headers["content-type"];
+    if (!contentType?.includes("application/json")) {
+      throw new Error(`Expected JSON but got ${contentType}`);
     }
 
-    const contentType = response.headers.get('content-type');
-    if (!contentType?.includes('application/json')) {
-      const text = await response.text();
-      throw new Error(`Expected JSON but got ${contentType}: ${text.substring(0, 100)}`);
-    }
-
-    return await response.json();
+    return response.data; // axios cũng tự parse JSON
   } catch (error) {
-    console.error(`Failed to fetch doctor detail for ID ${userId}:`, error);
+    console.error(`❌ Failed to fetch doctor detail for ID ${userId}:`, error);
     throw error;
   }
 };

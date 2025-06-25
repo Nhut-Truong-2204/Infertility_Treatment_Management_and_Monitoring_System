@@ -4,69 +4,45 @@ import { toast, ToastContainer, Flip } from "react-toastify";
 import { Mail, Lock, Eye, EyeOff, AlertCircle, Syringe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "react-toastify/dist/ReactToastify.css";
+import Stack from "@mui/material/Stack";
+import Avatar from "@mui/material/Avatar";
 import { GoogleLogin } from "@react-oauth/google";
 import Background1 from "../../assets/DoctorLogin1.jpg";
 import Background2 from "../../assets/DoctorLogin2.jpg";
-import axios from "../../config/axios";
-const handleGoogleLogin = async (credentialResponse) => {
-  try {
-    setLoading(true);
-    const credential = credentialResponse.credential;
-    // Gửi credential lên backend
-    const response = await axios.post("/api/auth/oauth2", credential, {
-      headers: { "Content-Type": "application/json" }
-    });
-    // Xử lý response: lưu token, user, chuyển trang...
-    toast.success("Đăng nhập Google thành công!");
-    navigate("/");
-  } catch (error) {
-    toast.error("Đăng nhập Google thất bại!");
-    console.error("Google login error:", error);
-  } finally {
-    setLoading(false);
-  }
-};
 import Background3 from "../../assets/DoctorLogin3.jpg";
 import Background4 from "../../assets/DoctorLogin4.jpg";
 import Background5 from "../../assets/DoctorLogin5.jpg";
-import logo from "../../../public/LogoWithoutText.png";
-import { useAuth } from "../../context/AuthContext";
-
-// LƯU Ý: Để đăng nhập Google OAuth2 hoạt động với backend Spring Boot:
-// 1. Khi đăng nhập Google thành công, bạn sẽ nhận được credential (Google ID Token) từ GoogleLogin.
-// 2. Gửi token này lên backend qua endpoint /api/auth/oauth2 (POST, raw string hoặc JSON tuỳ backend).
-// 3. Backend xác thực token, trả về JWT và user info. FE lưu JWT vào localStorage/sessionStorage.
-// 4. Đảm bảo biến VITE_GOOGLE_CLIENT_ID đúng với client-id trên Google Cloud.
-// 5. Đảm bảo backend cho phép CORS từ domain FE.
-
-// là client đăng nhập vào hệ thống , gg sẽ cấp token frontend gửi token này lên backend để xác thực
-// sau đó be lưu và trả về jwt cho frontend lưu vào localStorage/sessionStorage
-// frontend sẽ lưu vào cookie
-// khi người dùng đăng nhập thành công thì sẽ có jwt và user info
-
-
-// LƯU Ý: Để đăng nhập Google OAuth2 hoạt động với backend Spring Boot:
-// 1. Khi đăng nhập Google thành công, bạn sẽ nhận được credential (Google ID Token) từ GoogleLogin.
-// 2. Gửi token này lên backend qua endpoint /api/auth/oauth2 (POST, raw string hoặc JSON tuỳ backend).
-// 3. Backend xác thực token, trả về JWT và user info. FE lưu JWT vào localStorage/sessionStorage.
-// 4. Đảm bảo biến VITE_GOOGLE_CLIENT_ID đúng với client-id trên Google Cloud.
-// 5. Đảm bảo backend cho phép CORS từ domain FE.
-
-// là client đăng nhập vào hệ thống , gg sẽ cấp token frontend gửi token này lên backend để xác thực
-// sau đó be lưu và trả về jwt cho frontend lưu vào localStorage/sessionStorage
-// frontend sẽ lưu vào cookie
-// khi người dùng đăng nhập thành công thì sẽ có jwt và user info
-
-
-const InputField = ({ name, type = "text", placeholder, value, onChange, error, icon: Icon }) => {
+import { useAuth } from "../../context/AuthContext"; // Import useAuth
+import logo from "../../../public/logo-removebg-preview.png"; // Import your logo
+const InputField = ({
+  name,
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  error,
+  icon: Icon,
+}) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
   return (
     <div className="relative mb-6 group">
-      <div className={`relative transition-all duration-300 ${isFocused ? "transform scale-105" : ""}`}>
+      <div
+        className={`relative transition-all duration-300 ${
+          isFocused ? "transform scale-105" : ""
+        }`}
+      >
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-          <Icon className={`h-5 w-5 transition-colors duration-300 ${isFocused ? "text-blue-500" : error ? "text-red-400" : "text-gray-400"}`} />
+          <Icon
+            className={`h-5 w-5 transition-colors duration-300 ${
+              isFocused
+                ? "text-blue-500"
+                : error
+                ? "text-red-400"
+                : "text-gray-400"
+            }`}
+          />
         </div>
         <input
           type={type === "password" && showPassword ? "text" : type}
@@ -79,7 +55,13 @@ const InputField = ({ name, type = "text", placeholder, value, onChange, error, 
           className={`w-full pl-12 pr-12 py-4 bg-white/80 backdrop-blur-sm border-2 rounded-xl
                     transition-all duration-300 text-gray-800 placeholder-gray-500
                     focus:outline-none focus:ring-0 focus:shadow-lg focus:shadow-blue-500/20
-                    ${error ? "border-red-300 focus:border-red-500 bg-red-50/50" : isFocused ? "border-blue-400 focus:border-blue-500" : "border-gray-200 hover:border-gray-300"}
+                    ${
+                      error
+                        ? "border-red-300 focus:border-red-500 bg-red-50/50"
+                        : isFocused
+                        ? "border-blue-400 focus:border-blue-500"
+                        : "border-gray-200 hover:border-gray-300"
+                    }
                     ${isFocused ? "transform scale-105" : ""}`}
         />
         {type === "password" && (
@@ -133,7 +115,13 @@ export default function LoginPage() {
   const { login } = useAuth(); // Sử dụng useAuth để lấy hàm login
   const [loading, setLoading] = useState(false);
   const [currentBg, setCurrentBg] = useState(0);
-  const backgrounds = [Background1, Background2, Background3, Background4, Background5];
+  const backgrounds = [
+    Background1,
+    Background2,
+    Background3,
+    Background4,
+    Background5,
+  ];
 
   const [formData, setFormData] = useState({
     email: "",
@@ -203,35 +191,46 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async (credentialResponse) => {
-  try {
-    setLoading(true);
-    const credential = credentialResponse.credential;
-    // Gửi credential lên backend
-    const response = await axios.post("/api/auth/oauth2", credential, {
-      headers: { "Content-Type": "application/json" }
-    });
-    // Xử lý response: lưu token, user, chuyển trang...
-    toast.success("Đăng nhập Google thành công!");
-    navigate("/");
-  } catch (error) {
-    toast.error("Đăng nhập Google thất bại!");
-    console.error("Google login error:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      const credential = credentialResponse.credential;
+      // TODO: Gọi API để xác thực Google credential
+      // Ví dụ: const response = await axios.post("/api/auth/google", { credential });
+      // await login(response.data.user, response.data.accessToken);
+      toast.success("Đăng nhập Google thành công!");
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Đăng nhập Google thất bại!");
+      console.error("Google login error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} className="min-h-screen relative overflow-hidden">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+      className="min-h-screen relative overflow-hidden"
+    >
       {backgrounds.map((bg, index) => (
         <motion.div
           key={index}
           className={`background-slide ${currentBg === index ? "active" : ""}`}
           initial={false}
-          style={{ backgroundImage: `url(${bg})`, opacity: currentBg === index ? 1 : 0 }}
+          style={{
+            backgroundImage: `url(${bg})`,
+            opacity: currentBg === index ? 1 : 0,
+          }}
         />
       ))}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.5 }} className="absolute inset-0 bg-black/50" />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5 }}
+        className="absolute inset-0 bg-black/50"
+      />
       <div className="relative z-10 min-h-screen flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -239,16 +238,25 @@ export default function LoginPage() {
           transition={{ duration: 0.5 }}
           className="bg-white bg-opacity-95 backdrop-blur-sm p-8 rounded-xl shadow-2xl max-w-md w-full mx-4 relative z-10"
         >
-          <motion.div whileHover={{ scale: 1.05 }} className="flex justify-center mb-5">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="flex justify-center mb-5"
+          >
             <motion.div
               initial={{ x: -100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ type: "spring", duration: 1, bounce: 0.5 }}
               className="flex items-center space-x-2 font-semibold text-lg cursor-pointer"
               whileHover={{ color: "#3B82F6", transition: { duration: 0.2 } }}
+              onClick={() => navigate("/")}
             >
-              <img src={logo} alt="CumIcon" className="h-12" />
-              <motion.span onClick={() => navigate("/")} whileTap={{ scale: 0.95 }}>
+              <Stack direction="row" spacing={2} onClick={() => navigate("/")}>
+                <img src={logo} alt="CumIcon" className="h-10" />
+              </Stack>
+              <motion.span
+                onClick={() => navigate("/")}
+                whileTap={{ scale: 0.95 }}
+              >
                 ReproTrack
               </motion.span>
             </motion.div>
@@ -272,7 +280,13 @@ export default function LoginPage() {
               <motion.p
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5, duration: 0.8, type: "spring", stiffness: 100, damping: 20 }}
+                transition={{
+                  delay: 0.5,
+                  duration: 0.8,
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 20,
+                }}
                 className="text-xl text-gray-500 font-normal mt-8 mb-8 relative"
               >
                 <motion.span
@@ -301,7 +315,16 @@ export default function LoginPage() {
           <motion.form
             variants={{
               hidden: { opacity: 0, y: 20 },
-              show: { opacity: 1, y: 0, transition: { type: "spring", duration: 1, staggerChildren: 0.2, delayChildren: 0.3 } },
+              show: {
+                opacity: 1,
+                y: 0,
+                transition: {
+                  type: "spring",
+                  duration: 1,
+                  staggerChildren: 0.2,
+                  delayChildren: 0.3,
+                },
+              },
               exit: { opacity: 0, y: -20, transition: { duration: 0.3 } },
             }}
             initial="hidden"
@@ -311,35 +334,103 @@ export default function LoginPage() {
             className="space-y-6"
           >
             <motion.div
-              variants={{ hidden: { opacity: 0, x: -20, y: 10 }, show: { opacity: 1, x: 0, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } }}
+              variants={{
+                hidden: { opacity: 0, x: -20, y: 10 },
+                show: {
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  transition: { type: "spring", stiffness: 300, damping: 24 },
+                },
+              }}
             >
-              <InputField name="email" type="email" placeholder="example@gmail.com" value={formData.email} onChange={handleChange} error={errors.email} icon={Mail} />
+              <InputField
+                name="email"
+                type="email"
+                placeholder="example@gmail.com"
+                value={formData.email}
+                onChange={handleChange}
+                error={errors.email}
+                icon={Mail}
+              />
             </motion.div>
             <motion.div
-              variants={{ hidden: { opacity: 0, x: -20, y: 10 }, show: { opacity: 1, x: 0, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } }}
+              variants={{
+                hidden: { opacity: 0, x: -20, y: 10 },
+                show: {
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  transition: { type: "spring", stiffness: 300, damping: 24 },
+                },
+              }}
             >
-              <InputField name="password" type="password" placeholder="••••••••" value={formData.password} onChange={handleChange} error={errors.password} icon={Lock} />
+              <InputField
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                error={errors.password}
+                icon={Lock}
+              />
             </motion.div>
             <motion.div
-              variants={{ hidden: { opacity: 0, x: -20, y: 10 }, show: { opacity: 1, x: 0, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } }}
+              variants={{
+                hidden: { opacity: 0, x: -20, y: 10 },
+                show: {
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  transition: { type: "spring", stiffness: 300, damping: 24 },
+                },
+              }}
               className="flex justify-center"
             >
-              <motion.div whileHover={{ scale: 1.05 }} className="relative inline-block">
-                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="relative inline-block"
+              >
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                >
                   Quên mật khẩu?
                 </Link>
-                <motion.div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600" initial={{ scaleX: 0 }} whileHover={{ scaleX: 1 }} transition={{ duration: 0.3 }} />
+                <motion.div
+                  className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"
+                  initial={{ scaleX: 0 }}
+                  whileHover={{ scaleX: 1 }}
+                  transition={{ duration: 0.3 }}
+                />
               </motion.div>
             </motion.div>
             <motion.div
-              variants={{ hidden: { opacity: 0, x: -20, y: 10 }, show: { opacity: 1, x: 0, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } }}
+              variants={{
+                hidden: { opacity: 0, x: -20, y: 10 },
+                show: {
+                  opacity: 1,
+                  x: 0,
+                  y: 0,
+                  transition: { type: "spring", stiffness: 300, damping: 24 },
+                },
+              }}
             >
               <motion.button
                 variants={{
                   idle: { scale: 1 },
-                  loading: { scale: [1, 0.98, 1], transition: { duration: 1.5, repeat: Infinity } },
-                  success: { backgroundColor: ["#3B82F6", "#10B981"], transition: { duration: 0.5 } },
-                  error: { x: [-10, 10, -10, 10, 0], transition: { duration: 0.5 } },
+                  loading: {
+                    scale: [1, 0.98, 1],
+                    transition: { duration: 1.5, repeat: Infinity },
+                  },
+                  success: {
+                    backgroundColor: ["#3B82F6", "#10B981"],
+                    transition: { duration: 0.5 },
+                  },
+                  error: {
+                    x: [-10, 10, -10, 10, 0],
+                    transition: { duration: 0.5 },
+                  },
                 }}
                 initial="idle"
                 animate={loading ? "loading" : "idle"}
@@ -347,12 +438,31 @@ export default function LoginPage() {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={loading}
-                className={`w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 ${loading ? "opacity-80" : ""}`}
+                className={`w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 ${
+                  loading ? "opacity-80" : ""
+                }`}
               >
-                <motion.span animate={loading ? { opacity: [1, 0.7, 1], transition: { duration: 1.5, repeat: Infinity } } : {}}>
+                <motion.span
+                  animate={
+                    loading
+                      ? {
+                          opacity: [1, 0.7, 1],
+                          transition: { duration: 1.5, repeat: Infinity },
+                        }
+                      : {}
+                  }
+                >
                   {loading ? (
                     <div className="flex items-center justify-center space-x-2">
-                      <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="inline-block">
+                      <motion.span
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                        className="inline-block"
+                      >
                         ⭕
                       </motion.span>
                       <span>Đang đăng nhập...</span>
@@ -364,32 +474,73 @@ export default function LoginPage() {
               </motion.button>
             </motion.div>
           </motion.form>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="relative my-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="relative my-6"
+          >
             <div className="absolute inset-0 flex items-center">
-              <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="w-full border-t border-gray-300" />
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="w-full border-t border-gray-300"
+              />
             </div>
-            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.7 }} className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Hoặc đăng nhập với</span>
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              className="relative flex justify-center text-sm"
+            >
+              <span className="px-2 bg-white text-gray-500">
+                Hoặc đăng nhập với
+              </span>
             </motion.div>
           </motion.div>
-          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8 }} className="w-full flex items-center justify-center">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="w-full flex items-center justify-center"
+          >
             <div className="custom-google-btn w-full relative">
               <button
                 className="w-full flex items-center justify-center gap-3 px-4 py-3 text-gray-700 bg-white border-2 border-gray-200 rounded-lg hover:bg-gray-100 hover:border-gray-300 active:bg-gray-200 transition-all duration-200"
                 onClick={() => {
                   const iframe = document.querySelector("iframe");
                   if (iframe?.contentWindow) {
-                    const googleButton = iframe.contentWindow.document.querySelector('[role="button"]');
+                    const googleButton =
+                      iframe.contentWindow.document.querySelector(
+                        '[role="button"]'
+                      );
                     if (googleButton) {
                       googleButton.click();
                     }
                   }
                 }}
               >
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-6 h-6" />
-                <span className="text-base font-semibold">Đăng nhập bằng Google</span>
+                <img
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  className="w-6 h-6"
+                />
+                <span className="text-base font-semibold">
+                  Đăng nhập bằng Google
+                </span>
               </button>
-              <div className="google-login-hidden absolute flex items-center justify-center" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: 0, zIndex: 10 }}>
+              <div
+                className="google-login-hidden absolute flex items-center justify-center"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  opacity: 0,
+                  zIndex: 10,
+                }}
+              >
                 <GoogleLogin
                   onSuccess={handleGoogleLogin}
                   onError={() => {
@@ -404,17 +555,39 @@ export default function LoginPage() {
               </div>
             </div>
           </motion.div>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }} className="my-6 flex items-center justify-center text-sm">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9 }}
+            className="my-6 flex items-center justify-center text-sm"
+          >
             <motion.div whileHover={{ scale: 1.05 }} className="relative">
-              <Link to="/register" className="text-blue-600 hover:text-blue-800 font-medium">
+              <Link
+                to="/register"
+                className="text-blue-600 hover:text-blue-800 font-medium"
+              >
                 Tạo tài khoản mới
               </Link>
-              <motion.div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600" initial={{ scaleX: 0 }} whileHover={{ scaleX: 1 }} transition={{ duration: 0.3 }} />
+              <motion.div
+                className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"
+                initial={{ scaleX: 0 }}
+                whileHover={{ scaleX: 1 }}
+                transition={{ duration: 0.3 }}
+              />
             </motion.div>
           </motion.div>
-          <motion.div className="mt-6 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+          <motion.div
+            className="mt-6 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
             <motion.button
-              whileHover={{ scale: 1.05, color: "#1B7ACD", transition: { type: "spring", stiffness: 300 } }}
+              whileHover={{
+                scale: 1.05,
+                color: "#1B7ACD",
+                transition: { type: "spring", stiffness: 300 },
+              }}
               whileTap={{ scale: 0.95 }}
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -422,17 +595,37 @@ export default function LoginPage() {
               className="text-[#23A0FF] font-medium inline-flex items-center space-x-2 mt-4 text-lg"
               onClick={() => navigate("/")}
             >
-              <motion.span initial={{ x: 5 }} whileHover={{ x: -3 }} transition={{ type: "spring", stiffness: 400 }}>
+              <motion.span
+                initial={{ x: 5 }}
+                whileHover={{ x: -3 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
                 ←
               </motion.span>
               <span>Quay về trang chủ</span>
             </motion.button>
           </motion.div>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="mt-6 text-center"></motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="mt-6 text-center"
+          ></motion.div>
         </motion.div>
       </div>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <ToastContainer position="top-center" autoClose={3000} transition={Flip} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+        <ToastContainer
+          position="top-center"
+          autoClose={3000}
+          transition={Flip}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </motion.div>
     </motion.div>
   );

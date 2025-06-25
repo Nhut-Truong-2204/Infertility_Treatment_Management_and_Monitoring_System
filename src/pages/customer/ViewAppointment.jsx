@@ -161,7 +161,7 @@ const AppointmentManagement = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-2xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -171,6 +171,7 @@ const AppointmentManagement = () => {
               <Calendar className="w-12 h-12 text-blue-200" />
             </div>
           </div>
+
           <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-2xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -180,6 +181,7 @@ const AppointmentManagement = () => {
               <CheckCircle className="w-12 h-12 text-green-200" />
             </div>
           </div>
+
           <div className="bg-gradient-to-r from-yellow-500 to-orange-500 p-6 rounded-2xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -189,15 +191,7 @@ const AppointmentManagement = () => {
               <Clock className="w-12 h-12 text-yellow-200" />
             </div>
           </div>
-          <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-2xl text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-purple-100 text-sm">Trang hiện tại</p>
-                <p className="text-3xl font-bold">{(appointments.number || 0) + 1}</p>
-              </div>
-              <Eye className="w-12 h-12 text-purple-200" />
-            </div>
-          </div>
+
         </div>
 
         {/* Error Message */}

@@ -2,12 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { TypeAnimation } from "react-type-animation";
 import { useNavigate } from "react-router-dom";
 import { Sun, Moon } from "lucide-react";
+import ScanHeart from "../ui/ScanHeart";
+import HeartHandshake from "../ui/HeartHandshake";
 
 const Header = () => {
   const navigate = useNavigate();
   const headerRef = useRef(null);
   const [darkMode, setDarkMode] = useState(false);
 
+  // Scroll effect for parallax
   useEffect(() => {
     const handleScroll = () => {
       const offset = window.scrollY;
@@ -19,6 +22,7 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Toggle dark mode
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
   }, [darkMode]);
@@ -35,10 +39,11 @@ const Header = () => {
         className="w-full h-full object-cover absolute inset-0 z-0"
       />
 
-      {/* Overlay */}
+      {/* Overlay gradient */}
       <div className="absolute inset-0 z-10 bg-gradient-to-b from-[#16417e] via-[#415185cc] to-transparent"></div>
 
-      {/* Dark mode toggle */}<div className="absolute inset-0 bg-gradient-to-t from-[#121212]/90 to-transparent via-[#415185cc]/60 bg-fixed z-10">
+      {/* Dark mode toggle button */}
+      <div className="absolute top-6 right-6 z-30">
         <button
           onClick={() => setDarkMode(!darkMode)}
           className="bg-white/70 dark:bg-black/40 backdrop-blur-md p-2 rounded-full shadow-md hover:scale-110 transition"
@@ -50,7 +55,7 @@ const Header = () => {
 
       {/* Main content */}
       <div className="relative z-20 flex flex-col items-center justify-center h-full space-y-10 px-4 text-center">
-        {/* Heading text */}
+        {/* Type animation heading */}
         <h1 className="text-white text-3xl md:text-5xl font-bold drop-shadow-xl leading-snug">
           <TypeAnimation
             sequence={[
@@ -66,17 +71,20 @@ const Header = () => {
           />
         </h1>
 
-        {/* Two buttons under the text */}
-        <div className="flex space-x-4 mt-4">
+        {/* Two CTA buttons */}
+        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 mt-6">
           <button
             onClick={() => navigate("/bookingAppointment")}
-            className="bg-[#F8BBD0] hover:bg-pink-400 text-white text-base md:text-xl font-bold px-8 py-4 rounded-full transition duration-300 shadow-md"
+            className="flex flex-col items-center justify-center bg-pink-500 hover:bg-pink-600 text-white text-base md:text-xl font-bold px-10 py-5 rounded-2xl transition duration-300 shadow-md"
           >
+            <ScanHeart width={50} height={50} stroke="#fff" />
             Đặt lịch ngay
           </button>
+
           <button
-            className="bg-[#CE93D8] hover:bg-purple-500 text-white text-base md:text-xl font-bold px-8 py-4 rounded-full transition duration-300 shadow-md"
+            className="flex flex-col items-center justify-center bg-pink-500 hover:bg-pink-600 text-white text-base md:text-xl font-bold px-10 py-5 rounded-2xl transition duration-300 shadow-md"
           >
+            <HeartHandshake width={50} height={50} stroke="#fff" />
             Tìm hiểu thêm
           </button>
         </div>

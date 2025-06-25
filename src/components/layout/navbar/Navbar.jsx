@@ -2,9 +2,16 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
-import { blue } from "@mui/material/colors";
+import { blue, red } from "@mui/material/colors";
 import { useAuth } from "../../../context/AuthContext";
 import logo from "../../../../public/LogoWithoutText.png";
+import User from "../../ui/UserIcon";
+import Earth from "../../ui/Earth";
+import Calendar1 from "@/components/ui/Calendar";
+import { BadgeDollarSign } from "@/components/ui/BadgeDollarSign ";
+import { ClipboardCopy } from "@/components/ui/ClipboardCopy";
+import { Bolt } from "@/components/ui/Bolt";
+import { ToggleLeft } from "@/components/ui/ToggleLeft ";
 // Icons
 import {
   ArrowDropDown as ArrowDropDownIcon,
@@ -28,7 +35,7 @@ import {
   Business as BusinessIcon,
   Checklist as ChecklistIcon,
 } from "@mui/icons-material";
-
+import Swal from "sweetalert2";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -314,7 +321,7 @@ export default function Navbar() {
                   sx={{ bgcolor: blue[600], cursor: "pointer" }}
                   onClick={() => setMenuOpen(!menuOpen)}
                 >
-                  <MedicalServicesIcon sx={{ color: "white", fontSize: 20 }} />
+                  <Earth sx={{ color: "white", fontSize: 20 }} />
                 </Avatar>
 
                 {menuOpen && (
@@ -323,35 +330,35 @@ export default function Navbar() {
                       onClick={() => navigate("/profile")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <AccountCircleIcon color="action" className="mr-2 text-blue-600" />
+                      <User stroke="#152c4f" color="action"  className="mr-2 text-blue-600" />
                       Hồ sơ cá nhân
                     </button>
                     <button
                       onClick={() => navigate("/viewAppointment")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <EventNoteIcon className="mr-2 text-green-600" />
+                      <Calendar1 stroke="#ea580c"  className="mr-2 text-white" />
                       Lịch hẹn
                     </button>
                     <button
                       onClick={() => navigate("/")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <ChecklistIcon className="mr-2 text-green-600" />
+                      <ClipboardCopy stroke="#16a34a"  className="mr-2 text-green-600" />
                       Kết quả xét nghiệm
                     </button>
                     <button
                       onClick={() => navigate("/payment")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <AccountBalanceWalletIcon className="mr-2 text-green-600" />
+                      <BadgeDollarSign stroke="#ff0f91" className="mr-2 text-green-600" />
                       Quản lý thanh toán
                     </button>
                     <button
                       onClick={() => navigate("/settings")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <SettingsIcon className="mr-2 text-yellow-600" />
+                      <Bolt stroke="#ca8a04" className="mr-2 text-yellow-600" />
                       Cài đặt
                     </button>
                     <button
@@ -360,7 +367,7 @@ export default function Navbar() {
                       }}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <LogoutIcon className="mr-2 text-red-600" />
+                      <ToggleLeft  stroke="#dc2626" className="mr-2 text-red-600" />
                       Đăng xuất
                     </button>
                   </div>

@@ -74,7 +74,6 @@ const HomePage = () => {
   const [hoveredDoctor, setHoveredDoctor] = useState(null);
   return (
     <>
-      <Navbar />
       <Header />
       <section className="bg-gradient-to-tr from-white via-[#f2f4f8] to-white dark:from-[#1a1a1a] dark:via-[#2a2a2a] dark:to-[#1a1a1a] py-12 px-4">
         <div className="max-w-6xl mx-auto relative">

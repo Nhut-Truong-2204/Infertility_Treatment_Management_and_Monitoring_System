@@ -129,7 +129,7 @@ const ChromaGrid = ({
             ref={rootRef}
             onPointerMove={handleMove}
             onPointerLeave={handleLeave}
-            className={`relative w-full h-full flex flex-wrap justify-center items-start gap-3 ${className}`}
+            className={`relative w-full h-full flex flex-wrap justify-center items-center gap-3 ${className}`}
             style={
                 {
                     background: "rgb(247, 246, 244)",
@@ -139,12 +139,13 @@ const ChromaGrid = ({
                 }
             }
         >
+            
             {data.map((c, i) => (
                 <article
                     key={i}
                     onMouseMove={handleCardMove}
                     onClick={() => handleCardClick(c.url)}
-                    className="group relative flex flex-col w-[300px] rounded-[20px] overflow-hidden border-2 border-transparent transition-colors duration-300 cursor-pointer"
+                    className="group relative flex flex-col w-[300px] h-[350px] rounded-[20px] overflow-hidden border-2 border-transparent transition-colors duration-300 cursor-pointer"
                     style={
                         {
                             "--card-border": c.borderColor || "transparent",

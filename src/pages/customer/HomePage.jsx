@@ -71,7 +71,6 @@ const reviews = [
 
 
 const HomePage = () => {
-  const TeamSection = () => {
   const [hoveredDoctor, setHoveredDoctor] = useState(null);
   return (
     <>
@@ -186,10 +185,10 @@ const HomePage = () => {
               ))}
             </motion.div>
           </div>
+        </div>
       </section>
-      <Footer />
     </>
   );
 };
 
-export default TeamSection;
+export default HomePage;

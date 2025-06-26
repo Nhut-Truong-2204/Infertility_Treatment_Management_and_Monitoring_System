@@ -104,29 +104,42 @@ export const appointmentAPI = {
    */
   createAppointment: async (appointmentData) => {
     try {
-      const response = await instance.post('/api/patient/appointments', appointmentData);
-      return response.data;
+      const response = await instance.post("/api/appointments", appointmentData);
+
+      if (response.data?.success) {
+        return {
+          success: true,
+          data: response.data.data,
+          message: response.data.message,
+        };
+      } else {
+        return {
+          success: false,
+          message: response.data?.message || "Tạo cuộc hẹn thất bại",
+        };
+      }
     } catch (error) {
-      console.error('Error creating appointment:', error);
-      throw error;
+      console.error("Lỗi khi gọi API createAppointment:", error);
+      return {
+        success: false,
+        message: error.message || "Đã xảy ra lỗi khi tạo cuộc hẹn",
+      };
     }
   },
-
   /**
    * Update appointment
    * @param {number} appointmentId - The appointment ID
    * @param {Object} appointmentData - Updated appointment data
    * @returns {Promise} API response
    */
-  updateAppointment: async (appointmentId, appointmentData) => {
-    try {
-      const response = await instance.put(`/api/patient/appointments/${appointmentId}`, appointmentData);
-      return response.data;
-    } catch (error) {
-      console.error('Error updating appointment:', error);
-      throw error;
-    }
+  
+
+  updateAppointment : (appointmentId, isoDateTime) => {
+    return instance.patch(`/api/customer/appointments/${appointmentId}/reschedule`, {
+      newDateTime: isoDateTime
+    });
   },
+
 
   /**
    * Cancel appointment
@@ -135,13 +148,14 @@ export const appointmentAPI = {
    */
   cancelAppointment: async (appointmentId) => {
     try {
-      const response = await instance.delete(`/api/patient/appointments/${appointmentId}`);
+      const response = await instance.delete(`/api/appointments/${appointmentId}/cancel`);
       return response.data;
     } catch (error) {
-      console.error('Error canceling appointment:', error);
+      console.error('Lỗi khi huỷ lịch hẹn:', error);
       throw error;
     }
   }
+
 };
 
 export default appointmentAPI;

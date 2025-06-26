@@ -24,7 +24,7 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response && error.response.status === 403) {
       console.warn('Hết hạn đăng nhập hoặc không có quyền!');
     }
     return Promise.reject(error);

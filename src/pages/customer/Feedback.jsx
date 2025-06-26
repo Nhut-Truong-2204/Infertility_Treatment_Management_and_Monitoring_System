@@ -155,11 +155,11 @@ const Feedback = () => {
         >
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-blue-900 mb-4">
+                    <h1 className="text-5xl font-bold text-blue-800 mb-4">
                         Đánh giá từ cộng đồng
                     </h1>
-                    <p className="text-gray-600 max-w-3xl mx-auto mt-10">
-                        Chia sẻ trải nghiệm của bạn và tham khảo đánh giá từ những người khác về dịch vụ của chúng tôi
+                    <p className=" text-2xl text-white max-w-3xl mx-auto mt-10">
+                        Hãy chia sẻ trải nghiệm của bạn về dịch vụ của chúng tôi
                     </p>
                 </div>
 

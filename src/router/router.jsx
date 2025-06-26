@@ -19,7 +19,7 @@ import DoctorDetail from "../pages/customer/DoctorDetail";
 import TreatmentHistory from "@/pages/customer/TreatmentHistory";
 import ViewAppointment from "../pages/customer/ViewAppointment";
 import PaymentPage from "@/pages/customer/PaymentPage";
-import { useLocation } from "react-router-dom";
+import Feedback from "@/pages/customer/Feedback";
 
 const router = createBrowserRouter([
   {
@@ -79,6 +79,10 @@ const router = createBrowserRouter([
         path: "/payment",
         element: <PaymentPage />,
       },
+      {
+        path: "/feedback",
+        element: <Feedback />,
+      },
     ],
   },
   {
@@ -87,8 +91,8 @@ const router = createBrowserRouter([
   },
   {
     path: "/viewAppointment",
-    element: <ViewAppointment/>
-    
+    element: <ViewAppointment />
+
   },
   {
     path: "/login",

@@ -8,7 +8,6 @@ const MainLayout = () => {
   // Danh sách các route cần ẩn Navbar + Footer
   const hiddenLayoutRoutes = [
     "/bookingAppointment",
-    "/payment",
     "/viewAppointment"
     // Thêm route khác nếu cần
   ];

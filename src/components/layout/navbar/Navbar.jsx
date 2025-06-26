@@ -27,6 +27,7 @@ import {
   Science as ScienceIcon,
   Business as BusinessIcon,
   Checklist as ChecklistIcon,
+  Forum as ForumIcon,
 } from "@mui/icons-material";
 
 
@@ -280,6 +281,19 @@ export default function Navbar() {
                       <div>
                         <h4 className="font-semibold text-gray-800">Đánh giá dịch vụ</h4>
                         <p className="text-sm text-gray-500">Chia sẻ trải nghiệm của bạn</p>
+                      </div>
+                    </div>
+
+                    <div
+                      onClick={() => navigate("/blog-forum")}
+                      className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"
+                    >
+                      <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-all">
+                        <ForumIcon className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Blog & Diễn đàn</h4>
+                        <p className="text-sm text-gray-500">Chia sẻ và kết nối cộng đồng</p>
                       </div>
                     </div>
 

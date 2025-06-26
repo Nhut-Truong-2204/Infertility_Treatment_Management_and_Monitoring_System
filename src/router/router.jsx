@@ -20,6 +20,7 @@ import TreatmentHistory from "@/pages/customer/TreatmentHistory";
 import ViewAppointment from "../pages/customer/ViewAppointment";
 import PaymentPage from "@/pages/customer/PaymentPage";
 import Feedback from "@/pages/customer/Feedback";
+import BlogForum from "@/pages/customer/BlogForum";
 
 const router = createBrowserRouter([
   {
@@ -82,6 +83,10 @@ const router = createBrowserRouter([
       {
         path: "/feedback",
         element: <Feedback />,
+      },
+      {
+        path: "/blog-forum",
+        element: <BlogForum />,
       },
     ],
   },

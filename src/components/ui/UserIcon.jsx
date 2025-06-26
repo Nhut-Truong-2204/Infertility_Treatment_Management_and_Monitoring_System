@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useAnimation } from "motion/react";
+import { motion, useAnimation } from "framer-motion";
 
 const pathVariant = {
   normal: { pathLength: 1, opacity: 1, pathOffset: 0 },

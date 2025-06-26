@@ -39,10 +39,10 @@ const Header = () => {
         className="w-full h-full object-cover absolute inset-0 z-0"
       />
 
-      {/* Overlay gradient */}
+      {/* Overlay */}
       <div className="absolute inset-0 z-10 bg-gradient-to-b from-[#16417e] via-[#415185cc] to-transparent"></div>
 
-      {/* Dark mode toggle button */}
+      {/* Dark mode toggle */}
       <div className="absolute top-6 right-6 z-30">
         <button
           onClick={() => setDarkMode(!darkMode)}
@@ -54,9 +54,9 @@ const Header = () => {
       </div>
 
       {/* Main content */}
-      <div className="relative z-20 flex flex-col items-center justify-center h-full space-y-10 px-4 text-center">
-        {/* Type animation heading */}
-        <h1 className="text-white text-3xl md:text-5xl font-bold drop-shadow-xl leading-snug">
+      <div className="relative z-20 flex flex-col items-center justify-center h-full space-y-10 px-4 text-center animate-fade-in-up">
+        {/* Heading text */}
+        <h1 className="text-white text-2xl md:text-4xl font-semibold drop-shadow-xl leading-snug animate-pulse">
           <TypeAnimation
             sequence={[
               "Từ những khát khao sâu thẳm", 2000,
@@ -71,22 +71,24 @@ const Header = () => {
           />
         </h1>
 
-        {/* Two CTA buttons */}
-        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 mt-6">
-          <button
-            onClick={() => navigate("/bookingAppointment")}
-            className="flex flex-col items-center justify-center bg-pink-500 hover:bg-pink-600 text-white text-base md:text-xl font-bold px-10 py-5 rounded-2xl transition duration-300 shadow-md"
-          >
-            <ScanHeart width={50} height={50} stroke="#fff" />
-            Đặt lịch ngay
-          </button>
+        {/* Two buttons under the text */}
+        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mt-6">
+<button
+  onClick={() => navigate("/BookingAppointment")}
+  className="flex items-center gap-2 justify-center bg-gradient-to-br from-[#FEC8D8] to-[#FF9AA2] hover:brightness-110 text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-full transition duration-500 shadow-md hover:shadow-xl hover:scale-105"
+>
+  <ScanHeart width={20} height={20} stroke="#fff" />
+  Đặt lịch ngay
+</button>
 
-          <button
-            className="flex flex-col items-center justify-center bg-pink-500 hover:bg-pink-600 text-white text-base md:text-xl font-bold px-10 py-5 rounded-2xl transition duration-300 shadow-md"
-          >
-            <HeartHandshake width={50} height={50} stroke="#fff" />
-            Tìm hiểu thêm
-          </button>
+<button
+  onClick={() => navigate("/learnMore")} // <-- Thêm dòng này
+  className="flex items-center gap-2 justify-center bg-gradient-to-br from-[#A1C4FD] via-[#C2E9FB] to-[#A1C4FD] hover:brightness-110 text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-full transition duration-500 shadow-md hover:shadow-xl hover:scale-105"
+>
+  <HeartHandshake width={20} height={20} stroke="#fff" />
+  Tìm hiểu thêm
+</button>
+
         </div>
       </div>
     </div>

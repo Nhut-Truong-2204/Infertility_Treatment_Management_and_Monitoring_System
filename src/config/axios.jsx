@@ -3,7 +3,7 @@ import Cookies from 'js-cookie'; // Thêm dòng này
 
 const instance = axios.create({
   baseURL: 'https://infertility-treatment-management-and.onrender.com',
-  timeout: 10000,
+  timeout: 20000,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -69,9 +69,10 @@ const reviews = [
   },
 ];
 
-const TeamSection = () => {
-  const [hoveredDoctor, setHoveredDoctor] = useState(null);
 
+const HomePage = () => {
+  const TeamSection = () => {
+  const [hoveredDoctor, setHoveredDoctor] = useState(null);
   return (
     <>
       <Navbar />
@@ -185,7 +186,6 @@ const TeamSection = () => {
               ))}
             </motion.div>
           </div>
-        </div>
       </section>
       <Footer />
     </>

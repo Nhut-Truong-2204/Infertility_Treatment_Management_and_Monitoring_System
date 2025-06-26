@@ -71,23 +71,65 @@ const Header = () => {
           />
         </h1>
 
-        {/* Two buttons under the text */}
-        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mt-6">
-<button
-  onClick={() => navigate("/BookingAppointment")}
-  className="flex items-center gap-2 justify-center bg-gradient-to-br from-[#FEC8D8] to-[#FF9AA2] hover:brightness-110 text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-full transition duration-500 shadow-md hover:shadow-xl hover:scale-105"
->
-  <ScanHeart width={20} height={20} stroke="#fff" />
-  Đặt lịch ngay
-</button>
+   
+        
+        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 mt-6">
+          <div className="group flex flex-col items-center">
+            <button
+              className="group bg-pink-500 hover:bg-pink-600 text-white font-bold 
+             rounded-2xl transition-all duration-500 shadow-md 
+             flex flex-col items-center justify-start 
+             w-[180px] h-[120px] group-hover:h-[160px]
+             relative overflow-hidden"
+            onClick={() => navigate("/bookingAppointment")}
+            >
+              {/* ICON */}
+              <ScanHeart
+                className="w-12 h-12 transition-all duration-500 transform mt-6
+               group-hover:-translate-y-2"
+                strokeWidth={2}
+              />
 
-<button
-  onClick={() => navigate("/learnMore")} // <-- Thêm dòng này
-  className="flex items-center gap-2 justify-center bg-gradient-to-br from-[#A1C4FD] via-[#C2E9FB] to-[#A1C4FD] hover:brightness-110 text-white text-xs md:text-sm font-semibold px-4 py-2 rounded-full transition duration-500 shadow-md hover:shadow-xl hover:scale-105"
->
-  <HeartHandshake width={20} height={20} stroke="#fff" />
-  Tìm hiểu thêm
-</button>
+              {/* TEXT */}
+              <span
+                className="text-lg font-semibold opacity-0 translate-y-2
+               group-hover:opacity-100 group-hover:translate-y-4
+               transition-all duration-500 mt-4"
+              >
+                Đặt lịch hẹn
+              </span>
+            </button>
+
+          </div>
+
+          {/* Button 2 */}
+          <div className="group flex flex-col items-center">
+            <button
+              className="group bg-pink-500 hover:bg-pink-600 text-white font-bold 
+             rounded-2xl transition-all duration-500 shadow-md 
+             flex flex-col items-center justify-start 
+             w-[180px] h-[120px] group-hover:h-[160px]
+             relative overflow-hidden"
+            >
+              {/* ICON */}
+              <HeartHandshake
+                className="w-12 h-12 transition-all duration-500 transform mt-6
+               group-hover:-translate-y-2"
+                strokeWidth={2}
+              />
+
+              {/* TEXT */}
+              <span
+                className="text-lg font-semibold opacity-0 translate-y-2
+               group-hover:opacity-100 group-hover:translate-y-4
+               transition-all duration-500 mt-4"
+              >
+                Tìm hiểu thêm
+              </span>
+            </button>
+
+          </div>
+
 
         </div>
       </div>

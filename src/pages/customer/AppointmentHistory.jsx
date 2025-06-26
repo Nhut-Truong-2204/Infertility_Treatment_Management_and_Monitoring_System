@@ -1,11 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, Stethoscope, Filter, Search, ChevronDown, RefreshCw, Plus, CheckCircle, XCircle, AlertCircle, Eye } from 'lucide-react';
 import { appointmentAPI } from '../../api/customer/appointmentAPI';
-
-const AppointmentManagement = () => {
+import { Delete } from '@/components/ui/Delete';
+import Swal from 'sweetalert2';
+import RescheduleCard from '@/components/ui/RescheduleCard';
+const AppointmentHistory = () => {
   const [appointments, setAppointments] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
+
+  const handleOpenReschedule = (appointmentId) => {
+    setSelectedAppointmentId(appointmentId);
+    setShowReschedule(true);
+  };
+
+  const handleReschedule = async (appointmentId, newDateTimeISO) => {
+    try {
+      const res = await appointmentAPI.updateAppointment(appointmentId, newDateTimeISO);
+      if (res.data?.success) {
+        Swal.fire('Thành công', res.data.message || 'Đã dời lịch hẹn', 'success');
+        setShowReschedule(false);
+        fetchAppointments();
+      } else {
+        Swal.fire('Lỗi', res.data.message || 'Không thể dời lịch', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Lỗi', err.response?.data?.message || 'Đã xảy ra lỗi khi dời lịch', 'error');
+    }
+  };
   const [filters, setFilters] = useState({
     page: 0,
     size: 10,
@@ -58,6 +82,32 @@ const AppointmentManagement = () => {
     }
     setLoading(false);
   };
+  const handleCancelAppointment = async (appointmentId) => {
+    const confirm = await Swal.fire({
+      title: 'Xác nhận hủy lịch hẹn?',
+      text: 'Bạn có chắc muốn hủy cuộc hẹn này?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Hủy lịch',
+      cancelButtonText: 'Không'
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        const res = await appointmentAPI.cancelAppointment(appointmentId);
+        if (res.data?.success) {
+          Swal.fire('Đã hủy!', res.data.message || 'Lịch hẹn đã được hủy.', 'success');
+          fetchAppointments(); // Cập nhật lại danh sách
+        } else {
+          Swal.fire('Lỗi', res.data.message || 'Không thể hủy lịch hẹn', 'error');
+        }
+      } catch (err) {
+        Swal.fire('Lỗi', err.response?.data?.message || 'Đã xảy ra lỗi khi hủy lịch hẹn', 'error');
+      }
+    }
+  };
 
   useEffect(() => {
     fetchAppointments();
@@ -107,6 +157,13 @@ const AppointmentManagement = () => {
           </div>
         </div>
       </div>
+      {showReschedule && (
+        <RescheduleCard
+          appointmentId={selectedAppointmentId}
+          onClose={() => setShowReschedule(false)}
+          onConfirm={handleReschedule}
+        />
+      )}
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Filters Panel */}
@@ -279,16 +336,34 @@ const AppointmentManagement = () => {
                           </p>
                         </div>
                       </div>
+
+
                       <div className="flex space-x-2">
                         <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
                           <Eye className="w-5 h-5" />
+                        </button>
+                        {appointment.status === 'CANCELLED_BY_CLINIC' && (
+                          <button
+                            className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors duration-200"
+                            onClick={() => handleOpenReschedule(appointment.appointmentId)}
+                          >
+                            <RefreshCw className="w-5 h-5" />
+                          </button>
+                        )}
+                        <button
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                          onClick={() => handleCancelAppointment(appointment.appointmentId)}
+                        >
+                          <Delete stroke="#dc2626" className=" w-5 h-5" />
                         </button>
                       </div>
                     </div>
                   </div>
                 );
               })}
+
             </div>
+
           ) : !loading && (
             <div className="flex flex-col items-center justify-center py-16">
               <Calendar className="w-16 h-16 text-gray-400 mb-4" />
@@ -350,4 +425,4 @@ const AppointmentManagement = () => {
   );
 };
 
-export default AppointmentManagement;
+export default AppointmentHistory;

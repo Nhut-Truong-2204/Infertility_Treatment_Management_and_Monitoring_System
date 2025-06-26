@@ -1,30 +1,24 @@
 "use client";
 
-import { motion, useAnimation } from "framer-motion";
+import { motion, useAnimation } from "motion/react";
 
-const pathVariant = {
-  normal: { pathLength: 1, opacity: 1, pathOffset: 0 },
-  animate: {
-    pathLength: [0, 1],
-    opacity: [0, 1],
-    pathOffset: [1, 0],
-  },
-};
-
-const circleVariant = {
+const clockHandVariants = {
   normal: {
-    pathLength: 1,
-    pathOffset: 0,
-    scale: 1,
+    rotate: 0,
+    originX: "50%",
+    originY: "50%",
   },
   animate: {
-    pathLength: [0.5, 1],
-    pathOffset: [1, 0],
-    scale: [0.5, 1],
+    rotate: 360,
+    transition: {
+      duration: 2,
+      ease: "linear",
+      repeat: Infinity,
+    },
   },
 };
 
-const User = ({
+const Clock8 = ({
   width = 28,
   height = 28,
   strokeWidth = 2,
@@ -58,25 +52,16 @@ const User = ({
         strokeLinejoin="round"
         {...props}
       >
-        <motion.circle
-          cx="12"
-          cy="8"
-          r="5"
+        <circle cx="12" cy="12" r="10" />
+        <motion.polyline
+          points="12 6 12 12 8 14"
+          variants={clockHandVariants}
           animate={controls}
-          variants={circleVariant}
-        />
-        <motion.path
-          d="M20 21a8 8 0 0 0-16 0"
-          variants={pathVariant}
-          animate={controls}
-          transition={{
-            delay: 0.2,
-            duration: 0.4,
-          }}
+          initial="normal"
         />
       </svg>
     </div>
   );
 };
 
-export default User;
+export { Clock8 };

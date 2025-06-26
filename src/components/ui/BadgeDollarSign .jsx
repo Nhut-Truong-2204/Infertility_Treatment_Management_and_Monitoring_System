@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useAnimation } from "motion/react";
+import { motion, useAnimation } from "framer-motion";
 import React from "react";
 
 const badgeVariants = {

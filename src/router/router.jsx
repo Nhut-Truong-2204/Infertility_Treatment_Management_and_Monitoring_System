@@ -17,9 +17,12 @@ import ClinicIntroduction from "../pages/customer/ClinicIntroduction";
 import ServicesPage from "../pages/customer/Servicepage";
 import DoctorDetail from "../pages/customer/DoctorDetail";
 import TreatmentHistory from "@/pages/customer/TreatmentHistory";
-import ViewAppointment from "../pages/customer/ViewAppointment";
+import ViewAppointment from "../pages/customer/AppointmentHistory";
 import PaymentPage from "@/pages/customer/PaymentPage";
 import Feedback from "@/pages/customer/Feedback";
+import BlogForum from "@/pages/customer/BlogForum";
+import LabtestHistory from "@/pages/customer/LabtestHistory";
+
 
 const router = createBrowserRouter([
   {
@@ -72,8 +75,12 @@ const router = createBrowserRouter([
         element: <ServicesPage />,
       },
       {
-        path: "/history",
+        path: "/historyTreatment",
         element: <TreatmentHistory />,
+      },
+      {
+        path: "/historyLabtest",
+        element: <LabtestHistory />,
       },
       {
         path: "/payment",
@@ -82,6 +89,10 @@ const router = createBrowserRouter([
       {
         path: "/feedback",
         element: <Feedback />,
+      },
+      {
+        path: "/blog-forum",
+        element: <BlogForum />,
       },
     ],
   },

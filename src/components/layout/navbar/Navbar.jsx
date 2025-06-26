@@ -12,6 +12,7 @@ import { BadgeDollarSign } from "@/components/ui/BadgeDollarSign ";
 import { ClipboardCopy } from "@/components/ui/ClipboardCopy";
 import { Bolt } from "@/components/ui/Bolt";
 import { ToggleLeft } from "@/components/ui/ToggleLeft ";
+import { Clock8 } from "@/components/ui/Clock8";
 // Icons
 import {
   ArrowDropDown as ArrowDropDownIcon,
@@ -34,6 +35,7 @@ import {
   Science as ScienceIcon,
   Business as BusinessIcon,
   Checklist as ChecklistIcon,
+  Forum as ForumIcon,
 } from "@mui/icons-material";
 import Swal from "sweetalert2";
 
@@ -99,7 +101,7 @@ export default function Navbar() {
   };
 
   return (
-    <div className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"}`}>
+    <div className={`fixed top-0 left-0 w-full z-60 transition-all duration-300 ${isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"}`}>
       <nav className="py-10 px-40 flex items-center justify-between text-white sticky top-0 z-50">
         {/* Logo */}
         <div onClick={routes.goHome} className="flex items-center space-x-2 font-semibold text-lg cursor-pointer hover:bg-blue-900 hover:rounded-2xl hover:py-2 hover:px-4 transition-all duration-300">
@@ -291,15 +293,15 @@ export default function Navbar() {
                     </div>
 
                     <div
-                      onClick={routes.goHistory}
+                      onClick={() => navigate("/blog-forum")}
                       className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"
                     >
                       <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-all">
-                        <HistoryIcon className="text-blue-600" />
+                        <ForumIcon className="text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-800">Lịch sử điều trị</h4>
-                        <p className="text-sm text-gray-500">Theo dõi quá trình điều trị</p>
+                        <h4 className="font-semibold text-gray-800">Blog & Diễn đàn</h4>
+                        <p className="text-sm text-gray-500">Chia sẻ và kết nối cộng đồng</p>
                       </div>
                     </div>
                   </div>
@@ -330,23 +332,26 @@ export default function Navbar() {
                       onClick={() => navigate("/profile")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <User stroke="#152c4f" color="action"  className="mr-2 text-blue-600" />
+                      <User stroke="#152c4f" color="action" className="mr-2 text-blue-600" />
                       Hồ sơ cá nhân
                     </button>
+
                     <button
                       onClick={() => navigate("/viewAppointment")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <Calendar1 stroke="#ea580c"  className="mr-2 text-white" />
+                      <Calendar1 stroke="#ea580c" className="mr-2 text-white" />
                       Lịch hẹn
                     </button>
+
                     <button
                       onClick={() => navigate("/")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <ClipboardCopy stroke="#16a34a"  className="mr-2 text-green-600" />
+                      <ClipboardCopy stroke="#16a34a" className="mr-2 text-green-600" />
                       Kết quả xét nghiệm
                     </button>
+
                     <button
                       onClick={() => navigate("/payment")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
@@ -354,6 +359,23 @@ export default function Navbar() {
                       <BadgeDollarSign stroke="#ff0f91" className="mr-2 text-green-600" />
                       Quản lý thanh toán
                     </button>
+
+                    <button
+                      onClick={() => navigate("/historyTreatment")}
+                      className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
+                    >
+                      <Clock8 stroke="#3B82F6 " className="mr-2 text-yellow-600" />
+                      Lịch sử điều trị
+                    </button>
+
+                    <button
+                      onClick={() => navigate("/historyLabtest")}
+                      className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
+                    >
+                      <Clock8 stroke="#16a34a " className="mr-2 text-yellow-600" />
+                      Lịch sử xét nghiệm
+                    </button>
+                    
                     <button
                       onClick={() => navigate("/settings")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
@@ -361,13 +383,14 @@ export default function Navbar() {
                       <Bolt stroke="#ca8a04" className="mr-2 text-yellow-600" />
                       Cài đặt
                     </button>
+
                     <button
                       onClick={() => {
                         handleLogout();
                       }}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <ToggleLeft  stroke="#dc2626" className="mr-2 text-red-600" />
+                      <ToggleLeft stroke="#dc2626" className="mr-2 text-red-600" />
                       Đăng xuất
                     </button>
                   </div>

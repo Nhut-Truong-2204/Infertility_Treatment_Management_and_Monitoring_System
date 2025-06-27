@@ -13,7 +13,7 @@ import {
     Sparkles,
     Activity
 } from 'lucide-react';
-
+import instance from '../../config/axios'; // Adjust the import path as necessary
 const ServiceSelection = ({ onServiceSelect, selectedService, instanceConfig }) => {
     const [services, setServices] = useState([]);
     const [filteredServices, setFilteredServices] = useState([]);
@@ -39,7 +39,7 @@ const ServiceSelection = ({ onServiceSelect, selectedService, instanceConfig }) 
             setLoading(true);
             setError(null);
 
-            const response = await instanceConfig.get('/api/customer/service-types');
+            const response = await instance.get('/api/customer/service-types');
 
             if (response.data.success) {
                 // Filter out TESTS service type

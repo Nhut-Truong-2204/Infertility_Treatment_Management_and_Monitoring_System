@@ -33,29 +33,60 @@ import { createAppointment } from "../../api/customer/appointmentAPI";
 import ServiceSelection from "@/components/ui/ServiceSelection ";
 import instance from "@/config/axios";
 
-
 const BookingAppointment = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [doctors, setDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [doctorDetails, setDoctorDetails] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [shifts, setShifts] = useState([]);
+  const [selectedShift, setSelectedShifts] = useState(null);
+  const [doctors, setDoctors] = useState([]);
+  const [loadingShifts, setLoadingShifts] = useState(false);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
+  const [error, setError] = useState(null);
 
-  const [availableTimeSlots] = useState([
-    { label: "07:00 - 09:00", start: "07:00", end: "09:00" },
-    { label: "09:00 - 11:00", start: "09:00", end: "11:00" },
-    { label: "13:30 - 15:00", start: "13:30", end: "15:00", afternoonOnly: true },
-    { label: "15:00 - 16:30", start: "15:00", end: "16:30", afternoonOnly: true },
-  ]);
+  //date
+  const formatTimeObj = (timeObj) => {
+    const pad = (n) => n.toString().padStart(2, "0");
+    return `${pad(timeObj.hour)}:${pad(timeObj.minute)}`;
+  };
+  const fetchShifts = async (date) => {
+    try {
+      const res = await instance.get("/api/work-schedules/working-shifts", {
+        params: { date },
+      });
+
+      const data = res?.data?.data;
+
+      // Đảm bảo luôn là array
+      if (Array.isArray(data)) {
+        setShifts(data);
+      } else {
+        setShifts([]);
+      }
+    } catch (error) {
+      console.error("Lỗi lấy ca làm việc:", error);
+      setShifts([]);
+    }
+  };
+
+  const handleShiftClick = (shifts) => {
+    setSelectedShifts(shifts);
+  };
+
+  const formatTime = (timeObj) => {
+    const pad = (num) => String(num).padStart(2, "0");
+    return `${pad(timeObj.hour)}:${pad(timeObj.minute)}`;
+  };
+
   const handleCancel = () => {
     Swal.fire({
       title: "Bạn có chắc muốn huỷ?",
@@ -93,140 +124,17 @@ const BookingAppointment = () => {
     { id: 3, title: "Chọn lịch", icon: Calendar },
     { id: 4, title: "Thông tin", icon: FileText },
     { id: 5, title: "Xác nhận", icon: Check },
-
   ];
-
-  // API calls
-  const fetchDoctors = async (page = 0, limit = 10) => {
-    setLoading(true);
-    try {
-      const response = await getDoctors(page, limit);
-
-      if (response.success) {
-        const doctorsList = response.data.content || [];
-        setDoctors(doctorsList);
-        return doctorsList; // ✅ Trả về danh sách để dùng bên ngoài
-      } else {
-        setError("Không thể tải danh sách bác sĩ");
-        return []; // ✅ Tránh lỗi undefined
-      }
-    } catch (err) {
-      console.error("Error loading doctors:", err);
-      setError("Lỗi khi tải danh sách bác sĩ: " + err.message);
-      return []; // ✅ Tránh lỗi undefined
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  const fetchDoctorDetails = async (userId) => {
-    setLoadingDetail(true);
-    setError(null);
-    try {
-      const response = await getDoctorDetail(userId);
-
-      if (response.success) {
-        setDoctorDetails(response.data);
-        setIsDetailOpen(true);
-      } else {
-        setError("Không thể tải chi tiết bác sĩ");
-      }
-    } catch (err) {
-      setError("Lỗi khi tải chi tiết bác sĩ: " + err.message);
-    } finally {
-      setLoadingDetail(false);
-    }
-  };
-
-  const fetchUserProfile = () => {
-    try {
-      const userCookie = getCookie("user");
-      if (!userCookie) {
-        console.warn("Không tìm thấy cookie user");
-        return;
-      }
-
-      // Decode chuỗi từ cookie (đang bị URI encode)
-      const decoded = decodeURIComponent(userCookie);
-
-      // Parse lại thành object
-      const userData = JSON.parse(decoded);
-
-      // Gán dữ liệu user vào state
-      setUserProfile({
-        id: userData.id,
-        fullName: userData.fullName,
-        email: userData.email,
-        phoneNumber: userData.phoneNumber,
-        ...userData, // Trường hợp bạn muốn giữ tất cả thuộc tính khác
-      });
-    } catch (err) {
-      console.error("Lỗi khi xử lý cookie user:", err);
-    }
-  };
-
-  const submitAppointment = async () => {
-    setLoading(true);
-    try {
-      const selectedSlot = availableTimeSlots.find(
-        (slot) => slot.label === selectedTime
-      );
-
-      const appointmentDateTime = `${selectedDate}T${selectedSlot?.start}:00`;
-
-      const appointmentData = {
-        ...formData,
-        appointmentDateTime,
-      };
-
-      const response = await createAppointment(appointmentDateTime);
-
-      if (!response.success) {
-        alert(response.message || "Tạo cuộc hẹn thất bại");
-        return;
-      }
-
-      alert("Đặt lịch thành công!");
-      window.location.href = "/";
-    } catch (err) {
-      console.error("Lỗi tạo lịch hẹn:", err);
-      alert("Lỗi tạo lịch hẹn: " + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getCookie = (name) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(";").shift();
-    return null;
-  };
-
-  useEffect(() => {
-    if (currentStep === 5) {
-      fetchUserProfile();
-    }
-  }, [currentStep]);
-
-  useEffect(() => {
-    if (currentStep === 3 && doctors.length === 0) {
-      fetchDoctors();
-    }
-  }, [currentStep]);
-
 
   const handleNext = () => {
     switch (currentStep) {
-      case 1: // BƯỚC 1: Chọn ngày và giờ khám
-        if (currentStep === 1) {
-          if (!selectedService) {
-            alert('Vui lòng chọn dịch vụ');
-            return;
-          }
-          setCurrentStep(2);
+      case 1:
+        if (!selectedService) {
+          alert("Vui lòng chọn dịch vụ");
+          return;
         }
+        setCurrentStep(2);
+        break;
       case 2:
         if (!selectedDate || !selectedTime) {
           Swal.fire({
@@ -282,9 +190,168 @@ const BookingAppointment = () => {
         break;
     }
   };
+  // API calls
+  const fetchDoctors = async () => {
+    if (!selectedDate || !selectedShift) return;
 
+    setLoadingDoctors(true);
+    setDoctors([]);
 
+    try {
+      const response = await instance.post(
+        "/api/customer/work-schedules/date",
+        {
+          date: selectedDate,
+          startTime: {
+            hour: parseInt(selectedShift.startTime.split(":")[0], 10),
+            minute: parseInt(selectedShift.startTime.split(":")[1], 10),
+            second: 0,
+            nano: 0,
+          },
+          endTime: {
+            hour: parseInt(selectedShift.endTime.split(":")[0], 10),
+            minute: parseInt(selectedShift.endTime.split(":")[1], 10),
+            second: 0,
+            nano: 0,
+          },
+        }
+      );
 
+      if (response.data?.success) {
+        setDoctors(response.data.data.doctors || []);
+      } else {
+        setDoctors([]);
+      }
+    } catch (err) {
+      console.error("Lỗi khi lấy danh sách bác sĩ:", err);
+      setError("Không thể tải danh sách bác sĩ.");
+    } finally {
+      setLoadingDoctors(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedDate) {
+      setLoadingShifts(true);
+      instance
+        .get("/api/work-schedules/working-shifts", {
+          params: { date: selectedDate },
+        })
+        .then((res) => {
+          setShift(res.data?.data?.shifts || []);
+          setSelectedTime(null); // reset giờ cũ
+          setDoctors([]); // reset bác sĩ cũ
+        })
+        .catch(() => {})
+        .finally(() => {
+          setLoadingShifts(false);
+        });
+    }
+  }, [selectedDate]);
+
+  const fetchDoctorDetails = async (userId) => {
+    setLoadingDetail(true);
+    setError(null);
+    try {
+      const response = await getDoctorDetail(userId);
+
+      if (response.success) {
+        setDoctorDetails(response.data);
+        setIsDetailOpen(true);
+      } else {
+        setError("Không thể tải chi tiết bác sĩ");
+      }
+    } catch (err) {
+      setError("Lỗi khi tải chi tiết bác sĩ: " + err.message);
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
+
+  const fetchUserProfile = () => {
+    try {
+      const userCookie = getCookie("user");
+      if (!userCookie) {
+        console.warn("Không tìm thấy cookie user");
+        return;
+      }
+
+      // Decode chuỗi từ cookie (đang bị URI encode)
+      const decoded = decodeURIComponent(userCookie);
+
+      // Parse lại thành object
+      const userData = JSON.parse(decoded);
+
+      // Gán dữ liệu user vào state
+      setUserProfile({
+        id: userData.id,
+        fullName: userData.fullName,
+        email: userData.email,
+        phoneNumber: userData.phoneNumber,
+        ...userData, // Trường hợp bạn muốn giữ tất cả thuộc tính khác
+      });
+    } catch (err) {
+      console.error("Lỗi khi xử lý cookie user:", err);
+    }
+  };
+
+  const submitAppointment = async () => {
+    setLoading(true);
+    try {
+      const selectedSlot = availableTimeSlots.find(
+        (slot) => slot.label === selectedTime
+      );
+
+      const appointmentDateTime = `${selectedDate}T${selectedTime}:00`;
+
+      const appointmentData = {
+        ...formData,
+        appointmentDateTime,
+        estimatedDurationMinutes:
+          selectedShift && selectedShift.duration ? selectedShift.duration : 30,
+      };
+
+      const response = await createAppointment(appointmentDateTime);
+
+      if (!response.success) {
+        alert(response.message || "Tạo cuộc hẹn thất bại");
+        return;
+      }
+
+      alert("Đặt lịch thành công!");
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Lỗi tạo lịch hẹn:", err);
+      alert("Lỗi tạo lịch hẹn: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shifts();
+    return null;
+  };
+
+  useEffect(() => {
+    if (currentStep === 5) {
+      fetchUserProfile();
+    }
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (currentStep === 3 && doctors.length === 0) {
+      fetchDoctors();
+    }
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      fetchShifts(selectedDate);
+    }
+  }, [selectedDate]);
   const canProceed = () => {
     switch (currentStep) {
       case 1:
@@ -302,7 +369,7 @@ const BookingAppointment = () => {
   ///
   const handleServiceSelect = (service) => {
     setSelectedService(service);
-    console.log('Service selected:', service);
+    console.log("Service selected:", service);
   };
   const selectDoctor = (doctor) => {
     setSelectedDoctor(doctor);
@@ -333,10 +400,10 @@ const BookingAppointment = () => {
   };
 
   const isSaturday = (dateStr) => {
+    if (!dateStr) return false;
     const date = new Date(dateStr);
-    return date.getDay() === 6; // 0 = Chủ nhật, 6 = Thứ bảy
+    return date.getDay() === 6;
   };
-
   const generateCalendarDays = () => {
     const today = new Date();
     const days = [];
@@ -402,12 +469,13 @@ const BookingAppointment = () => {
                     <button
                       key={day.date}
                       onClick={() => setSelectedDate(day.date)}
-                      className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 ${selectedDate === day.date
-                        ? "border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg scale-105"
-                        : day.isToday
+                      className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 ${
+                        selectedDate === day.date
+                          ? "border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg scale-105"
+                          : day.isToday
                           ? "border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50 hover:border-purple-400"
                           : "border-gray-200 bg-white hover:border-purple-300"
-                        } ${day.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                      } ${day.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
                       disabled={day.disabled}
                     >
                       <div className="text-center">
@@ -415,16 +483,19 @@ const BookingAppointment = () => {
                           {day.weekday}
                         </p>
                         <p
-                          className={`text-2xl font-bold ${selectedDate === day.date
-                            ? "text-purple-700"
-                            : day.isToday
+                          className={`text-2xl font-bold ${
+                            selectedDate === day.date
+                              ? "text-purple-700"
+                              : day.isToday
                               ? "text-blue-700"
                               : "text-gray-800"
-                            }`}
+                          }`}
                         >
                           {day.day}
                         </p>
-                        <p className="text-xs text-gray-500">Tháng {day.month}</p>
+                        <p className="text-xs text-gray-500">
+                          Tháng {day.month}
+                        </p>
                       </div>
 
                       {selectedDate === day.date && (
@@ -457,6 +528,32 @@ const BookingAppointment = () => {
                       Vui lòng chọn ngày khám trước
                     </p>
                   </div>
+                ) : loadingShifts ? (
+                  <div className="flex justify-center items-center py-16">
+                    <svg
+                      className="animate-spin h-8 w-8 text-purple-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                    <p className="ml-3 text-gray-600 text-lg">
+                      Đang tải ca làm việc...
+                    </p>
+                  </div>
                 ) : (
                   <div className="space-y-6">
                     {/* Buổi sáng */}
@@ -468,42 +565,61 @@ const BookingAppointment = () => {
                         <span>Buổi sáng</span>
                       </h4>
                       <div className="grid grid-cols-2 gap-3">
-                        {[
-                          { label: "07:00 - 09:00", start: "07:00" },
-                          { label: "09:00 - 11:00", start: "09:00" },
-                        ].map(({ label, start }) => (
-                          <button
-                            key={start}
-                            onClick={() => setSelectedTime(start)}
-                            className={`group p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 ${selectedTime === start
-                              ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg scale-105"
-                              : "border-gray-200 bg-white hover:border-purple-300"
-                              }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="text-left">
-                                <p
-                                  className={`text-lg font-bold ${selectedTime === start
-                                    ? "text-purple-700"
-                                    : "text-gray-800"
-                                    }`}
-                                >
-                                  {label}
-                                </p>
-                                <p className="text-sm text-gray-600">2 tiếng</p>
-                              </div>
-                              {selectedTime === start && (
-                                <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                                  <Check className="w-4 h-4 text-white" />
+                        {(shifts || [])
+                          .filter(
+                            (shift) =>
+                              parseInt(shift.startTime.split(":")[0], 10) < 12
+                          )
+                          .map((shift, i) => {
+                            const start = shift.startTime.slice(0, 5);
+                            const end = shift.endTime.slice(0, 5);
+                            const label = `${start} - ${end}`;
+                            const [sh, sm] = start.split(":").map(Number);
+                            const [eh, em] = end.split(":").map(Number);
+                            const duration =
+                              (eh * 60 + em - (sh * 60 + sm)) / 60;
+
+                            return (
+                              <button
+                                key={`${start}-${end}`}
+                                onClick={() => {
+                                  setSelectedTime(start);
+                                  setSelectedShifts(shift);
+                                }}
+                                className={`group p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 ${
+                                  selectedTime === start
+                                    ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg scale-105"
+                                    : "border-gray-200 bg-white hover:border-purple-300"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="text-left">
+                                    <p
+                                      className={`text-lg font-bold ${
+                                        selectedTime === start
+                                          ? "text-purple-700"
+                                          : "text-gray-800"
+                                      }`}
+                                    >
+                                      {label}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                      {duration} giờ
+                                    </p>
+                                  </div>
+                                  {selectedTime === start && (
+                                    <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                                      <Check className="w-4 h-4 text-white" />
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                          </button>
-                        ))}
+                              </button>
+                            );
+                          })}
                       </div>
                     </div>
 
-                    {/* Buổi chiều - không hiển thị nếu là Thứ 7 */}
+                    {/* Buổi chiều */}
                     {!isSaturday(selectedDate) && (
                       <div>
                         <h4 className="font-bold text-lg text-gray-800 mb-4 flex items-center space-x-2">
@@ -513,38 +629,60 @@ const BookingAppointment = () => {
                           <span>Buổi chiều</span>
                         </h4>
                         <div className="grid grid-cols-2 gap-3">
-                          {[
-                            { label: "13:30 - 15:00", start: "13:30" },
-                            { label: "15:00 - 16:30", start: "15:00" },
-                          ].map(({ label, start }) => (
-                            <button
-                              key={start}
-                              onClick={() => setSelectedTime(start)}
-                              className={`group p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 ${selectedTime === start
-                                ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg scale-105"
-                                : "border-gray-200 bg-white hover:border-purple-300"
-                                }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="text-left">
-                                  <p
-                                    className={`text-lg font-bold ${selectedTime === start
-                                      ? "text-purple-700"
-                                      : "text-gray-800"
-                                      }`}
-                                  >
-                                    {label}
-                                  </p>
-                                  <p className="text-sm text-gray-600">1.5 tiếng</p>
-                                </div>
-                                {selectedTime === start && (
-                                  <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                                    <Check className="w-4 h-4 text-white" />
+                          {(shifts || [])
+                            .filter((shift) => {
+                              const hour = parseInt(
+                                shift.startTime.split(":")[0],
+                                10
+                              );
+                              // Giữ ca chiều (hour >= 12) nhưng loại nếu là Thứ 7
+                              return hour >= 12 && !isSaturday(selectedDate);
+                            })
+                            .map((shift, i) => {
+                              const start = shift.startTime.slice(0, 5); // "HH:mm"
+                              const end = shift.endTime.slice(0, 5); // "HH:mm"
+                              const label = `${start} - ${end}`;
+
+                              // Tính thời lượng (giờ)
+                              const [sh, sm] = start.split(":").map(Number);
+                              const [eh, em] = end.split(":").map(Number);
+                              const duration =
+                                (eh * 60 + em - (sh * 60 + sm)) / 60;
+
+                              return (
+                                <button
+                                  key={`${start}-${end}`}
+                                  onClick={() => setSelectedTime(start)}
+                                  className={`group p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 ${
+                                    selectedTime === start
+                                      ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg scale-105"
+                                      : "border-gray-200 bg-white hover:border-purple-300"
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="text-left">
+                                      <p
+                                        className={`text-lg font-bold ${
+                                          selectedTime === start
+                                            ? "text-purple-700"
+                                            : "text-gray-800"
+                                        }`}
+                                      >
+                                        {label}
+                                      </p>
+                                      <p className="text-sm text-gray-600">
+                                        {duration} giờ
+                                      </p>
+                                    </div>
+                                    {selectedTime === start && (
+                                      <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                                        <Check className="w-4 h-4 text-white" />
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                            </button>
-                          ))}
+                                </button>
+                              );
+                            })}
                         </div>
                       </div>
                     )}
@@ -554,7 +692,6 @@ const BookingAppointment = () => {
             </div>
           </div>
         );
-
 
       case 3:
         return (
@@ -605,20 +742,22 @@ const BookingAppointment = () => {
                 {doctors.map((doctor) => (
                   <div
                     key={doctor.userId}
-                    className={`group relative bg-white rounded-3xl p-8 transition-all duration-500 cursor-pointer border-2 hover:shadow-2xl ${selectedDoctor?.userId === doctor.userId
-                      ? "border-blue-500 shadow-2xl transform scale-[1.02] bg-gradient-to-r from-blue-50 to-indigo-50"
-                      : "border-gray-200 hover:border-blue-300 hover:-translate-y-1"
-                      }`}
+                    className={`group relative bg-white rounded-3xl p-8 transition-all duration-500 cursor-pointer border-2 hover:shadow-2xl ${
+                      selectedDoctor?.userId === doctor.userId
+                        ? "border-blue-500 shadow-2xl transform scale-[1.02] bg-gradient-to-r from-blue-50 to-indigo-50"
+                        : "border-gray-200 hover:border-blue-300 hover:-translate-y-1"
+                    }`}
                     onClick={() => selectDoctor(doctor)}
                   >
                     <div className="flex items-center space-x-8">
                       {/* Custom Checkbox */}
                       <div className="flex-shrink-0">
                         <div
-                          className={`relative w-8 h-8 rounded-full border-2 transition-all duration-300 ${selectedDoctor?.userId === doctor.userId
-                            ? "border-blue-500 bg-blue-500"
-                            : "border-gray-300 group-hover:border-blue-400"
-                            }`}
+                          className={`relative w-8 h-8 rounded-full border-2 transition-all duration-300 ${
+                            selectedDoctor?.userId === doctor.userId
+                              ? "border-blue-500 bg-blue-500"
+                              : "border-gray-300 group-hover:border-blue-400"
+                          }`}
                         >
                           {selectedDoctor?.userId === doctor.userId && (
                             <Check className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
@@ -845,7 +984,7 @@ const BookingAppointment = () => {
                                     <Mail className="w-6 h-6 text-white" />
                                   </div>
                                   <div>
-                                      // Tiếp tục từ phần thông tin liên hệ trong
+                                    // Tiếp tục từ phần thông tin liên hệ trong
                                     modal chi tiết bác sĩ
                                     <p className="font-semibold text-gray-800">
                                       {doctorDetails.userEmail}
@@ -1493,12 +1632,13 @@ const BookingAppointment = () => {
               {steps.map((step, index) => (
                 <div key={step.id} className="flex items-center">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${currentStep === step.id
-                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-110"
-                      : currentStep > step.id
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
+                      currentStep === step.id
+                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-110"
+                        : currentStep > step.id
                         ? "bg-green-500 text-white"
                         : "bg-gray-200 text-gray-600"
-                      }`}
+                    }`}
                   >
                     {currentStep > step.id ? (
                       <Check className="w-5 h-5" />
@@ -1509,8 +1649,9 @@ const BookingAppointment = () => {
 
                   {index < steps.length - 1 && (
                     <div
-                      className={`w-8 h-1 mx-2 rounded-full transition-colors duration-300 ${currentStep > step.id ? "bg-green-500" : "bg-gray-200"
-                        }`}
+                      className={`w-8 h-1 mx-2 rounded-full transition-colors duration-300 ${
+                        currentStep > step.id ? "bg-green-500" : "bg-gray-200"
+                      }`}
                     />
                   )}
                 </div>

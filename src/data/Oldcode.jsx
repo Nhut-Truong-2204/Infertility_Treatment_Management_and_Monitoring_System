@@ -250,6 +250,7 @@ const BookingAppointment = () => {
 
   const renderStepContent = () => {
     switch (currentStep) {
+      //Chọn 2 options
       case 1:
         return (
           <div className="max-w-4xl mx-auto">
@@ -366,6 +367,7 @@ const BookingAppointment = () => {
           </div>
         );
 
+        //Chọn bác sĩ
       case 2:
         return (
           <div className="max-w-6xl mx-auto">
@@ -799,6 +801,7 @@ const BookingAppointment = () => {
           </div>
         );
 
+        //Chọn ngày giờ
       case 3:
         return (
           <div className="max-w-6xl mx-auto">
@@ -1029,6 +1032,7 @@ const BookingAppointment = () => {
           </div>
         );
 
+        //Chọn thông tin chi tiết
       case 4:
         return (
           <div className="max-w-4xl mx-auto">
@@ -1171,6 +1175,8 @@ const BookingAppointment = () => {
           </div>
         );
 
+
+        //Xác nhận
       case 5:
         return (
           <div className="max-w-4xl mx-auto">

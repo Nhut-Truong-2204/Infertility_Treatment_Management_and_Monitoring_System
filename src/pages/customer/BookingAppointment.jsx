@@ -23,12 +23,16 @@ import {
   ChevronRight,
   Info,
   Heart,
+  HandHeart,
   Stethoscope,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { getDoctors, getDoctorDetail } from "../../api/customer/doctorList";
 import { createAppointment } from "../../api/customer/appointmentAPI";
+import ServiceSelection from "@/components/ui/ServiceSelection ";
+import instance from "@/config/axios";
+
 
 const BookingAppointment = () => {
   const navigate = useNavigate();
@@ -44,6 +48,8 @@ const BookingAppointment = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+
   const [availableTimeSlots] = useState([
     { label: "07:00 - 09:00", start: "07:00", end: "09:00" },
     { label: "09:00 - 11:00", start: "09:00", end: "11:00" },
@@ -82,10 +88,12 @@ const BookingAppointment = () => {
   });
 
   const steps = [
-    { id: 1, title: "Chọn bác sĩ", icon: User },
-    { id: 2, title: "Chọn lịch", icon: Calendar },
-    { id: 3, title: "Thông tin", icon: FileText },
-    { id: 4, title: "Xác nhận", icon: Check },
+    { id: 1, title: "Chọn dịch vụ", icon: HandHeart },
+    { id: 2, title: "Chọn bác sĩ", icon: User },
+    { id: 3, title: "Chọn lịch", icon: Calendar },
+    { id: 4, title: "Thông tin", icon: FileText },
+    { id: 5, title: "Xác nhận", icon: Check },
+
   ];
 
   // API calls
@@ -130,8 +138,6 @@ const BookingAppointment = () => {
       setLoadingDetail(false);
     }
   };
-
-
 
   const fetchUserProfile = () => {
     try {
@@ -199,13 +205,13 @@ const BookingAppointment = () => {
   };
 
   useEffect(() => {
-    if (currentStep === 4) {
+    if (currentStep === 5) {
       fetchUserProfile();
     }
   }, [currentStep]);
 
   useEffect(() => {
-    if (currentStep === 1 && doctors.length === 0) {
+    if (currentStep === 3 && doctors.length === 0) {
       fetchDoctors();
     }
   }, [currentStep]);
@@ -214,6 +220,14 @@ const BookingAppointment = () => {
   const handleNext = () => {
     switch (currentStep) {
       case 1: // BƯỚC 1: Chọn ngày và giờ khám
+        if (currentStep === 1) {
+          if (!selectedService) {
+            alert('Vui lòng chọn dịch vụ');
+            return;
+          }
+          setCurrentStep(2);
+        }
+      case 2:
         if (!selectedDate || !selectedTime) {
           Swal.fire({
             icon: "warning",
@@ -222,10 +236,10 @@ const BookingAppointment = () => {
           });
           return;
         }
-        setCurrentStep(2);
+        setCurrentStep(3);
         break;
 
-      case 2: // BƯỚC 2: Chọn bác sĩ
+      case 3: // BƯỚC 2: Chọn bác sĩ
         if (!selectedDoctor) {
           Swal.fire({
             icon: "warning",
@@ -234,10 +248,10 @@ const BookingAppointment = () => {
           });
           return;
         }
-        setCurrentStep(3);
+        setCurrentStep(4);
         break;
 
-      case 3: // BƯỚC 3: Nhập lý do khám
+      case 4: // BƯỚC 3: Nhập lý do khám
         if (!formData.reasonForVisit?.trim()) {
           Swal.fire({
             icon: "warning",
@@ -246,10 +260,10 @@ const BookingAppointment = () => {
           });
           return;
         }
-        setCurrentStep(4);
+        setCurrentStep(5);
         break;
 
-      case 4: // BƯỚC 4: Xác nhận gửi
+      case 5: // BƯỚC 4: Xác nhận gửi
         Swal.fire({
           title: "Xác nhận đặt lịch?",
           text: "Bạn có chắc chắn muốn gửi thông tin đặt lịch?",
@@ -274,17 +288,22 @@ const BookingAppointment = () => {
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return selectedDate !== "" && selectedTime !== "";
+        return selectedService !== null;
       case 2:
-        return selectedDoctor !== null;
+        return selectedDate !== "" && selectedTime !== "";
       case 3:
+        return selectedDoctor !== null;
+      case 4:
         return formData.reasonForVisit.trim() !== "";
       default:
         return true;
     }
   };
   ///
-
+  const handleServiceSelect = (service) => {
+    setSelectedService(service);
+    console.log('Service selected:', service);
+  };
   const selectDoctor = (doctor) => {
     setSelectedDoctor(doctor);
     setFormData({ ...formData, doctorUserId: doctor.userId });
@@ -343,9 +362,19 @@ const BookingAppointment = () => {
 
   const renderStep = () => {
     switch (currentStep) {
-
-
       case 1:
+        return (
+          <div>
+            {currentStep === 1 && (
+              <ServiceSelection
+                onServiceSelect={handleServiceSelect}
+                selectedService={selectedService}
+                instanceConfig={instance}
+              />
+            )}
+          </div>
+        );
+      case 2:
         return (
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -526,7 +555,8 @@ const BookingAppointment = () => {
           </div>
         );
 
-      case 2:
+
+      case 3:
         return (
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -956,7 +986,7 @@ const BookingAppointment = () => {
             )}
           </div>
         );
-      case 3:
+      case 4:
         return (
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
@@ -1098,7 +1128,7 @@ const BookingAppointment = () => {
           </div>
         );
 
-      case 4:
+      case 5:
         return (
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
@@ -1322,7 +1352,7 @@ const BookingAppointment = () => {
           </div>
         );
 
-      case 5:
+      case 6:
         return (
           <div className="max-w-4xl mx-auto text-center">
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl p-12 shadow-2xl border border-green-200">
@@ -1491,7 +1521,7 @@ const BookingAppointment = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12 relative relative">
+      <div className="max-w-7xl mx-auto px-6 py-12 relative ">
         {renderStep()}
 
         {/* Navigation Buttons */}
@@ -1532,14 +1562,14 @@ const BookingAppointment = () => {
 
               {/* Nút Tiếp theo / Xác nhận */}
               <div className="flex items-center space-x-4">
-                <div className="text-gray-600">Bước {currentStep} / 4</div>
+                <div className="text-gray-600">Bước {currentStep} / 5</div>
                 <button
                   onClick={handleNext}
                   disabled={!canProceed()}
                   className="flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span>
-                    {currentStep === 4 ? "Xác nhận đặt lịch" : "Tiếp theo"}
+                    {currentStep === 5 ? "Xác nhận đặt lịch" : "Tiếp theo"}
                   </span>
                   <ChevronRight className="w-5 h-5" />
                 </button>

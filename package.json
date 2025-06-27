@@ -17,6 +17,7 @@
     "@emotion/styled": "^11.14.0",
     "@fontsource/roboto": "^5.2.6",
     "@heroicons/react": "^2.1.1",
+    "@jitsi/react-sdk": "^1.4.4",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "@radix-ui/react-avatar": "^1.1.10",

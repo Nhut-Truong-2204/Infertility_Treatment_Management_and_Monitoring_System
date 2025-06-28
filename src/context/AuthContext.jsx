@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import axios from "../config/axios";
 import Cookies from "js-cookie";
 
@@ -8,7 +8,17 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Đọc user và token từ cookie
+  // 👉 Thời gian người dùng không thao tác (ms)
+  const IDLE_TIMEOUT =  10 * 60 * 1000; // 5 phút gọi refreshToken nếu có thao tác
+  const REFRESH_INTERVAL = 5 * 60 * 1000; // 10 phút không thao tác thì không gọi refresh nữa
+
+  const idleTimer = useRef(null);
+  const refreshInterval = useRef(null);
+  const isUserActive = useRef(false); // Trạng thái tương tác gần nhất
+
+  // ======================
+  // ====== AUTH ==========
+
   useEffect(() => {
     const token = Cookies.get("accessToken");
     const storedUser = Cookies.get("user");
@@ -17,76 +27,140 @@ export const AuthProvider = ({ children }) => {
       setUser(JSON.parse(storedUser));
       setLoading(false);
     } else if (token) {
-      fetchUser(); // Lấy user nếu chỉ có token
+      fetchUser();
     } else {
       setLoading(false);
     }
   }, []);
 
-  // Đăng nhập
   const login = async (credentials) => {
-    try {
-      const response = await axios.post("/api/auth/login", credentials);
-      const { accessToken, user: userData } = response.data.data;
+    const response = await axios.post("/api/auth/login", credentials);
+    const { accessToken, user: userData } = response.data.data;
 
-      Cookies.set("accessToken", accessToken, {
-        expires: 1, // 1 ngày
-        secure: true, // ✅ chỉ dùng HTTPS
-        sameSite: "Strict", // ✅ bảo vệ CSRF
-      });
+    Cookies.set("accessToken", accessToken, {
+      expires: 1,
+      secure: true,
+      sameSite: "Strict",
+    });
 
-      Cookies.set("user", JSON.stringify(userData), {
-        expires: 1,
-        secure: true,
-        sameSite: "Strict",
-      });
+    Cookies.set("user", JSON.stringify(userData), {
+      expires: 1,
+      secure: true,
+      sameSite: "Strict",
+    });
 
-      setUser(userData);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
+    setUser(userData);
+    startIdleMonitoring(); // ⬅ bắt đầu theo dõi tương tác
+    return response.data;
   };
 
-  // Đăng xuất
   const logout = () => {
     setUser(null);
     Cookies.remove("accessToken");
     Cookies.remove("user");
+    stopIdleMonitoring(); // ⬅ dừng khi logout
   };
 
-  // Gọi API lấy user nếu token hợp lệ
   const fetchUser = async () => {
     try {
-      const token = Cookies.get("accessToken");
-      if (!token) throw new Error("Token không tồn tại");
-
-      const response = await axios.get("/api/auth/me");
-
-      const userData = response.data;
+      const res = await axios.get("/api/auth/me");
+      const userData = res.data;
       setUser(userData);
-
       Cookies.set("user", JSON.stringify(userData), {
         expires: 1,
         secure: true,
         sameSite: "Strict",
       });
-    } catch (error) {
-      console.error("Error fetching user:", error);
+      startIdleMonitoring(); // ⬅ khi fetchUser thành công thì bắt đầu
+    } catch (err) {
       logout();
     } finally {
       setLoading(false);
     }
   };
 
+  const refreshToken = async () => {
+    try {
+      const res = await axios.post("/api/auth/refresh-token");
+      const newToken = res.data.accessToken;
+      Cookies.set("accessToken", newToken, {
+        expires: 1,
+        secure: true,
+        sameSite: "Strict",
+      });
+      return newToken;
+    } catch (err) {
+      logout();
+      throw err;
+    }
+  };
+
+  // ============================
+  // ======= IDLE & REFRESH =====
+
+  const handleUserActivity = () => {
+    isUserActive.current = true;
+    resetIdleTimer();
+  };
+
+  const resetIdleTimer = () => {
+    if (idleTimer.current) clearTimeout(idleTimer.current);
+
+    idleTimer.current = setTimeout(() => {
+      isUserActive.current = false;
+      stopRefreshInterval(); // ngừng gọi refresh nếu không thao tác
+    }, IDLE_TIMEOUT);
+
+    // Nếu đang thao tác thì đảm bảo interval đang chạy
+    if (!refreshInterval.current) {
+      startRefreshInterval();
+    }
+  };
+
+  const startIdleMonitoring = () => {
+    const events = ["mousemove", "keydown", "scroll", "click"];
+    events.forEach((event) =>
+      window.addEventListener(event, handleUserActivity)
+    );
+    resetIdleTimer(); // gọi ngay từ đầu
+  };
+
+  const stopIdleMonitoring = () => {
+    const events = ["mousemove", "keydown", "scroll", "click"];
+    events.forEach((event) =>
+      window.removeEventListener(event, handleUserActivity)
+    );
+    clearTimeout(idleTimer.current);
+    stopRefreshInterval();
+  };
+
+  const startRefreshInterval = () => {
+    refreshInterval.current = setInterval(() => {
+      if (isUserActive.current) {
+        refreshToken(); // ⬅ gọi refresh nếu đang thao tác
+      }
+    }, REFRESH_INTERVAL);
+  };
+
+  const stopRefreshInterval = () => {
+    if (refreshInterval.current) {
+      clearInterval(refreshInterval.current);
+      refreshInterval.current = null;
+    }
+  };
+
+  // ============================
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, loading, refreshToken }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook
+// Hook tiện dụng
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");

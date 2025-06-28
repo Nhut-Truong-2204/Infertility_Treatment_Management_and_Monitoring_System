@@ -192,16 +192,16 @@ const BookingAppointment = () => {
   };
   // API calls
   const fetchDoctors = async () => {
-    if (!selectedDate || !selectedShift) return;
+    if (!selectedDate || !selectedShift || !selectedShift.dayOfWeek) return;
 
     setLoadingDoctors(true);
     setDoctors([]);
+    setError(null);
 
     try {
-      const response = await instance.post(
-        "/api/customer/work-schedules/date",
-        {
-          date: selectedDate,
+      const payload = {
+        date: selectedDate,
+        shift: {
           startTime: {
             hour: parseInt(selectedShift.startTime.split(":")[0], 10),
             minute: parseInt(selectedShift.startTime.split(":")[1], 10),
@@ -214,13 +214,28 @@ const BookingAppointment = () => {
             second: 0,
             nano: 0,
           },
-        }
+        },
+        dayOfWeek: {
+          code: selectedShift.dayOfWeek.code,
+          displayName: selectedShift.dayOfWeek.displayName,
+        },
+      };
+
+      const response = await instance.post(
+        "/api/customer/work-schedules/date",
+        payload
       );
 
       if (response.data?.success) {
-        setDoctors(response.data.data.doctors || []);
+        const doctors = response.data.data.doctors || [];
+        setDoctors(doctors);
+
+        if (doctors.length === 0) {
+          setError("Không có bác sĩ nào trong ca trực vừa chọn.");
+        }
       } else {
         setDoctors([]);
+        setError("Không có bác sĩ nào trong ca trực vừa chọn.");
       }
     } catch (err) {
       console.error("Lỗi khi lấy danh sách bác sĩ:", err);
@@ -709,7 +724,7 @@ const BookingAppointment = () => {
               </p>
             </div>
 
-            {loading ? (
+            {loadingDoctors ? (
               <div className="text-center py-20">
                 <div className="relative">
                   <div className="animate-spin rounded-full h-20 w-20 border-4 border-blue-500 border-t-transparent mx-auto mb-6"></div>
@@ -739,121 +754,137 @@ const BookingAppointment = () => {
               </div>
             ) : (
               <div className="space-y-6">
-                {doctors.map((doctor) => (
-                  <div
-                    key={doctor.userId}
-                    className={`group relative bg-white rounded-3xl p-8 transition-all duration-500 cursor-pointer border-2 hover:shadow-2xl ${
-                      selectedDoctor?.userId === doctor.userId
-                        ? "border-blue-500 shadow-2xl transform scale-[1.02] bg-gradient-to-r from-blue-50 to-indigo-50"
-                        : "border-gray-200 hover:border-blue-300 hover:-translate-y-1"
-                    }`}
-                    onClick={() => selectDoctor(doctor)}
-                  >
-                    <div className="flex items-center space-x-8">
-                      {/* Custom Checkbox */}
-                      <div className="flex-shrink-0">
-                        <div
-                          className={`relative w-8 h-8 rounded-full border-2 transition-all duration-300 ${
-                            selectedDoctor?.userId === doctor.userId
-                              ? "border-blue-500 bg-blue-500"
-                              : "border-gray-300 group-hover:border-blue-400"
-                          }`}
-                        >
-                          {selectedDoctor?.userId === doctor.userId && (
-                            <Check className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Avatar */}
-                      <div className="relative">
-                        <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl overflow-hidden shadow-xl border-4 border-white">
-                          {doctor.profilePictureUrl ? (
-                            <img
-                              src={doctor.profilePictureUrl}
-                              alt={doctor.fullName}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-white">
-                              <User className="w-12 h-12" />
-                            </div>
-                          )}
-                        </div>
-                        {selectedDoctor?.userId === doctor.userId && (
-                          <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-                            <Check className="w-5 h-5 text-white" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Doctor Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                              {doctor.fullName}
-                            </h3>
-                            <div className="flex items-center space-x-2 mb-3">
-                              <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                                {doctor.specializationName}
-                              </div>
-                            </div>
-                            <p className="text-gray-600 mb-4 leading-relaxed line-clamp-2">
-                              {doctor.shortBio ||
-                                "Bác sĩ có nhiều năm kinh nghiệm trong chuyên khoa"}
-                            </p>
-
-                            <div className="flex items-center space-x-6 text-sm">
-                              <div className="flex items-center space-x-2 text-amber-600">
-                                <Award className="w-5 h-5" />
-                                <span className="font-medium">
-                                  {doctor.experienceYears || 5}+ năm kinh nghiệm
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-2 text-yellow-500">
-                                <Star className="w-5 h-5 fill-current" />
-                                <span className="font-medium text-gray-700">
-                                  4.8 (120+ đánh giá)
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Price and Actions */}
-                          <div className="text-right pl-6">
-                            <div className="mb-6">
-                              <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                                {formatCurrency(
-                                  doctor.consultationFee || 500000
-                                )}
-                              </p>
-                              <p className="text-sm text-gray-500 font-medium">
-                                Phí khám
-                              </p>
-                            </div>
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                fetchDoctorDetails(doctor.userId);
-                              }}
-                              className="group/btn px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 rounded-xl hover:from-blue-500 hover:to-indigo-600 hover:text-white transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg font-medium"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <Info className="w-4 h-4" />
-                                <span>Chi tiết</span>
-                              </div>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                {doctors.length === 0 ? (
+                  <div className="text-center py-20">
+                    <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <User className="w-10 h-10 text-yellow-600" />
                     </div>
+                    <p className="text-yellow-700 text-xl font-medium mb-4">
+                      Không có bác sĩ nào phù hợp trong ca đã chọn
+                    </p>
+                    <p className="text-gray-500">
+                      Vui lòng chọn thời gian khác hoặc thử lại sau
+                    </p>
                   </div>
-                ))}
+                ) : (
+                  <div className="space-y-6">
+                    {doctors.map((doctor) => (
+                      <div
+                        key={doctor.userId}
+                        className={`group relative bg-white rounded-3xl p-8 transition-all duration-500 cursor-pointer border-2 hover:shadow-2xl ${
+                          selectedDoctor?.userId === doctor.userId
+                            ? "border-blue-500 shadow-2xl transform scale-[1.02] bg-gradient-to-r from-blue-50 to-indigo-50"
+                            : "border-gray-200 hover:border-blue-300 hover:-translate-y-1"
+                        }`}
+                        onClick={() => selectDoctor(doctor)}
+                      >
+                        <div className="flex items-center space-x-8">
+                          {/* Custom Checkbox */}
+                          <div className="flex-shrink-0">
+                            <div
+                              className={`relative w-8 h-8 rounded-full border-2 transition-all duration-300 ${
+                                selectedDoctor?.userId === doctor.userId
+                                  ? "border-blue-500 bg-blue-500"
+                                  : "border-gray-300 group-hover:border-blue-400"
+                              }`}
+                            >
+                              {selectedDoctor?.userId === doctor.userId && (
+                                <Check className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Avatar */}
+                          <div className="relative">
+                            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl overflow-hidden shadow-xl border-4 border-white">
+                              {doctor.profilePictureUrl ? (
+                                <img
+                                  src={doctor.profilePictureUrl}
+                                  alt={doctor.fullName}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-white">
+                                  <User className="w-12 h-12" />
+                                </div>
+                              )}
+                            </div>
+                            {selectedDoctor?.userId === doctor.userId && (
+                              <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                                <Check className="w-5 h-5 text-white" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Doctor Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                                  {doctor.fullName}
+                                </h3>
+                                <div className="flex items-center space-x-2 mb-3">
+                                  <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                                    {doctor.specializationName}
+                                  </div>
+                                </div>
+                                <p className="text-gray-600 mb-4 leading-relaxed line-clamp-2">
+                                  {doctor.shortBio ||
+                                    "Bác sĩ có nhiều năm kinh nghiệm trong chuyên khoa"}
+                                </p>
+
+                                <div className="flex items-center space-x-6 text-sm">
+                                  <div className="flex items-center space-x-2 text-amber-600">
+                                    <Award className="w-5 h-5" />
+                                    <span className="font-medium">
+                                      {doctor.experienceYears || 5}+ năm kinh
+                                      nghiệm
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center space-x-2 text-yellow-500">
+                                    <Star className="w-5 h-5 fill-current" />
+                                    <span className="font-medium text-gray-700">
+                                      4.8 (120+ đánh giá)
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Price and Actions */}
+                              <div className="text-right pl-6">
+                                <div className="mb-6">
+                                  <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                    {formatCurrency(
+                                      doctor.consultationFee || 500000
+                                    )}
+                                  </p>
+                                  <p className="text-sm text-gray-500 font-medium">
+                                    Phí khám
+                                  </p>
+                                </div>
+
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    fetchDoctorDetails(doctor.userId);
+                                  }}
+                                  className="group/btn px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 rounded-xl hover:from-blue-500 hover:to-indigo-600 hover:text-white transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg font-medium"
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <Info className="w-4 h-4" />
+                                    <span>Chi tiết</span>
+                                  </div>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
-
             {/* Doctor Detail Modal với overlay mờ */}
             {isDetailOpen && (
               <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">

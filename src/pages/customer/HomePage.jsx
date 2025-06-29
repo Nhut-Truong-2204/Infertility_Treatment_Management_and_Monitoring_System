@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "../../components/layout/Header";
-import Navbar from "../../components/layout/navbar/Navbar";
-import Footer from "../../components/layout/Footer";
-
 const doctors = [
   {
     name: "Dr. Nguyễn Văn A",
@@ -83,7 +80,7 @@ const HomePage = () => {
           <p className="text-center max-w-xl mx-auto text-gray-600 dark:text-gray-300 mb-10">
             Những người đồng hành cùng bạn trong hành trình chăm sóc sức khoẻ sinh sản và tinh thần.
           </p>
-
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 relative">
             {doctors.map((doc, index) => {
               const isActive = hoveredDoctor?.name === doc.name;

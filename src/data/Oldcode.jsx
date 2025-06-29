@@ -23,40 +23,87 @@ import {
   ChevronRight,
   Info,
   Heart,
+  HandHeart,
+  Stethoscope,
 } from "lucide-react";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import { getDoctors, getDoctorDetail } from "../../api/customer/doctorList";
+import { createAppointment } from "../../api/customer/appointmentAPI";
+import ServiceSelection from "@/components/ui/ServiceSelection ";
+import instance from "@/config/axios";
 
 const BookingAppointment = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [doctors, setDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [doctorDetails, setDoctorDetails] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [hasVisitedBefore, setHasVisitedBefore] = useState(null);
-  const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
-  const [availableTimeSlots] = useState([
-    "08:00",
-    "08:30",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-  ]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [shifts, setShifts] = useState([]);
+  const [selectedShift, setSelectedShifts] = useState(null);
+  const [doctors, setDoctors] = useState([]);
+  const [loadingShifts, setLoadingShifts] = useState(false);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
+  const [error, setError] = useState(null);
 
+  //date
+  const formatTimeObj = (timeObj) => {
+    const pad = (n) => n.toString().padStart(2, "0");
+    return `${pad(timeObj.hour)}:${pad(timeObj.minute)}`;
+  };
+  const fetchShifts = async (date) => {
+    try {
+      const res = await instance.get("/api/work-schedules/working-shifts", {
+        params: { date },
+      });
+
+      const data = res?.data?.data;
+
+      // Đảm bảo luôn là array
+      if (Array.isArray(data)) {
+        setShifts(data);
+      } else {
+        setShifts([]);
+      }
+    } catch (error) {
+      console.error("Lỗi lấy ca làm việc:", error);
+      setShifts([]);
+    }
+  };
+
+  const handleShiftClick = (shifts) => {
+    setSelectedShifts(shifts);
+  };
+
+  const formatTime = (timeObj) => {
+    const pad = (num) => String(num).padStart(2, "0");
+    return `${pad(timeObj.hour)}:${pad(timeObj.minute)}`;
+  };
+
+  const handleCancel = () => {
+    Swal.fire({
+      title: "Bạn có chắc muốn huỷ?",
+      text: "Mọi thay đổi chưa lưu sẽ bị mất!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Có, huỷ ngay",
+      cancelButtonText: "Không",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Ví dụ: chuyển hướng về trang chủ
+        navigate("/");
+      }
+    });
+  };
   const [formData, setFormData] = useState({
     patientProfileId: 1,
     doctorUserId: 0,
@@ -65,49 +112,151 @@ const BookingAppointment = () => {
     estimatedDurationMinutes: 30,
     appointmentType: {
       typeName: "EXAMINATION",
-      description: "Regular medical examination",
+      description: "Khám sức khỏe tổng quát",
     },
     reasonForVisit: "",
     notes: "",
   });
 
   const steps = [
-    { id: 1, title: "Xác nhận", icon: UserCheck },
+    { id: 1, title: "Chọn dịch vụ", icon: HandHeart },
     { id: 2, title: "Chọn bác sĩ", icon: User },
     { id: 3, title: "Chọn lịch", icon: Calendar },
     { id: 4, title: "Thông tin", icon: FileText },
     { id: 5, title: "Xác nhận", icon: Check },
   ];
 
-  // API calls
-  const fetchDoctors = async (page = 0, limit = 10) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/doctors?page=${page}&limit=${limit}`);
-      const data = await response.json();
+  const handleNext = () => {
+    switch (currentStep) {
+      case 1:
+        if (!selectedService) {
+          alert("Vui lòng chọn dịch vụ");
+          return;
+        }
+        setCurrentStep(2);
+        break;
+      case 2:
+        if (!selectedDate || !selectedTime) {
+          Swal.fire({
+            icon: "warning",
+            title: "Thiếu thời gian khám",
+            text: "Vui lòng chọn ngày và giờ khám",
+          });
+          return;
+        }
+        setCurrentStep(3);
+        break;
 
-      if (data.success) {
-        setDoctors(data.data.content || []);
-      } else {
-        setError("Không thể tải danh sách bác sĩ");
-      }
-    } catch (err) {
-      console.error("Error loading doctors:", err);
-      setError("Lỗi khi tải danh sách bác sĩ: " + err.message);
-    } finally {
-      setLoading(false);
+      case 3: // BƯỚC 2: Chọn bác sĩ
+        if (!selectedDoctor) {
+          Swal.fire({
+            icon: "warning",
+            title: "Thiếu thông tin",
+            text: "Vui lòng chọn bác sĩ",
+          });
+          return;
+        }
+        setCurrentStep(4);
+        break;
+
+      case 4: // BƯỚC 3: Nhập lý do khám
+        if (!formData.reasonForVisit?.trim()) {
+          Swal.fire({
+            icon: "warning",
+            title: "Thiếu lý do khám",
+            text: "Vui lòng nhập lý do khám",
+          });
+          return;
+        }
+        setCurrentStep(5);
+        break;
+
+      case 5: // BƯỚC 4: Xác nhận gửi
+        Swal.fire({
+          title: "Xác nhận đặt lịch?",
+          text: "Bạn có chắc chắn muốn gửi thông tin đặt lịch?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "Gửi",
+          cancelButtonText: "Huỷ",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            submitAppointment();
+          }
+        });
+        break;
+
+      default:
+        break;
     }
   };
+  // API calls
+  const fetchDoctors = async () => {
+    if (!selectedDate || !selectedShift) return;
+
+    setLoadingDoctors(true);
+    setDoctors([]);
+
+    try {
+      const response = await instance.post(
+        "/api/customer/work-schedules/date",
+        {
+          date: selectedDate,
+          startTime: {
+            hour: parseInt(selectedShift.startTime.split(":")[0], 10),
+            minute: parseInt(selectedShift.startTime.split(":")[1], 10),
+            second: 0,
+            nano: 0,
+          },
+          endTime: {
+            hour: parseInt(selectedShift.endTime.split(":")[0], 10),
+            minute: parseInt(selectedShift.endTime.split(":")[1], 10),
+            second: 0,
+            nano: 0,
+          },
+        }
+      );
+
+      if (response.data?.success) {
+        setDoctors(response.data.data.doctors || []);
+      } else {
+        setDoctors([]);
+      }
+    } catch (err) {
+      console.error("Lỗi khi lấy danh sách bác sĩ:", err);
+      setError("Không thể tải danh sách bác sĩ.");
+    } finally {
+      setLoadingDoctors(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedDate) {
+      setLoadingShifts(true);
+      instance
+        .get("/api/work-schedules/working-shifts", {
+          params: { date: selectedDate },
+        })
+        .then((res) => {
+          setShift(res.data?.data?.shifts || []);
+          setSelectedTime(null); // reset giờ cũ
+          setDoctors([]); // reset bác sĩ cũ
+        })
+        .catch(() => {})
+        .finally(() => {
+          setLoadingShifts(false);
+        });
+    }
+  }, [selectedDate]);
 
   const fetchDoctorDetails = async (userId) => {
     setLoadingDetail(true);
     setError(null);
     try {
-      const response = await fetch(`/api/doctors/${userId}`);
-      const data = await response.json();
+      const response = await getDoctorDetail(userId);
 
-      if (data.success) {
-        setDoctorDetails(data.data);
+      if (response.success) {
+        setDoctorDetails(response.data);
         setIsDetailOpen(true);
       } else {
         setError("Không thể tải chi tiết bác sĩ");
@@ -119,41 +268,53 @@ const BookingAppointment = () => {
     }
   };
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = () => {
     try {
-      const response = await fetch("/api/user/profile");
-      const data = await response.json();
-
-      if (data.success) {
-        setUserProfile(data.data);
+      const userCookie = getCookie("user");
+      if (!userCookie) {
+        console.warn("Không tìm thấy cookie user");
+        return;
       }
+
+      // Decode chuỗi từ cookie (đang bị URI encode)
+      const decoded = decodeURIComponent(userCookie);
+
+      // Parse lại thành object
+      const userData = JSON.parse(decoded);
+
+      // Gán dữ liệu user vào state
+      setUserProfile({
+        id: userData.id,
+        fullName: userData.fullName,
+        email: userData.email,
+        phoneNumber: userData.phoneNumber,
+        ...userData, // Trường hợp bạn muốn giữ tất cả thuộc tính khác
+      });
     } catch (err) {
-      console.error("Error loading user profile:", err);
+      console.error("Lỗi khi xử lý cookie user:", err);
     }
   };
 
   const submitAppointment = async () => {
     setLoading(true);
     try {
+      const selectedSlot = availableTimeSlots.find(
+        (slot) => slot.label === selectedTime
+      );
+
+      const appointmentDateTime = `${selectedDate}T${selectedTime}:00`;
+
       const appointmentData = {
         ...formData,
-        appointmentDateTime: `${selectedDate}T${selectedTime}:00.000Z`,
+        appointmentDateTime,
+        estimatedDurationMinutes:
+          selectedShift && selectedShift.duration ? selectedShift.duration : 30,
       };
 
-      console.log("Sending appointment data:", appointmentData);
+      const response = await createAppointment(appointmentDateTime);
 
-      const response = await fetch("/api/appointments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(appointmentData),
-      });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        alert(result.message || "Tạo cuộc hẹn thất bại");
+      if (!response.success) {
+        alert(response.message || "Tạo cuộc hẹn thất bại");
         return;
       }
 
@@ -167,42 +328,52 @@ const BookingAppointment = () => {
     }
   };
 
+  const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shifts();
+    return null;
+  };
+
   useEffect(() => {
-    if (currentStep === 4) {
+    if (currentStep === 5) {
       fetchUserProfile();
     }
   }, [currentStep]);
 
-  const nextStep = () => {
-    if (currentStep < 5) {
-      if (currentStep === 1 && hasVisitedBefore) {
-        fetchDoctors();
-        setCurrentStep(2);
-      } else if (currentStep === 1 && !hasVisitedBefore) {
-        setCurrentStep(3);
-      } else {
-        setCurrentStep(currentStep + 1);
-      }
+  useEffect(() => {
+    if (currentStep === 3 && doctors.length === 0) {
+      fetchDoctors();
+    }
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      fetchShifts(selectedDate);
+    }
+  }, [selectedDate]);
+  const canProceed = () => {
+    switch (currentStep) {
+      case 1:
+        return selectedService !== null;
+      case 2:
+        return selectedDate !== "" && selectedTime !== "";
+      case 3:
+        return selectedDoctor !== null;
+      case 4:
+        return formData.reasonForVisit.trim() !== "";
+      default:
+        return true;
     }
   };
-
-  const prevStep = () => {
-    if (currentStep > 1) {
-      if (currentStep === 3 && !hasVisitedBefore) {
-        setCurrentStep(1);
-      } else {
-        setCurrentStep(currentStep - 1);
-      }
-    }
+  ///
+  const handleServiceSelect = (service) => {
+    setSelectedService(service);
+    console.log("Service selected:", service);
   };
-
   const selectDoctor = (doctor) => {
     setSelectedDoctor(doctor);
     setFormData({ ...formData, doctorUserId: doctor.userId });
-  };
-
-  const handleCancel = () => {
-    window.location.href = "/";
   };
 
   const formatCurrency = (amount) => {
@@ -214,7 +385,10 @@ const BookingAppointment = () => {
 
   const formatDateTime = (date, time) => {
     if (!date || !time) return "";
-    const dateTime = new Date(`${date}T${time}`);
+    const [hour, minute] = time.split(":");
+    const dateTime = new Date(date);
+    dateTime.setHours(hour);
+    dateTime.setMinutes(minute);
     return dateTime.toLocaleString("vi-VN", {
       weekday: "long",
       year: "numeric",
@@ -225,11 +399,16 @@ const BookingAppointment = () => {
     });
   };
 
+  const isSaturday = (dateStr) => {
+    if (!dateStr) return false;
+    const date = new Date(dateStr);
+    return date.getDay() === 6;
+  };
   const generateCalendarDays = () => {
     const today = new Date();
     const days = [];
 
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 8; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
 
@@ -248,117 +427,265 @@ const BookingAppointment = () => {
     return days;
   };
 
-  const renderStepContent = () => {
+  const renderStep = () => {
     switch (currentStep) {
       case 1:
         return (
-          <div className="max-w-4xl mx-auto">
+          <div>
+            {currentStep === 1 && (
+              <ServiceSelection
+                onServiceSelect={handleServiceSelect}
+                selectedService={selectedService}
+                instanceConfig={instance}
+              />
+            )}
+          </div>
+        );
+      case 2:
+        return (
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <div className="relative">
-                <div className="w-32 h-32 bg-gradient-to-br from-violet-600 via-blue-600 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl relative overflow-hidden">
-                  <div className="absolute inset-0 bg-white/20 backdrop-blur-sm"></div>
-                  <UserCheck className="w-16 h-16 text-white relative z-10" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full"></div>
-                </div>
+              <div className="w-24 h-24 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
+                <Calendar className="w-12 h-12 text-white" />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-6">
-                Chào mừng đến với MedBooking
-              </h1>
-              <p className="text-xl text-gray-600 mb-4 max-w-2xl mx-auto">
-                Hệ thống đặt lịch khám bệnh thông minh và tiện lợi
-              </p>
-              <p className="text-gray-500 mb-12">
-                Để chúng tôi có thể hỗ trợ bạn tốt nhất, vui lòng cho biết:
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-4">
+                Chọn thời gian khám
+              </h2>
+              <p className="text-xl text-gray-600">
+                Lựa chọn ngày và giờ phù hợp với lịch trình của bạn
               </p>
             </div>
 
-            <div className="max-w-3xl mx-auto">
-              <div className="bg-white/70 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20">
-                <h3 className="text-2xl font-bold text-center text-gray-800 mb-8">
-                  Bạn đã từng khám tại phòng khám của chúng tôi chưa?
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              {/* Calendar - LEFT */}
+              <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20">
+                <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-3">
+                  <CalendarDays className="w-8 h-8 text-purple-600" />
+                  <span>Chọn ngày khám</span>
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <button
-                    onClick={() => setHasVisitedBefore(true)}
-                    className={`group relative p-8 rounded-2xl border-2 transition-all duration-500 hover:shadow-2xl transform hover:-translate-y-2 ${
-                      hasVisitedBefore === true
-                        ? "border-emerald-400 bg-gradient-to-br from-emerald-50 to-teal-50 shadow-2xl scale-105"
-                        : "border-gray-200 bg-white/50 backdrop-blur-sm hover:border-emerald-300"
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div
-                        className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-all duration-300 ${
-                          hasVisitedBefore === true
-                            ? "bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg"
-                            : "bg-gradient-to-br from-emerald-400 to-teal-500 group-hover:shadow-lg"
-                        }`}
-                      >
-                        <CheckCircle className="w-10 h-10 text-white" />
+                <div className="grid grid-cols-3 gap-3">
+                  {generateCalendarDays().map((day) => (
+                    <button
+                      key={day.date}
+                      onClick={() => setSelectedDate(day.date)}
+                      className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 ${
+                        selectedDate === day.date
+                          ? "border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg scale-105"
+                          : day.isToday
+                          ? "border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50 hover:border-purple-400"
+                          : "border-gray-200 bg-white hover:border-purple-300"
+                      } ${day.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                      disabled={day.disabled}
+                    >
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600 font-medium mb-1">
+                          {day.weekday}
+                        </p>
+                        <p
+                          className={`text-2xl font-bold ${
+                            selectedDate === day.date
+                              ? "text-purple-700"
+                              : day.isToday
+                              ? "text-blue-700"
+                              : "text-gray-800"
+                          }`}
+                        >
+                          {day.day}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Tháng {day.month}
+                        </p>
                       </div>
-                      <h4 className="font-bold text-xl text-gray-800 mb-3">
-                        Rồi, tôi đã từng
-                      </h4>
-                      <p className="text-gray-600 leading-relaxed">
-                        Tôi muốn chọn bác sĩ đã từng khám trước đây hoặc tìm bác
-                        sĩ mới phù hợp
-                      </p>
-                      {hasVisitedBefore === true && (
-                        <div className="mt-4 inline-flex items-center px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium">
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Đã chọn
-                        </div>
-                      )}
-                    </div>
-                  </button>
 
-                  <button
-                    onClick={() => setHasVisitedBefore(false)}
-                    className={`group relative p-8 rounded-2xl border-2 transition-all duration-500 hover:shadow-2xl transform hover:-translate-y-2 ${
-                      hasVisitedBefore === false
-                        ? "border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-2xl scale-105"
-                        : "border-gray-200 bg-white/50 backdrop-blur-sm hover:border-blue-300"
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div
-                        className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-all duration-300 ${
-                          hasVisitedBefore === false
-                            ? "bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg"
-                            : "bg-gradient-to-br from-blue-400 to-indigo-500 group-hover:shadow-lg"
-                        }`}
-                      >
-                        <Heart className="w-10 h-10 text-white" />
-                      </div>
-                      <h4 className="font-bold text-xl text-gray-800 mb-3">
-                        Chưa, đây là lần đầu
-                      </h4>
-                      <p className="text-gray-600 leading-relaxed">
-                        Tôi là khách hàng mới và muốn đặt lịch khám nhanh chóng
-                      </p>
-                      {hasVisitedBefore === false && (
-                        <div className="mt-4 inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Đã chọn
+                      {selectedDate === day.date && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                          <Check className="w-4 h-4 text-white" />
                         </div>
                       )}
-                    </div>
-                  </button>
+
+                      {day.isToday && (
+                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        </div>
+                      )}
+                    </button>
+                  ))}
                 </div>
+              </div>
 
-                {hasVisitedBefore !== null && (
-                  <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
-                    <div className="flex items-center justify-center space-x-3">
-                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                        <Check className="w-5 h-5 text-white" />
+              {/* Time Slots - RIGHT */}
+              <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20">
+                <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-3">
+                  <Timer className="w-8 h-8 text-purple-600" />
+                  <span>Chọn giờ khám</span>
+                </h3>
+
+                {!selectedDate ? (
+                  <div className="text-center py-16">
+                    <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500 text-lg">
+                      Vui lòng chọn ngày khám trước
+                    </p>
+                  </div>
+                ) : loadingShifts ? (
+                  <div className="flex justify-center items-center py-16">
+                    <svg
+                      className="animate-spin h-8 w-8 text-purple-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                    <p className="ml-3 text-gray-600 text-lg">
+                      Đang tải ca làm việc...
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Buổi sáng */}
+                    <div>
+                      <h4 className="font-bold text-lg text-gray-800 mb-4 flex items-center space-x-2">
+                        <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                          <div className="w-3 h-3 bg-yellow-600 rounded-full"></div>
+                        </div>
+                        <span>Buổi sáng</span>
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        {(shifts || [])
+                          .filter(
+                            (shift) =>
+                              parseInt(shift.startTime.split(":")[0], 10) < 12
+                          )
+                          .map((shift, i) => {
+                            const start = shift.startTime.slice(0, 5);
+                            const end = shift.endTime.slice(0, 5);
+                            const label = `${start} - ${end}`;
+                            const [sh, sm] = start.split(":").map(Number);
+                            const [eh, em] = end.split(":").map(Number);
+                            const duration =
+                              (eh * 60 + em - (sh * 60 + sm)) / 60;
+
+                            return (
+                              <button
+                                key={`${start}-${end}`}
+                                onClick={() => {
+                                  setSelectedTime(start);
+                                  setSelectedShifts(shift);
+                                }}
+                                className={`group p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 ${
+                                  selectedTime === start
+                                    ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg scale-105"
+                                    : "border-gray-200 bg-white hover:border-purple-300"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="text-left">
+                                    <p
+                                      className={`text-lg font-bold ${
+                                        selectedTime === start
+                                          ? "text-purple-700"
+                                          : "text-gray-800"
+                                      }`}
+                                    >
+                                      {label}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                      {duration} giờ
+                                    </p>
+                                  </div>
+                                  {selectedTime === start && (
+                                    <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                                      <Check className="w-4 h-4 text-white" />
+                                    </div>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })}
                       </div>
-                      <p className="text-blue-800 font-medium text-center">
-                        {hasVisitedBefore
-                          ? "Tuyệt vời! Chúng tôi sẽ giúp bạn chọn bác sĩ phù hợp nhất."
-                          : "Chào mừng bạn! Chúng tôi sẽ hướng dẫn bạn đặt lịch khám một cách nhanh chóng."}
-                      </p>
                     </div>
+
+                    {/* Buổi chiều */}
+                    {!isSaturday(selectedDate) && (
+                      <div>
+                        <h4 className="font-bold text-lg text-gray-800 mb-4 flex items-center space-x-2">
+                          <div className="w-6 h-6 bg-orange-400 rounded-full flex items-center justify-center">
+                            <div className="w-3 h-3 bg-orange-600 rounded-full"></div>
+                          </div>
+                          <span>Buổi chiều</span>
+                        </h4>
+                        <div className="grid grid-cols-2 gap-3">
+                          {(shifts || [])
+                            .filter((shift) => {
+                              const hour = parseInt(
+                                shift.startTime.split(":")[0],
+                                10
+                              );
+                              // Giữ ca chiều (hour >= 12) nhưng loại nếu là Thứ 7
+                              return hour >= 12 && !isSaturday(selectedDate);
+                            })
+                            .map((shift, i) => {
+                              const start = shift.startTime.slice(0, 5); // "HH:mm"
+                              const end = shift.endTime.slice(0, 5); // "HH:mm"
+                              const label = `${start} - ${end}`;
+
+                              // Tính thời lượng (giờ)
+                              const [sh, sm] = start.split(":").map(Number);
+                              const [eh, em] = end.split(":").map(Number);
+                              const duration =
+                                (eh * 60 + em - (sh * 60 + sm)) / 60;
+
+                              return (
+                                <button
+                                  key={`${start}-${end}`}
+                                  onClick={() => setSelectedTime(start)}
+                                  className={`group p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 ${
+                                    selectedTime === start
+                                      ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg scale-105"
+                                      : "border-gray-200 bg-white hover:border-purple-300"
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="text-left">
+                                      <p
+                                        className={`text-lg font-bold ${
+                                          selectedTime === start
+                                            ? "text-purple-700"
+                                            : "text-gray-800"
+                                        }`}
+                                      >
+                                        {label}
+                                      </p>
+                                      <p className="text-sm text-gray-600">
+                                        {duration} giờ
+                                      </p>
+                                    </div>
+                                    {selectedTime === start && (
+                                      <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                                        <Check className="w-4 h-4 text-white" />
+                                      </div>
+                                    )}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -366,7 +693,7 @@ const BookingAppointment = () => {
           </div>
         );
 
-      case 2:
+      case 3:
         return (
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -798,237 +1125,6 @@ const BookingAppointment = () => {
             )}
           </div>
         );
-
-      case 3:
-        return (
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <div className="w-24 h-24 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
-                <Calendar className="w-12 h-12 text-white" />
-              </div>
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-4">
-                Chọn thời gian khám
-              </h2>
-              <p className="text-xl text-gray-600">
-                Lựa chọn ngày và giờ phù hợp với lịch trình của bạn
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              {/* Calendar */}
-              <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20">
-                <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-3">
-                  <CalendarDays className="w-8 h-8 text-purple-600" />
-                  <span>Chọn ngày khám</span>
-                </h3>
-
-                <div className="grid grid-cols-3 gap-3">
-                  {generateCalendarDays().map((day) => (
-                    <button
-                      key={day.date}
-                      onClick={() => setSelectedDate(day.date)}
-                      className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 ${
-                        selectedDate === day.date
-                          ? "border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg scale-105"
-                          : day.isToday
-                          ? "border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50 hover:border-purple-400"
-                          : "border-gray-200 bg-white hover:border-purple-300"
-                      } ${day.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                      disabled={day.disabled}
-                    >
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600 font-medium mb-1">
-                          {day.weekday}
-                        </p>
-                        <p
-                          className={`text-2xl font-bold ${
-                            selectedDate === day.date
-                              ? "text-purple-700"
-                              : day.isToday
-                              ? "text-blue-700"
-                              : "text-gray-800"
-                          }`}
-                        >
-                          {day.day}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Tháng {day.month}
-                        </p>
-                      </div>
-
-                      {selectedDate === day.date && (
-                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                          <Check className="w-4 h-4 text-white" />
-                        </div>
-                      )}
-
-                      {day.isToday && (
-                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-
-                {selectedDate && (
-                  <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl border border-purple-200">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                        <Check className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-purple-800">
-                          Đã chọn ngày
-                        </p>
-                        <p className="text-purple-600">
-                          {new Date(selectedDate).toLocaleDateString("vi-VN", {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Time Slots */}
-              <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20">
-                <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-3">
-                  <Timer className="w-8 h-8 text-purple-600" />
-                  <span>Chọn giờ khám</span>
-                </h3>
-
-                {!selectedDate ? (
-                  <div className="text-center py-16">
-                    <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500 text-lg">
-                      Vui lòng chọn ngày khám trước
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {/* Morning Slots */}
-                    <div>
-                      <h4 className="font-bold text-lg text-gray-800 mb-4 flex items-center space-x-2">
-                        <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-                          <div className="w-3 h-3 bg-yellow-600 rounded-full"></div>
-                        </div>
-                        <span>Buổi sáng (8:00 - 12:00)</span>
-                      </h4>
-                      <div className="grid grid-cols-2 gap-3">
-                        {availableTimeSlots
-                          .filter((time) => parseInt(time.split(":")[0]) < 12)
-                          .map((time) => (
-                            <button
-                              key={time}
-                              onClick={() => setSelectedTime(time)}
-                              className={`group p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 ${
-                                selectedTime === time
-                                  ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg scale-105"
-                                  : "border-gray-200 bg-white hover:border-purple-300"
-                              }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="text-left">
-                                  <p
-                                    className={`text-lg font-bold ${
-                                      selectedTime === time
-                                        ? "text-purple-700"
-                                        : "text-gray-800"
-                                    }`}
-                                  >
-                                    {time}
-                                  </p>
-                                  <p className="text-sm text-gray-600">
-                                    30 phút
-                                  </p>
-                                </div>
-                                {selectedTime === time && (
-                                  <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                                    <Check className="w-4 h-4 text-white" />
-                                  </div>
-                                )}
-                              </div>
-                            </button>
-                          ))}
-                      </div>
-                    </div>
-
-                    {/* Afternoon Slots */}
-                    <div>
-                      <h4 className="font-bold text-lg text-gray-800 mb-4 flex items-center space-x-2">
-                        <div className="w-6 h-6 bg-orange-400 rounded-full flex items-center justify-center">
-                          <div className="w-3 h-3 bg-orange-600 rounded-full"></div>
-                        </div>
-                        <span>Buổi chiều (14:00 - 18:00)</span>
-                      </h4>
-                      <div className="grid grid-cols-2 gap-3">
-                        {availableTimeSlots
-                          .filter((time) => parseInt(time.split(":")[0]) >= 14)
-                          .map((time) => (
-                            <button
-                              key={time}
-                              onClick={() => setSelectedTime(time)}
-                              className={`group p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 ${
-                                selectedTime === time
-                                  ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg scale-105"
-                                  : "border-gray-200 bg-white hover:border-purple-300"
-                              }`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div className="text-left">
-                                  <p
-                                    className={`text-lg font-bold ${
-                                      selectedTime === time
-                                        ? "text-purple-700"
-                                        : "text-gray-800"
-                                    }`}
-                                  >
-                                    {time}
-                                  </p>
-                                  <p className="text-sm text-gray-600">
-                                    30 phút
-                                  </p>
-                                </div>
-                                {selectedTime === time && (
-                                  <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                                    <Check className="w-4 h-4 text-white" />
-                                  </div>
-                                )}
-                              </div>
-                            </button>
-                          ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {selectedDate && selectedTime && (
-                  <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-200">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                        <Check className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-green-800">
-                          Thời gian đã chọn
-                        </p>
-                        <p className="text-green-600">
-                          {formatDateTime(selectedDate, selectedTime)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-
       case 4:
         return (
           <div className="max-w-4xl mx-auto">
@@ -1373,7 +1469,7 @@ const BookingAppointment = () => {
                 {/* Confirmation Button */}
                 <div className="mt-8 text-center">
                   <button
-                    onClick={handleBookingConfirmation}
+                    onClick={submitAppointment}
                     disabled={isLoading}
                     className="inline-flex items-center space-x-3 px-12 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -1512,12 +1608,12 @@ const BookingAppointment = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50  pb-25">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-lg shadow-lg border-b border-white/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 ">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <Stethoscope className="w-7 h-7 text-white" />
               </div>
@@ -1533,23 +1629,28 @@ const BookingAppointment = () => {
 
             {/* Progress Indicator */}
             <div className="hidden md:flex items-center space-x-4">
-              {[1, 2, 3, 4, 5, 6].map((step) => (
-                <div key={step} className="flex items-center">
+              {steps.map((step, index) => (
+                <div key={step.id} className="flex items-center">
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
-                      currentStep === step
+                      currentStep === step.id
                         ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-110"
-                        : currentStep > step
+                        : currentStep > step.id
                         ? "bg-green-500 text-white"
                         : "bg-gray-200 text-gray-600"
                     }`}
                   >
-                    {currentStep > step ? <Check className="w-5 h-5" /> : step}
+                    {currentStep > step.id ? (
+                      <Check className="w-5 h-5" />
+                    ) : (
+                      step.icon && <step.icon className="w-5 h-5" />
+                    )}
                   </div>
-                  {step < 6 && (
+
+                  {index < steps.length - 1 && (
                     <div
                       className={`w-8 h-1 mx-2 rounded-full transition-colors duration-300 ${
-                        currentStep > step ? "bg-green-500" : "bg-gray-200"
+                        currentStep > step.id ? "bg-green-500" : "bg-gray-200"
                       }`}
                     />
                   )}
@@ -1561,34 +1662,59 @@ const BookingAppointment = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-12 relative ">
         {renderStep()}
 
         {/* Navigation Buttons */}
-        {currentStep !== 6 && (
-          <div className="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">
-            <button
-              onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
-              disabled={currentStep === 1}
-              className="flex items-center space-x-2 px-8 py-4 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span>Quay lại</span>
-            </button>
-
-            <div className="flex items-center space-x-4">
-              <div className="text-gray-600">Bước {currentStep} / 6</div>
-
+        {currentStep !== 5 && (
+          <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-md px-6 py-4">
+            <div className="max-w-7xl mx-auto flex justify-between items-center">
+              {/* Nút Quay lại */}
               <button
-                onClick={handleNext}
-                disabled={!canProceed()}
-                className="flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+                disabled={currentStep === 1}
+                className="flex items-center space-x-2 px-8 py-4 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span>
-                  {currentStep === 5 ? "Xác nhận đặt lịch" : "Tiếp theo"}
-                </span>
-                <ChevronRight className="w-5 h-5" />
+                <ChevronLeft className="w-5 h-5" />
+                <span>Quay lại</span>
               </button>
+
+              {/* Nút Huỷ */}
+              <button
+                onClick={handleCancel}
+                className="text-red-700 flex items-center space-x-2 px-8 py-4 bg-red-100 rounded-2xl hover:bg-red-400 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+                <span>Huỷ</span>
+              </button>
+
+              {/* Nút Tiếp theo / Xác nhận */}
+              <div className="flex items-center space-x-4">
+                <div className="text-gray-600">Bước {currentStep} / 5</div>
+                <button
+                  onClick={handleNext}
+                  disabled={!canProceed()}
+                  className="flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span>
+                    {currentStep === 5 ? "Xác nhận đặt lịch" : "Tiếp theo"}
+                  </span>
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -1596,3 +1722,4 @@ const BookingAppointment = () => {
     </div>
   );
 };
+export default BookingAppointment;

@@ -22,6 +22,8 @@ import PaymentPage from "@/pages/customer/PaymentPage";
 import Feedback from "@/pages/customer/Feedback";
 import BlogForum from "@/pages/customer/BlogForum";
 import LabtestHistory from "@/pages/customer/LabtestHistory";
+import ChatWidget from "@/components/chat/Chat";
+import ProfileUser from "@/pages/customer/ProfileUser";
 
 
 const router = createBrowserRouter([
@@ -69,6 +71,14 @@ const router = createBrowserRouter([
       {
         path: "/clinicpage",
         element: <ClinicIntroduction />,
+      },
+      {
+        path: "/profile",
+        element: <ProfileUser />,
+      },
+      {
+        path: "/chat",
+        element: <ChatWidget />,
       },
       {
         path: "/servicepage",

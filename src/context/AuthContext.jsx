@@ -9,8 +9,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // 👉 Thời gian người dùng không thao tác (ms)
-  const IDLE_TIMEOUT =  10 * 60 * 1000; // 5 phút gọi refreshToken nếu có thao tác
-  const REFRESH_INTERVAL = 5 * 60 * 1000; // 10 phút không thao tác thì không gọi refresh nữa
+  const IDLE_TIMEOUT =  1 * 60 * 1000; //10 phút gọi refreshToken nếu có thao tác
+  const REFRESH_INTERVAL = 10 * 60 * 1000; // 5 phút không thao tác thì không gọi refresh nữa
 
   const idleTimer = useRef(null);
   const refreshInterval = useRef(null);

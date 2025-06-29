@@ -52,6 +52,7 @@ const BookingAppointment = () => {
   const [loadingShifts, setLoadingShifts] = useState(false);
   const [loadingDoctors, setLoadingDoctors] = useState(false);
   const [error, setError] = useState(null);
+  const [bookingResult, setBookingResult] = useState(null);
 
   //date
   const formatTimeObj = (timeObj) => {
@@ -136,7 +137,7 @@ const BookingAppointment = () => {
         setCurrentStep(2);
         break;
       case 2:
-        if (!selectedDate || !selectedTime) {
+        if (!selectedDate || !selectedShift) {
           Swal.fire({
             icon: "warning",
             title: "Thiếu thời gian khám",
@@ -191,40 +192,46 @@ const BookingAppointment = () => {
     }
   };
   // API calls
+
+  function getDayOfWeekInfo(dateString) {
+    const dayOfWeekList = [
+      { code: "SUNDAY", displayName: "Chủ nhật" },
+      { code: "MONDAY", displayName: "Thứ hai" },
+      { code: "TUESDAY", displayName: "Thứ ba" },
+      { code: "WEDNESDAY", displayName: "Thứ tư" },
+      { code: "THURSDAY", displayName: "Thứ năm" },
+      { code: "FRIDAY", displayName: "Thứ sáu" },
+      { code: "SATURDAY", displayName: "Thứ bảy" },
+    ];
+
+    const index = new Date(dateString).getDay(); // 0 - 6
+    return dayOfWeekList[index];
+  }
+
   const fetchDoctors = async () => {
-    if (!selectedDate || !selectedShift || !selectedShift.dayOfWeek) return;
+    if (!selectedDate || !selectedShift) return;
 
     setLoadingDoctors(true);
     setDoctors([]);
     setError(null);
 
     try {
+      const dayInfo = getDayOfWeekInfo(selectedDate); // Lấy đúng thứ
+
       const payload = {
         date: selectedDate,
         shift: {
-          startTime: {
-            hour: parseInt(selectedShift.startTime.split(":")[0], 10),
-            minute: parseInt(selectedShift.startTime.split(":")[1], 10),
-            second: 0,
-            nano: 0,
-          },
-          endTime: {
-            hour: parseInt(selectedShift.endTime.split(":")[0], 10),
-            minute: parseInt(selectedShift.endTime.split(":")[1], 10),
-            second: 0,
-            nano: 0,
-          },
+          startTime: selectedShift.startTime, // "HH:mm"
+          endTime: selectedShift.endTime, // "HH:mm"
         },
         dayOfWeek: {
-          code: selectedShift.dayOfWeek.code,
-          displayName: selectedShift.dayOfWeek.displayName,
+          code: dayInfo.code,
+          displayName: dayInfo.displayName,
         },
       };
+      console.log("Payload gửi bác sĩ:", payload);
 
-      const response = await instance.post(
-        "/api/customer/work-schedules/date",
-        payload
-      );
+      const response = await instance.post("/api/work-schedules/date", payload);
 
       if (response.data?.success) {
         const doctors = response.data.data.doctors || [];
@@ -313,9 +320,7 @@ const BookingAppointment = () => {
   const submitAppointment = async () => {
     setLoading(true);
     try {
-      const selectedSlot = availableTimeSlots.find(
-        (slot) => slot.label === selectedTime
-      );
+      const selectedShift = shifts.find((slot) => slot.label === selectedTime);
 
       const appointmentDateTime = `${selectedDate}T${selectedTime}:00`;
 
@@ -326,15 +331,34 @@ const BookingAppointment = () => {
           selectedShift && selectedShift.duration ? selectedShift.duration : 30,
       };
 
-      const response = await createAppointment(appointmentDateTime);
+      console.log("Dữ liệu gửi lịch hẹn:", appointmentData);
+
+      const response = await createAppointment(appointmentData); // ✅ TRUYỀN OBJECT ĐÚNG
 
       if (!response.success) {
         alert(response.message || "Tạo cuộc hẹn thất bại");
         return;
       }
+      const result = {
+        bookingId: response.data?.bookingId || "Không rõ",
+        doctor: selectedDoctor,
+        date: selectedDate,
+        time: selectedTime,
+        duration: selectedShift?.duration || 30,
+        fee: selectedDoctor?.consultationFee || 500000,
+      };
 
-      alert("Đặt lịch thành công!");
-      window.location.href = "/";
+      // ✅ Gán vào state
+      setBookingResult(result);
+      // ✅ Thông báo thành công bằng Swal hoặc alert
+      Swal.fire({
+        icon: "success",
+        title: "Đặt lịch thành công!",
+        text: "Thông tin cuộc hẹn đã được gửi đi.",
+        confirmButtonText: "OK",
+      }).then(() => {
+        window.location.href = "/";
+      });
     } catch (err) {
       console.error("Lỗi tạo lịch hẹn:", err);
       alert("Lỗi tạo lịch hẹn: " + err.message);
@@ -343,12 +367,12 @@ const BookingAppointment = () => {
     }
   };
 
-  const getCookie = (name) => {
+  function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(";").shifts();
+    if (parts.length === 2) return parts.pop().split(";").shift();
     return null;
-  };
+  }
 
   useEffect(() => {
     if (currentStep === 5) {
@@ -413,6 +437,15 @@ const BookingAppointment = () => {
       minute: "2-digit",
     });
   };
+  function getFormattedDateWithWeekday(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
 
   const isSaturday = (dateStr) => {
     if (!dateStr) return false;
@@ -1375,20 +1408,14 @@ const BookingAppointment = () => {
                       <div className="flex items-center space-x-3">
                         <Calendar className="w-5 h-5 text-gray-600" />
                         <span className="font-semibold text-gray-800">
-                          {selectedDate &&
-                            new Date(selectedDate).toLocaleDateString("vi-VN", {
-                              weekday: "long",
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })}
+                          {getFormattedDateWithWeekday(selectedDate)}
                         </span>
                       </div>
 
                       <div className="flex items-center space-x-3">
                         <Clock className="w-5 h-5 text-gray-600" />
                         <span className="font-semibold text-gray-800">
-                          {selectedTime}
+                          {selectedShift?.startTime} - {selectedShift?.endTime}
                         </span>
                       </div>
 
@@ -1580,7 +1607,10 @@ const BookingAppointment = () => {
                         <div>
                           <p className="text-sm text-gray-600">Thời gian</p>
                           <p className="font-bold text-lg text-gray-800">
-                            {formatDateTime(selectedDate, selectedTime)}
+                            {getFormattedDateWithWeekday(
+                              selectedDate,
+                              selectedTime
+                            )}
                           </p>
                         </div>
                       </div>
@@ -1697,7 +1727,7 @@ const BookingAppointment = () => {
         {renderStep()}
 
         {/* Navigation Buttons */}
-        {currentStep !== 5 && (
+        {currentStep !== 6 && (
           <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-md px-6 py-4">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
               {/* Nút Quay lại */}

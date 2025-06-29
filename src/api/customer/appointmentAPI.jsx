@@ -1,8 +1,14 @@
 import instance from "../../config/axios";
 
 // 1. Tạo lịch hẹn khám
-export const createAppointment = (data) => {
-  return instance.post("/api/appointments", data);
+export const createAppointment = async (data) => {
+  try {
+    const res = await instance.post("/api/customer/appointments", data);
+    return res.data; // ✅ LẤY RA JSON TRẢ VỀ { success, message, data }
+  } catch (err) {
+    console.error("API Appointment Error:", err.response?.data || err);
+    return { success: false, message: "Lỗi server hoặc kết nối" };
+  }
 };
 
 // 2. Dời lịch hẹn
@@ -35,9 +41,6 @@ export const cancelAppointment = (appointmentId) => {
   return instance.delete(`/api/appointments/${appointmentId}/cancel`);
 };
 
-
-
-
 /**
  * API service for managing patient appointments
  */
@@ -61,23 +64,25 @@ export const appointmentAPI = {
         if (
           value !== null &&
           value !== undefined &&
-          !(typeof value === 'string' && value.trim() === '')
+          !(typeof value === "string" && value.trim() === "")
         ) {
           queryParams.append(key, value);
         }
       });
 
-      const response = await instance.get(`/api/patient/appointments?${queryParams.toString()}`);
-      console.log('Query string:', queryParams.toString());
+      const response = await instance.get(
+        `/api/patient/appointments?${queryParams.toString()}`
+      );
+      console.log("Query string:", queryParams.toString());
 
       // Validate response structure
       if (response.data && response.data.success) {
         return response.data;
       } else {
-        throw new Error(response.data?.message || 'Invalid response format');
+        throw new Error(response.data?.message || "Invalid response format");
       }
     } catch (error) {
-      console.error('Error fetching appointments:', error);
+      console.error("Error fetching appointments:", error);
       throw error;
     }
   },
@@ -89,10 +94,12 @@ export const appointmentAPI = {
    */
   getAppointmentById: async (appointmentId) => {
     try {
-      const response = await instance.get(`/api/appointments/{appointmentId}${appointmentId}`);
+      const response = await instance.get(
+        `/api/appointments/{appointmentId}${appointmentId}`
+      );
       return response.data;
     } catch (error) {
-      console.error('Error fetching appointment by ID:', error);
+      console.error("Error fetching appointment by ID:", error);
       throw error;
     }
   },
@@ -104,7 +111,10 @@ export const appointmentAPI = {
    */
   createAppointment: async (appointmentData) => {
     try {
-      const response = await instance.post("/api/appointments", appointmentData);
+      const response = await instance.post(
+        "/api/appointments",
+        appointmentData
+      );
 
       if (response.data?.success) {
         return {
@@ -132,14 +142,15 @@ export const appointmentAPI = {
    * @param {Object} appointmentData - Updated appointment data
    * @returns {Promise} API response
    */
-  
 
-  updateAppointment : (appointmentId, isoDateTime) => {
-    return instance.patch(`/api/customer/appointments/${appointmentId}/reschedule`, {
-      newDateTime: isoDateTime
-    });
+  updateAppointment: (appointmentId, isoDateTime) => {
+    return instance.patch(
+      `/api/customer/appointments/${appointmentId}/reschedule`,
+      {
+        newDateTime: isoDateTime,
+      }
+    );
   },
-
 
   /**
    * Cancel appointment
@@ -148,14 +159,15 @@ export const appointmentAPI = {
    */
   cancelAppointment: async (appointmentId) => {
     try {
-      const response = await instance.delete(`/api/appointments/${appointmentId}/cancel`);
+      const response = await instance.delete(
+        `/api/appointments/${appointmentId}/cancel`
+      );
       return response.data;
     } catch (error) {
-      console.error('Lỗi khi huỷ lịch hẹn:', error);
+      console.error("Lỗi khi huỷ lịch hẹn:", error);
       throw error;
     }
-  }
-
+  },
 };
 
 export default appointmentAPI;

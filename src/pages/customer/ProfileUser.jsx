@@ -10,8 +10,14 @@ import {
   CheckCircle,
   Camera,
 } from "lucide-react";
-import axiosInstance from "../../config/axios";
+import instance from "../../config/axios";
+
+
+
+import Cookies from "js-cookie";
+
 const UserProfileEditor = () => {
+
   const [formData, setFormData] = useState({
     fullName: "",
     phoneNumber: "",
@@ -27,24 +33,60 @@ const UserProfileEditor = () => {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [errors, setErrors] = useState({});
 
-  //api
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        const response = await axiosInstance.get("/api/auth/profile");
-        if (response.data.success) {
-          setFormData(response.data.data);
+        // ✅ Gửi request GET tới API
+        const response = await instance.get("/api/auth/information");
+
+        console.log("📥 Kết quả response: ", response.data.data);
+
+        if (response.data && response.data.success && response.data.data) {
+          const userData = response.data.data;
+
+          // Kiểm tra các trường bắt buộc theo response mới
+          const requiredKeys = [
+            "id",
+            "fullName",
+            "email",
+            "phoneNumber",
+            "roleId",
+            "roleName",
+            "address",
+            "patientId"
+          ];
+
+          const hasAllKeys = requiredKeys.every((key) => key in userData);
+
+          if (!hasAllKeys) {
+            throw new Error("❌ Dữ liệu JSON thiếu một số trường cần thiết");
+          }
+
+          // ✅ Cập nhật dữ liệu vào formData
+          setFormData((prev) => ({
+            ...prev,
+            fullName: userData.fullName || "",
+            phoneNumber: userData.phoneNumber || "",
+            roleId: userData.roleId || 0,
+            address: userData.address || "",
+            // Các trường không có trong API thì giữ nguyên giá trị mặc định
+          }));
+        } else {
+          throw new Error("❌ Phản hồi không hợp lệ từ server");
         }
       } catch (error) {
-        console.error("Lỗi khi lấy profile:", error);
+        console.error("⚠️ Lỗi khi lấy thông tin người dùng:", error);
         setMessage({
           type: "error",
           text: "Không thể tải thông tin người dùng",
         });
       }
     };
+
     loadUserData();
   }, []);
+
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -90,14 +132,13 @@ const UserProfileEditor = () => {
   // Cập nhật thông tin
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     setIsLoading(true);
     setMessage({ type: "", text: "" });
 
     try {
-      const response = await axiosInstance.put("/api/auth/profile", formData);
+      const response = await instance.put("/api/auth/profile", formData);
       console.log("Dữ liệu gửi lên:", formData);
 
       if (response.data.success) {
@@ -158,11 +199,10 @@ const UserProfileEditor = () => {
             {/* Alert Messages */}
             {message.text && (
               <div
-                className={`mb-6 p-4 rounded-lg flex items-center ${
-                  message.type === "success"
-                    ? "bg-green-50 text-green-800 border border-green-200"
-                    : "bg-red-50 text-red-800 border border-red-200"
-                }`}
+                className={`mb-6 p-4 rounded-lg flex items-center ${message.type === "success"
+                  ? "bg-green-50 text-green-800 border border-green-200"
+                  : "bg-red-50 text-red-800 border border-red-200"
+                  }`}
               >
                 {message.type === "success" ? (
                   <CheckCircle className="mr-3 flex-shrink-0" size={20} />
@@ -220,9 +260,8 @@ const UserProfileEditor = () => {
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none ${
-                      errors.fullName ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none ${errors.fullName ? "border-red-500" : "border-gray-300"
+                      }`}
                     placeholder="Nhập họ và tên"
                   />
                 </div>
@@ -246,9 +285,8 @@ const UserProfileEditor = () => {
                     name="phoneNumber"
                     value={formData.phoneNumber}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none ${
-                      errors.phoneNumber ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none ${errors.phoneNumber ? "border-red-500" : "border-gray-300"
+                      }`}
                     placeholder="Nhập số điện thoại"
                   />
                 </div>
@@ -274,9 +312,8 @@ const UserProfileEditor = () => {
                     name="dateOfBirth"
                     value={formData.dateOfBirth}
                     onChange={handleInputChange}
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none ${
-                      errors.dateOfBirth ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none ${errors.dateOfBirth ? "border-red-500" : "border-gray-300"
+                      }`}
                   />
                 </div>
                 {errors.dateOfBirth && (
@@ -295,9 +332,8 @@ const UserProfileEditor = () => {
                   name="gender"
                   value={formData.gender}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none ${
-                    errors.gender ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none ${errors.gender ? "border-red-500" : "border-gray-300"
+                    }`}
                 >
                   <option value="">Chọn giới tính</option>
                   <option value="Nam">Nam</option>
@@ -371,23 +407,26 @@ const UserProfileEditor = () => {
 
             {/* Submit Button */}
             <div className="mt-8 flex justify-center">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Đang cập nhật...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2" size={20} onClick={handleSubmit} />
-                    Cập nhật thông tin
-                  </>
-                )}
-              </button>
+              <form onSubmit={handleSubmit}>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Đang cập nhật...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-2" size={20} />
+                      Cập nhật thông tin
+                    </>
+                  )}
+                </button>
+              </form>
+
             </div>
           </div>
         </div>

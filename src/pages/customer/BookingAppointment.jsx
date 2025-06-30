@@ -30,7 +30,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { getDoctors, getDoctorDetail } from "../../api/customer/doctorList";
 import { createAppointment } from "../../api/customer/appointmentAPI";
-import ServiceSelection from "@/components/ui/ServiceSelection ";
+import ServiceSelection from "@/components/bookingComponent/ServiceSelection ";
 import instance from "@/config/axios";
 
 const BookingAppointment = () => {
@@ -130,10 +130,7 @@ const BookingAppointment = () => {
   const handleNext = () => {
     switch (currentStep) {
       case 1:
-        if (!selectedService) {
-          alert("Vui lòng chọn dịch vụ");
-          return;
-        }
+        // Bỏ luôn điều kiện — vì đã set mặc định rồi
         setCurrentStep(2);
         break;
       case 2:
@@ -264,7 +261,7 @@ const BookingAppointment = () => {
           setSelectedTime(null); // reset giờ cũ
           setDoctors([]); // reset bác sĩ cũ
         })
-        .catch(() => {})
+        .catch(() => { })
         .finally(() => {
           setLoadingShifts(false);
         });
@@ -318,6 +315,19 @@ const BookingAppointment = () => {
   };
 
   const submitAppointment = async () => {
+    // ✅ Kiểm tra đăng nhập trước
+    if (!userProfile) {
+      Swal.fire({
+        icon: "warning",
+        title: "Bạn chưa đăng nhập",
+        text: "Vui lòng đăng nhập để đặt lịch khám.",
+        confirmButtonText: "Đăng nhập",
+      }).then(() => {
+        window.location.href = "/login"; // Chuyển tới trang đăng nhập
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const selectedShift = shifts.find((slot) => slot.label === selectedTime);
@@ -329,16 +339,18 @@ const BookingAppointment = () => {
         appointmentDateTime,
         estimatedDurationMinutes:
           selectedShift && selectedShift.duration ? selectedShift.duration : 30,
+        patientProfileId: userProfile.id, // ✅ Gán ID người dùng đã đăng nhập
       };
 
       console.log("Dữ liệu gửi lịch hẹn:", appointmentData);
 
-      const response = await createAppointment(appointmentData); // ✅ TRUYỀN OBJECT ĐÚNG
+      const response = await createAppointment(appointmentData);
 
       if (!response.success) {
         alert(response.message || "Tạo cuộc hẹn thất bại");
         return;
       }
+
       const result = {
         bookingId: response.data?.bookingId || "Không rõ",
         doctor: selectedDoctor,
@@ -348,9 +360,8 @@ const BookingAppointment = () => {
         fee: selectedDoctor?.consultationFee || 500000,
       };
 
-      // ✅ Gán vào state
       setBookingResult(result);
-      // ✅ Thông báo thành công bằng Swal hoặc alert
+
       Swal.fire({
         icon: "success",
         title: "Đặt lịch thành công!",
@@ -367,12 +378,16 @@ const BookingAppointment = () => {
     }
   };
 
+
   function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(";").shift();
     return null;
   }
+  useEffect(() => {
+    fetchUserProfile(); // nên đặt trong lần đầu render
+  }, []);
 
   useEffect(() => {
     if (currentStep === 5) {
@@ -391,6 +406,27 @@ const BookingAppointment = () => {
       fetchShifts(selectedDate);
     }
   }, [selectedDate]);
+  useEffect(() => {
+    if (currentStep === 1) {
+      setSelectedService({
+        id: 1,
+        name: "CONSULTATION",
+        description: "Khám bệnh cơ bản",
+      });
+
+      // Gán dịch vụ vào formData
+      setFormData((prev) => ({
+        ...prev,
+        serviceDefinitionId: 1,
+        appointmentType: {
+          typeName: "CONSULTATION",
+          description: "Khám bệnh cơ bản",
+        },
+      }));
+
+      setCurrentStep(2);
+    }
+  }, [currentStep]);
   const canProceed = () => {
     switch (currentStep) {
       case 1:
@@ -476,19 +512,54 @@ const BookingAppointment = () => {
   };
 
   const renderStep = () => {
+    if (!userProfile) return (
+      <div className="flex flex-col items-center justify-center py-16 px-6 bg-white rounded-2xl shadow-md border border-blue-100">
+        <div className="bg-blue-100 text-blue-600 rounded-full p-4 mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 16h-1v-4h-1m1-4h.01M12 12c4.418 0 8 1.79 8 4v2H4v-2c0-2.21 3.582-4 8-4z"
+            />
+          </svg>
+        </div>
+
+        <h2 className="text-xl font-semibold text-gray-800 mb-2">
+          Bạn chưa đăng nhập
+        </h2>
+        <p className="text-gray-600 mb-6 text-sm text-center max-w-md">
+          Vui lòng đăng nhập để tiếp tục đặt lịch khám với bác sĩ. Đăng nhập giúp bạn
+          theo dõi lịch sử đặt lịch và nhận thông báo chính xác hơn.
+        </p>
+
+        <a
+          href="/login"
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition duration-200 font-medium"
+        >
+          Đăng nhập ngay
+        </a>
+      </div>);
     switch (currentStep) {
       case 1:
-        return (
-          <div>
-            {currentStep === 1 && (
-              <ServiceSelection
-                onServiceSelect={handleServiceSelect}
-                selectedService={selectedService}
-                instanceConfig={instance}
-              />
-            )}
-          </div>
-        );
+        return null;
+      // <div>
+      //   {currentStep === 1 && (
+      //     <ServiceSelection
+      //       onServiceSelect={handleServiceSelect}
+      //       selectedService={selectedService}
+      //       instanceConfig={instance}
+      //     />
+      //   )}
+      // </div>
+
+
       case 2:
         return (
           <div className="max-w-6xl mx-auto">
@@ -517,13 +588,12 @@ const BookingAppointment = () => {
                     <button
                       key={day.date}
                       onClick={() => setSelectedDate(day.date)}
-                      className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 ${
-                        selectedDate === day.date
-                          ? "border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg scale-105"
-                          : day.isToday
+                      className={`group relative p-4 rounded-2xl border-2 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 ${selectedDate === day.date
+                        ? "border-purple-500 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg scale-105"
+                        : day.isToday
                           ? "border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50 hover:border-purple-400"
                           : "border-gray-200 bg-white hover:border-purple-300"
-                      } ${day.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                        } ${day.disabled ? "opacity-50 cursor-not-allowed" : ""}`}
                       disabled={day.disabled}
                     >
                       <div className="text-center">
@@ -531,13 +601,12 @@ const BookingAppointment = () => {
                           {day.weekday}
                         </p>
                         <p
-                          className={`text-2xl font-bold ${
-                            selectedDate === day.date
-                              ? "text-purple-700"
-                              : day.isToday
+                          className={`text-2xl font-bold ${selectedDate === day.date
+                            ? "text-purple-700"
+                            : day.isToday
                               ? "text-blue-700"
                               : "text-gray-800"
-                          }`}
+                            }`}
                         >
                           {day.day}
                         </p>
@@ -634,20 +703,18 @@ const BookingAppointment = () => {
                                   setSelectedTime(start);
                                   setSelectedShifts(shift);
                                 }}
-                                className={`group p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 ${
-                                  selectedTime === start
-                                    ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg scale-105"
-                                    : "border-gray-200 bg-white hover:border-purple-300"
-                                }`}
+                                className={`group p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 ${selectedTime === start
+                                  ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg scale-105"
+                                  : "border-gray-200 bg-white hover:border-purple-300"
+                                  }`}
                               >
                                 <div className="flex items-center justify-between">
                                   <div className="text-left">
                                     <p
-                                      className={`text-lg font-bold ${
-                                        selectedTime === start
-                                          ? "text-purple-700"
-                                          : "text-gray-800"
-                                      }`}
+                                      className={`text-lg font-bold ${selectedTime === start
+                                        ? "text-purple-700"
+                                        : "text-gray-800"
+                                        }`}
                                     >
                                       {label}
                                     </p>
@@ -701,20 +768,18 @@ const BookingAppointment = () => {
                                 <button
                                   key={`${start}-${end}`}
                                   onClick={() => setSelectedTime(start)}
-                                  className={`group p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 ${
-                                    selectedTime === start
-                                      ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg scale-105"
-                                      : "border-gray-200 bg-white hover:border-purple-300"
-                                  }`}
+                                  className={`group p-4 rounded-xl border-2 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1 ${selectedTime === start
+                                    ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-lg scale-105"
+                                    : "border-gray-200 bg-white hover:border-purple-300"
+                                    }`}
                                 >
                                   <div className="flex items-center justify-between">
                                     <div className="text-left">
                                       <p
-                                        className={`text-lg font-bold ${
-                                          selectedTime === start
-                                            ? "text-purple-700"
-                                            : "text-gray-800"
-                                        }`}
+                                        className={`text-lg font-bold ${selectedTime === start
+                                          ? "text-purple-700"
+                                          : "text-gray-800"
+                                          }`}
                                       >
                                         {label}
                                       </p>
@@ -804,22 +869,20 @@ const BookingAppointment = () => {
                     {doctors.map((doctor) => (
                       <div
                         key={doctor.userId}
-                        className={`group relative bg-white rounded-3xl p-8 transition-all duration-500 cursor-pointer border-2 hover:shadow-2xl ${
-                          selectedDoctor?.userId === doctor.userId
-                            ? "border-blue-500 shadow-2xl transform scale-[1.02] bg-gradient-to-r from-blue-50 to-indigo-50"
-                            : "border-gray-200 hover:border-blue-300 hover:-translate-y-1"
-                        }`}
+                        className={`group relative bg-white rounded-3xl p-8 transition-all duration-500 cursor-pointer border-2 hover:shadow-2xl ${selectedDoctor?.userId === doctor.userId
+                          ? "border-blue-500 shadow-2xl transform scale-[1.02] bg-gradient-to-r from-blue-50 to-indigo-50"
+                          : "border-gray-200 hover:border-blue-300 hover:-translate-y-1"
+                          }`}
                         onClick={() => selectDoctor(doctor)}
                       >
                         <div className="flex items-center space-x-8">
                           {/* Custom Checkbox */}
                           <div className="flex-shrink-0">
                             <div
-                              className={`relative w-8 h-8 rounded-full border-2 transition-all duration-300 ${
-                                selectedDoctor?.userId === doctor.userId
-                                  ? "border-blue-500 bg-blue-500"
-                                  : "border-gray-300 group-hover:border-blue-400"
-                              }`}
+                              className={`relative w-8 h-8 rounded-full border-2 transition-all duration-300 ${selectedDoctor?.userId === doctor.userId
+                                ? "border-blue-500 bg-blue-500"
+                                : "border-gray-300 group-hover:border-blue-400"
+                                }`}
                             >
                               {selectedDoctor?.userId === doctor.userId && (
                                 <Check className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
@@ -1511,7 +1574,7 @@ const BookingAppointment = () => {
                 <div className="mt-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-xl">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-green-100 text-lg">Tổng chi phí</p>
+                      <p className="text-green-100 text-lg">Tổng chi phí dự tính</p>
                       <p className="text-3xl font-bold">
                         {formatCurrency(
                           selectedDoctor?.consultationFee || 500000
@@ -1693,13 +1756,12 @@ const BookingAppointment = () => {
               {steps.map((step, index) => (
                 <div key={step.id} className="flex items-center">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${
-                      currentStep === step.id
-                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-110"
-                        : currentStep > step.id
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ${currentStep === step.id
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-110"
+                      : currentStep > step.id
                         ? "bg-green-500 text-white"
                         : "bg-gray-200 text-gray-600"
-                    }`}
+                      }`}
                   >
                     {currentStep > step.id ? (
                       <Check className="w-5 h-5" />
@@ -1710,9 +1772,8 @@ const BookingAppointment = () => {
 
                   {index < steps.length - 1 && (
                     <div
-                      className={`w-8 h-1 mx-2 rounded-full transition-colors duration-300 ${
-                        currentStep > step.id ? "bg-green-500" : "bg-gray-200"
-                      }`}
+                      className={`w-8 h-1 mx-2 rounded-full transition-colors duration-300 ${currentStep > step.id ? "bg-green-500" : "bg-gray-200"
+                        }`}
                     />
                   )}
                 </div>

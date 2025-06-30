@@ -59,7 +59,24 @@ export const appointmentAPI = {
     try {
       const queryParams = new URLSearchParams();
 
-      // Add parameters to query string if they exist
+      // Nếu không có fromDate hoặc toDate thì tự động gán khoảng 1 tuần xung quanh hôm nay
+      const today = new Date();
+
+      // Nếu không có fromDate, lấy 3 ngày trước
+      if (!params.fromDate) {
+        const fromDate = new Date(today);
+        fromDate.setDate(fromDate.getDate() - 5);
+        params.fromDate = fromDate.toISOString().split('T')[0]; // yyyy-mm-dd
+      }
+
+      // Nếu không có toDate, lấy 3 ngày sau
+      if (!params.toDate) {
+        const toDate = new Date(today);
+        toDate.setDate(toDate.getDate() + 5);
+        params.toDate = toDate.toISOString().split('T')[0]; // yyyy-mm-dd
+      }
+
+      // Build query string
       Object.entries(params).forEach(([key, value]) => {
         if (
           value !== null &&
@@ -75,7 +92,6 @@ export const appointmentAPI = {
       );
       console.log("Query string:", queryParams.toString());
 
-      // Validate response structure
       if (response.data && response.data.success) {
         return response.data;
       } else {
@@ -86,6 +102,7 @@ export const appointmentAPI = {
       throw error;
     }
   },
+
 
   /**
    * Get appointment by ID

@@ -4,13 +4,22 @@ import { appointmentAPI } from '../../api/customer/appointmentAPI';
 import { Delete } from '@/components/ui/Delete';
 import Swal from 'sweetalert2';
 import RescheduleCard from '@/components/ui/RescheduleCard';
+import AppointmentDetailModal from "../../components/appointmentHistory/AppointmentDetail"
+
 const AppointmentHistory = () => {
   const [appointments, setAppointments] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showReschedule, setShowReschedule] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
+  const [appointmentDetail, setAppointmentDetail] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
+
+  const handleOpenDetail = (appointmentId) => {
+    setSelectedAppointmentId(appointmentId);
+    setShowDetailModal(true);
+  };
   const handleOpenReschedule = (appointmentId) => {
     setSelectedAppointmentId(appointmentId);
     setShowReschedule(true);
@@ -40,26 +49,42 @@ const AppointmentHistory = () => {
   const [showFilters, setShowFilters] = useState(false);
 
   const statusOptions = [
-    { value: '', label: 'Tất cả trạng thái' },
-    { value: 'SCHEDULED', label: 'Đã lên lịch', color: 'bg-blue-100 text-blue-800' },
-    { value: 'CONFIRMED_BY_PATIENT', label: 'Bệnh nhân xác nhận', color: 'bg-green-100 text-green-800' },
-    { value: 'CONFIRMED_BY_CLINIC', label: 'Phòng khám xác nhận', color: 'bg-indigo-100 text-indigo-800' },
-    { value: 'CANCELLED_BY_PATIENT', label: 'Bệnh nhân hủy', color: 'bg-red-100 text-red-800' },
-    { value: 'CANCELLED_BY_CLINIC', label: 'Phòng khám hủy', color: 'bg-red-100 text-red-800' },
-    { value: 'COMPLETED', label: 'Đã hoàn thành', color: 'bg-emerald-100 text-emerald-800' },
-    { value: 'NO_SHOW', label: 'Không có mặt', color: 'bg-gray-100 text-gray-800' },
-    { value: 'RESCHEDULED', label: 'Đã dời lịch', color: 'bg-yellow-100 text-yellow-800' },
-    { value: 'CHECKED_IN', label: 'Đã check-in', color: 'bg-purple-100 text-purple-800' },
-    { value: 'IN_PROGRESS', label: 'Đang thực hiện', color: 'bg-orange-100 text-orange-800' }
+    { status: '', label: 'Tất cả trạng thái' },
+    { status: 'SCHEDULED', label: 'Đã lên lịch', color: 'bg-blue-100 text-blue-800' },
+    { status: 'CONFIRMED_BY_PATIENT', label: 'Bệnh nhân xác nhận', color: 'bg-green-100 text-green-800' },
+    { status: 'CONFIRMED_BY_CLINIC', label: 'Phòng khám xác nhận', color: 'bg-indigo-100 text-indigo-800' },
+    { status: 'CANCELLED_BY_PATIENT', label: 'Bệnh nhân hủy', color: 'bg-red-100 text-red-800' },
+    { status: 'CANCELLED_BY_CLINIC', label: 'Phòng khám hủy', color: 'bg-red-100 text-red-800' },
+    { status: 'COMPLETED', label: 'Đã hoàn thành', color: 'bg-emerald-100 text-emerald-800' },
+    { status: 'NO_SHOW', label: 'Không có mặt', color: 'bg-gray-100 text-gray-800' },
+    { status: 'RESCHEDULED', label: 'Đã dời lịch', color: 'bg-yellow-100 text-yellow-800' },
+    { status: 'CHECKED_IN', label: 'Đã check-in', color: 'bg-purple-100 text-purple-800' },
+    { status: 'IN_PROGRESS', label: 'Đang thực hiện', color: 'bg-orange-100 text-orange-800' }
   ];
 
-  const getStatusColor = (status) => {
-    const statusOption = statusOptions.find(opt => opt.value === status);
+  const isEditable = (appointment) => {
+    if (!appointment || !appointment.status) return false; // Ensure status object exists
+
+    const { status, appointmentDateTime } = appointment;
+
+    // Correctly access the status string
+    if (status.status !== 'SCHEDULED') return false;
+
+    const now = new Date();
+    const appointmentDate = new Date(appointmentDateTime);
+    const diffInMs = appointmentDate - now;
+    const diffInHours = diffInMs / (1000 * 60 * 60);
+
+    return diffInHours >= 24;
+  };
+
+  const getStatusColor = (statusKey) => { // Renamed parameter to avoid conflict
+    const statusOption = statusOptions.find(opt => opt.status === statusKey);
     return statusOption?.color || 'bg-gray-100 text-gray-800';
   };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
+  const getStatusIcon = (statusKey) => { // Renamed parameter
+    switch (statusKey) {
       case 'COMPLETED': return <CheckCircle className="w-4 h-4" />;
       case 'CANCELLED_BY_PATIENT':
       case 'CANCELLED_BY_CLINIC': return <XCircle className="w-4 h-4" />;
@@ -109,6 +134,7 @@ const AppointmentHistory = () => {
     }
   };
 
+
   useEffect(() => {
     fetchAppointments();
   }, [filters]);
@@ -121,7 +147,7 @@ const AppointmentHistory = () => {
     };
   };
 
-  const handleFilterChange = (key, value) => {
+  const handleFilterChange = (key, value) => { // Changed 'status' to 'value'
     setFilters(prev => ({ ...prev, [key]: value, page: 0 }));
   };
 
@@ -173,12 +199,12 @@ const AppointmentHistory = () => {
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700">Trạng thái</label>
                 <select
-                  value={filters.status}
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
+                  value={filters.status} // Changed 'status' to 'value'
+                  onChange={(e) => handleFilterChange('status', e.target.value)} // Changed 'status' to 'value'
                   className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/90"
                 >
                   {statusOptions.map(option => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
+                    <option key={option.status} value={option.status}>{option.label}</option>
                   ))}
                 </select>
               </div>
@@ -186,8 +212,8 @@ const AppointmentHistory = () => {
                 <label className="text-sm font-semibold text-gray-700">Từ ngày</label>
                 <input
                   type="date"
-                  value={filters.fromDate}
-                  onChange={(e) => handleFilterChange('fromDate', e.target.value)}
+                  value={filters.fromDate} // Changed 'status' to 'value'
+                  onChange={(e) => handleFilterChange('fromDate', e.target.value)} // Changed 'status' to 'value'
                   className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/90"
                 />
               </div>
@@ -195,22 +221,22 @@ const AppointmentHistory = () => {
                 <label className="text-sm font-semibold text-gray-700">Đến ngày</label>
                 <input
                   type="date"
-                  value={filters.toDate}
-                  onChange={(e) => handleFilterChange('toDate', e.target.value)}
+                  value={filters.toDate} // Changed 'status' to 'value'
+                  onChange={(e) => handleFilterChange('toDate', e.target.value)} // Changed 'status' to 'value'
                   className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/90"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700">Số lượng/trang</label>
                 <select
-                  value={filters.size}
-                  onChange={(e) => handleFilterChange('size', parseInt(e.target.value))}
+                  value={filters.size} // Changed 'status' to 'value'
+                  onChange={(e) => handleFilterChange('size', parseInt(e.target.value))} // Changed 'status' to 'value'
                   className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/90"
                 >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                  <option value={50}>50</option>
+                  <option value={5}>5</option> {/* Changed 'status' to 'value' */}
+                  <option value={10}>10</option> {/* Changed 'status' to 'value' */}
+                  <option value={20}>20</option> {/* Changed 'status' to 'value' */}
+                  <option value={50}>50</option> {/* Changed 'status' to 'value' */}
                 </select>
               </div>
             </div>
@@ -233,7 +259,7 @@ const AppointmentHistory = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-100 text-sm">Đã hoàn thành</p>
-                <p className="text-3xl font-bold">{appointments.content?.filter(a => a.status === 'COMPLETED').length || 0}</p>
+                <p className="text-3xl font-bold">{appointments.content?.filter(a => a.status?.status === 'COMPLETED').length || 0}</p>
               </div>
               <CheckCircle className="w-12 h-12 text-green-200" />
             </div>
@@ -243,7 +269,7 @@ const AppointmentHistory = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-yellow-100 text-sm">Đã lên lịch</p>
-                <p className="text-3xl font-bold">{appointments.content?.filter(a => a.status === 'SCHEDULED').length || 0}</p>
+                <p className="text-3xl font-bold">{appointments.content?.filter(a => a.status?.status === 'SCHEDULED').length || 0}</p>
               </div>
               <Clock className="w-12 h-12 text-yellow-200" />
             </div>
@@ -311,11 +337,12 @@ const AppointmentHistory = () => {
                         <div className="space-y-2">
                           <div className="flex items-center space-x-3">
                             <h3 className="text-lg font-semibold text-gray-800">#{appointment.appointmentId}</h3>
-                            <span className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(appointment.status)}`}>
-                              {getStatusIcon(appointment.status)}
-                              <span>{statusOptions.find(s => s.value === appointment.status)?.label}</span>
+                            <span className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(appointment.status?.status)}`}>
+                              {getStatusIcon(appointment.status?.status)}
+                              <span>{statusOptions.find(s => s.status === appointment.status?.status)?.label || appointment.status?.status}</span>
                             </span>
                           </div>
+                          <p className="text-sm text-gray-500 italic">{appointment.status?.description}</p> {/* <- MÔ TẢ TRẠNG THÁI */}
                           <div className="flex items-center space-x-6 text-gray-600">
                             <div className="flex items-center space-x-2">
                               <Calendar className="w-4 h-4" />
@@ -331,37 +358,71 @@ const AppointmentHistory = () => {
                             </div>
                           </div>
                           <p className="text-gray-700 font-medium">{appointment.serviceName}</p>
-                          <p className="text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-lg inline-block">
-                            {appointment.appointmentType.replace('_', ' ')}
-                          </p>
+                          <div className="text-sm text-gray-700 space-y-1">
+                            <p className="font-medium">Loại lịch hẹn: <span className="text-gray-500">{appointment.appointmentType?.typeName || 'Không rõ'}</span></p>
+                            <p className="text-gray-500 italic">{appointment.appointmentType?.description}</p>
+                          </div>
                         </div>
+
                       </div>
 
+                      {/* Action Buttons */}
+                      <div className="flex items-center space-x-2">
+                        <button
 
-                      <div className="flex space-x-2">
-                        <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
-                          <Eye className="w-5 h-5" />
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+
+                          onClick={() => handleOpenDetail(appointment.appointmentId)}
+
+                        >
+
+                          <AppointmentDetailModal
+
+                            appointmentId={selectedAppointmentId}
+
+                            appointmentDetail={appointmentDetail}
+
+                            setAppointmentDetail={setAppointmentDetail}
+
+                          />
+
                         </button>
-                        {appointment.status === 'CANCELLED_BY_CLINIC' && (
+
+                        <div className="flex space-x-3 mt-3">
+                          {isEditable(appointment) && (
+                            <button
+                              onClick={() => handleOpenReschedule(appointment.appointmentId)}
+                              className="px-4 py-2 text-sm bg-yellow-100 text-yellow-800 rounded-xl hover:bg-yellow-200 transition"
+                            >
+                              Dời lịch
+                            </button>
+                          )}
+
+                          {/* Only allow cancellation if status is SCHEDULED and it's editable (before 24h) */}
+                          {isEditable(appointment) && appointment.status?.status === 'SCHEDULED' && (
+                            <button
+                              onClick={() => handleCancelAppointment(appointment.appointmentId)}
+                              className="px-4 py-2 text-sm bg-red-100 text-red-800 rounded-xl hover:bg-red-200 transition"
+                            >
+                              Hủy lịch
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Nếu phòng khám hủy thì có thể đặt lại lịch */}
+                        {appointment.status?.status === 'CANCELLED_BY_CLINIC' && ( // Correctly access status
                           <button
-                            className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors duration-200"
+                            className="px-4 py-2 text-sm bg-blue-100 text-blue-800 rounded-xl hover:bg-blue-200 transition"
                             onClick={() => handleOpenReschedule(appointment.appointmentId)}
                           >
-                            <RefreshCw className="w-5 h-5" />
+                            <Plus className="w-4 h-4 mr-1" />Đặt lại lịch
                           </button>
                         )}
-                        <button
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                          onClick={() => handleCancelAppointment(appointment.appointmentId)}
-                        >
-                          <Delete stroke="#dc2626" className=" w-5 h-5" />
-                        </button>
                       </div>
                     </div>
                   </div>
                 );
               })}
-
             </div>
 
           ) : !loading && (
@@ -405,6 +466,14 @@ const AppointmentHistory = () => {
           )}
         </div>
       </div>
+
+      {/* Appointment Detail Modal (Conditional Rendering) */}
+      {showDetailModal && (
+        <AppointmentDetailModal
+          appointmentId={selectedAppointmentId}
+          onClose={() => setShowDetailModal(false)}
+        />
+      )}
 
       <style jsx>{`
         @keyframes fadeIn {

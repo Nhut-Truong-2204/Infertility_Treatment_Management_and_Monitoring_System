@@ -98,6 +98,7 @@ export default function Navbar() {
     goHistory: () => navigate("/history"),
     goPayment: () => navigate("/payment"),
     goFeedback: () => navigate("/feedback"),
+    goMedicine: () => navigate("/medicine"),
   };
 
   return (
@@ -172,7 +173,18 @@ export default function Navbar() {
                         <p className="text-sm text-gray-500">Thông tin chuyên sâu về vô sinh và điều trị</p>
                       </div>
                     </div>
-
+                    <div
+                      onClick={routes.goMedicine}
+                      className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"
+                    >
+                      <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-all">
+                        <MedicalInformationIcon className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-800">Tra cứu thuốc</h4>
+                        <p className="text-sm text-gray-500">Tìm kiếm các thông tin cần thiết về thuốc</p>
+                      </div>
+                    </div>
                     <div
                       onClick={routes.goClinicIntro}
                       className="flex items-center gap-4 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all group"

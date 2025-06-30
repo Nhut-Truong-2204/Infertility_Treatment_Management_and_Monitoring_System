@@ -24,7 +24,7 @@ import BlogForum from "@/pages/customer/BlogForum";
 import LabtestHistory from "@/pages/customer/LabtestHistory";
 import ChatWidget from "@/components/chat/Chat";
 import ProfileUser from "@/pages/customer/ProfileUser";
-
+import MedicineSearch from "@/pages/customer/MedicineSearch";
 
 const router = createBrowserRouter([
   {
@@ -103,6 +103,10 @@ const router = createBrowserRouter([
       {
         path: "/blog-forum",
         element: <BlogForum />,
+      },
+      {
+        path: "/medicine",
+        element: <MedicineSearch />,
       },
     ],
   },

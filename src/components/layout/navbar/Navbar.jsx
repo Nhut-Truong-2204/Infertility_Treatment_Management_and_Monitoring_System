@@ -55,7 +55,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-
   ///avatar
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -102,10 +101,17 @@ export default function Navbar() {
   };
 
   return (
-    <div className={`fixed top-0 left-0 w-full z-60 transition-all duration-300 ${isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"}`}>
+    <div
+      className={`fixed top-0 left-0 w-full z-60 transition-all duration-300 ${
+        isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"
+      }`}
+    >
       <nav className="py-10 px-40 flex items-center justify-between text-white sticky top-0 z-50">
         {/* Logo */}
-        <div onClick={routes.goHome} className="flex items-center space-x-2 font-semibold text-lg cursor-pointer hover:bg-blue-900 hover:rounded-2xl hover:py-2 hover:px-4 transition-all duration-300">
+        <div
+          onClick={routes.goHome}
+          className="flex items-center space-x-2 font-semibold text-lg cursor-pointer hover:bg-blue-900 hover:rounded-2xl hover:py-2 hover:px-4 transition-all duration-300"
+        >
           <img src={logo} alt="CumIcon" className="h-12" />
           <span>ReproTrack</span>
         </div>
@@ -130,7 +136,9 @@ export default function Navbar() {
                   <h3 className="text-white text-lg font-bold flex items-center gap-2">
                     <SchoolIcon /> Tìm hiểu về hiếm muộn
                   </h3>
-                  <p className="text-blue-100 text-sm mt-1">Khám phá thông tin chi tiết về vấn đề hiếm muộn</p>
+                  <p className="text-blue-100 text-sm mt-1">
+                    Khám phá thông tin chi tiết về vấn đề hiếm muộn
+                  </p>
                 </div>
 
                 <div className="p-4">
@@ -143,8 +151,12 @@ export default function Navbar() {
                         <MaleIcon className="text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-800">Hiếm muộn Nam</h4>
-                        <p className="text-sm text-gray-500">Khám phá các vấn đề hiếm muộn ở nam giới</p>
+                        <h4 className="font-semibold text-gray-800">
+                          Hiếm muộn Nam
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          Khám phá các vấn đề hiếm muộn ở nam giới
+                        </p>
                       </div>
                     </div>
 
@@ -156,8 +168,12 @@ export default function Navbar() {
                         <FemaleIcon className="text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-800">Hiếm muộn Nữ</h4>
-                        <p className="text-sm text-gray-500">Khám phá các vấn đề hiếm muộn ở nữ giới</p>
+                        <h4 className="font-semibold text-gray-800">
+                          Hiếm muộn Nữ
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          Khám phá các vấn đề hiếm muộn ở nữ giới
+                        </p>
                       </div>
                     </div>
 
@@ -170,7 +186,9 @@ export default function Navbar() {
                       </div>
                       <div>
                         <h4 className="font-semibold text-gray-800">Vô sinh</h4>
-                        <p className="text-sm text-gray-500">Thông tin chuyên sâu về vô sinh và điều trị</p>
+                        <p className="text-sm text-gray-500">
+                          Thông tin chuyên sâu về vô sinh và điều trị
+                        </p>
                       </div>
                     </div>
                     <div
@@ -181,8 +199,12 @@ export default function Navbar() {
                         <MedicalInformationIcon className="text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-800">Tra cứu thuốc</h4>
-                        <p className="text-sm text-gray-500">Tìm kiếm các thông tin cần thiết về thuốc</p>
+                        <h4 className="font-semibold text-gray-800">
+                          Tra cứu thuốc
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          Tìm kiếm các thông tin cần thiết về thuốc
+                        </p>
                       </div>
                     </div>
                     <div
@@ -193,8 +215,12 @@ export default function Navbar() {
                         <BusinessIcon className="text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-800">Giới thiệu phòng khám</h4>
-                        <p className="text-sm text-gray-500">Tìm hiểu về cơ sở vật chất và chuyên môn</p>
+                        <h4 className="font-semibold text-gray-800">
+                          Giới thiệu phòng khám
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          Tìm hiểu về cơ sở vật chất và chuyên môn
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -220,7 +246,9 @@ export default function Navbar() {
                   <h3 className="text-white text-lg font-bold flex items-center gap-2">
                     <HealthAndSafetyIcon /> Dịch vụ chăm sóc
                   </h3>
-                  <p className="text-blue-100 text-sm mt-1">Khám phá các dịch vụ y tế chất lượng cao</p>
+                  <p className="text-blue-100 text-sm mt-1">
+                    Khám phá các dịch vụ y tế chất lượng cao
+                  </p>
                 </div>
 
                 <div className="p-4">
@@ -233,8 +261,12 @@ export default function Navbar() {
                         <MedicalInformationIcon className="text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-800">Dịch vụ xét nghiệm</h4>
-                        <p className="text-sm text-gray-500">Các gói xét nghiệm toàn diện</p>
+                        <h4 className="font-semibold text-gray-800">
+                          Dịch vụ xét nghiệm
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          Các gói xét nghiệm toàn diện
+                        </p>
                       </div>
                     </div>
 
@@ -246,8 +278,12 @@ export default function Navbar() {
                         <PersonSearchIcon className="text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-800">Đội ngũ bác sĩ</h4>
-                        <p className="text-sm text-gray-500">Đội ngũ chuyên gia giàu kinh nghiệm</p>
+                        <h4 className="font-semibold text-gray-800">
+                          Đội ngũ bác sĩ
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          Đội ngũ chuyên gia giàu kinh nghiệm
+                        </p>
                       </div>
                     </div>
 
@@ -259,8 +295,12 @@ export default function Navbar() {
                         <LocalHospitalIcon className="text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-800">Dịch vụ điều trị</h4>
-                        <p className="text-sm text-gray-500">Các phương pháp điều trị tiên tiến</p>
+                        <h4 className="font-semibold text-gray-800">
+                          Dịch vụ điều trị
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          Các phương pháp điều trị tiên tiến
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -286,7 +326,9 @@ export default function Navbar() {
                   <h3 className="text-white text-lg font-bold flex items-center gap-2">
                     <GroupsIcon /> Tham gia cùng chúng tôi
                   </h3>
-                  <p className="text-blue-100 text-sm mt-1">Chia sẻ và theo dõi hành trình của bạn</p>
+                  <p className="text-blue-100 text-sm mt-1">
+                    Chia sẻ và theo dõi hành trình của bạn
+                  </p>
                 </div>
 
                 <div className="p-4">
@@ -299,8 +341,12 @@ export default function Navbar() {
                         <RateReviewIcon className="text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-800">Đánh giá dịch vụ</h4>
-                        <p className="text-sm text-gray-500">Chia sẻ trải nghiệm của bạn</p>
+                        <h4 className="font-semibold text-gray-800">
+                          Đánh giá dịch vụ
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          Chia sẻ trải nghiệm của bạn
+                        </p>
                       </div>
                     </div>
 
@@ -312,8 +358,12 @@ export default function Navbar() {
                         <ForumIcon className="text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-800">Blog & Diễn đàn</h4>
-                        <p className="text-sm text-gray-500">Chia sẻ và kết nối cộng đồng</p>
+                        <h4 className="font-semibold text-gray-800">
+                          Blog & Diễn đàn
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          Chia sẻ và kết nối cộng đồng
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -328,7 +378,9 @@ export default function Navbar() {
           {user ? (
             // Nếu đã đăng nhập, hiển thị thông tin tài khoản và nút Đăng xuất
             <div className="flex items-center space-x-4 relative" ref={menuRef}>
-              <span className="text-white font-semibold">{user.fullName || "Người dùng"}</span>
+              <span className="text-white font-semibold">
+                {user.fullName || "Người dùng"}
+              </span>
 
               <div className="relative">
                 <Avatar
@@ -344,7 +396,11 @@ export default function Navbar() {
                       onClick={() => navigate("/profile")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <User stroke="#152c4f" color="action" className="mr-2 text-blue-600" />
+                      <User
+                        stroke="#152c4f"
+                        color="action"
+                        className="mr-2 text-blue-600"
+                      />
                       Hồ sơ cá nhân
                     </button>
 
@@ -360,7 +416,10 @@ export default function Navbar() {
                       onClick={() => navigate("/")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <ClipboardCopy stroke="#16a34a" className="mr-2 text-green-600" />
+                      <ClipboardCopy
+                        stroke="#16a34a"
+                        className="mr-2 text-green-600"
+                      />
                       Kết quả xét nghiệm
                     </button>
 
@@ -368,7 +427,10 @@ export default function Navbar() {
                       onClick={() => navigate("/payment")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <BadgeDollarSign stroke="#ff0f91" className="mr-2 text-green-600" />
+                      <BadgeDollarSign
+                        stroke="#ff0f91"
+                        className="mr-2 text-green-600"
+                      />
                       Quản lý thanh toán
                     </button>
 
@@ -376,7 +438,10 @@ export default function Navbar() {
                       onClick={() => navigate("/historyTreatment")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <Clock8 stroke="#3B82F6 " className="mr-2 text-yellow-600" />
+                      <Clock8
+                        stroke="#3B82F6 "
+                        className="mr-2 text-yellow-600"
+                      />
                       Lịch sử điều trị
                     </button>
 
@@ -384,12 +449,15 @@ export default function Navbar() {
                       onClick={() => navigate("/historyLabtest")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <Clock8 stroke="#16a34a " className="mr-2 text-yellow-600" />
+                      <Clock8
+                        stroke="#16a34a "
+                        className="mr-2 text-yellow-600"
+                      />
                       Lịch sử xét nghiệm
                     </button>
-                    
+
                     <button
-                      onClick={() => navigate("/settings")}
+                      onClick={() => navigate("/setting")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
                       <Bolt stroke="#ca8a04" className="mr-2 text-yellow-600" />
@@ -402,7 +470,10 @@ export default function Navbar() {
                       }}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
-                      <ToggleLeft stroke="#dc2626" className="mr-2 text-red-600" />
+                      <ToggleLeft
+                        stroke="#dc2626"
+                        className="mr-2 text-red-600"
+                      />
                       Đăng xuất
                     </button>
                   </div>
@@ -431,7 +502,9 @@ export default function Navbar() {
                   }}
                   className="w-full h-full flex items-center justify-center relative overflow-hidden"
                 >
-                  <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">Đăng nhập</span>
+                  <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">
+                    Đăng nhập
+                  </span>
                   <span className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"></span>
                 </Button>
               </div>
@@ -450,7 +523,9 @@ export default function Navbar() {
                   }}
                   className="w-full h-full flex items-center justify-center relative overflow-hidden"
                 >
-                  <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">Đăng ký</span>
+                  <span className="relative z-10 text-[20px] text-base md:text-sm font-bold">
+                    Đăng ký
+                  </span>
                   <span className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"></span>
                 </Button>
               </div>

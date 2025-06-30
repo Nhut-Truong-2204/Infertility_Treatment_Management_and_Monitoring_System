@@ -1,7 +1,7 @@
 // src/api/customer/LabTestApi.jsx
-import api from '../../config/axios'; // Import instance axios đã cấu hình
+import api from "../../config/axios"; // Import instance axios đã cấu hình
 
-const LABTEST_API_BASE_PATH = '/api/lab-test-orders'; // Đường dẫn cơ sở cho các API xét nghiệm
+const LABTEST_API_BASE_PATH = "/api/customer/lab-test-orders"; // Đường dẫn cơ sở cho các API xét nghiệm
 
 /**
  * Lấy lịch sử xét nghiệm cho bệnh nhân
@@ -10,7 +10,11 @@ const LABTEST_API_BASE_PATH = '/api/lab-test-orders'; // Đường dẫn cơ s�
  * @param {string} statusFilter - Trạng thái lọc (ví dụ: 'COMPLETED', 'PENDING')
  * @returns {Promise<Object>} Dữ liệu phản hồi từ API
  */
-export const getLabTestHistory = async (page = 0, size = 10, statusFilter = '') => {
+export const getLabTestHistory = async (
+  page = 0,
+  size = 10,
+  statusFilter = ""
+) => {
   let url = `${LABTEST_API_BASE_PATH}?page=${page}&size=${size}`;
   if (statusFilter) {
     url += `&status=${encodeURIComponent(statusFilter)}`;
@@ -37,7 +41,10 @@ export const getLabTestOrderDetail = async (orderId) => {
     // API phản hồi trực tiếp đối tượng chi tiết, có thể có 'success' hoặc không tùy backend
     return response.data;
   } catch (error) {
-    console.error(`❌ Failed to fetch lab test order detail for ID ${orderId}:`, error);
+    console.error(
+      `❌ Failed to fetch lab test order detail for ID ${orderId}:`,
+      error
+    );
     throw error;
   }
 };

@@ -432,7 +432,7 @@ export default function Navbar() {
                         stroke="#3B82F6 "
                         className="mr-2 text-yellow-600"
                       />
-                      Lịch sử điều trị
+                      Xem điều trị
                     </button>
 
                     <button

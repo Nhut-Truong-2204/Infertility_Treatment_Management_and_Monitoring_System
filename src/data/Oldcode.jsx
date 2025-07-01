@@ -30,7 +30,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { getDoctors, getDoctorDetail } from "../../api/customer/doctorList";
 import { createAppointment } from "../../api/customer/appointmentAPI";
-import ServiceSelection from "@/components/ui/ServiceSelection ";
+import ServiceSelection from "@/components/ServiceSelection ";
 import instance from "@/config/axios";
 
 const BookingAppointment = () => {

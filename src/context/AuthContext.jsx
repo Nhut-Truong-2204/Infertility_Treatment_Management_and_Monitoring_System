@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 import axios from "../config/axios";
 import Cookies from "js-cookie";
+import useOAuth2Callback from "../hooks/useOAuth2Callback";
 
 const AuthContext = createContext();
 
@@ -9,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // 👉 Thời gian người dùng không thao tác (ms)
-  const IDLE_TIMEOUT =  1 * 60 * 1000; //10 phút gọi refreshToken nếu có thao tác
+  const IDLE_TIMEOUT = 15 * 60 * 1000; //10 phút gọi refreshToken nếu có thao tác
   const REFRESH_INTERVAL = 10 * 60 * 1000; // 5 phút không thao tác thì không gọi refresh nữa
 
   const idleTimer = useRef(null);
@@ -32,6 +33,11 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
+
+  useOAuth2Callback(
+    (accessToken) => setUser({ accessToken }),
+    () => setUser(null)
+  );
 
   const login = async (credentials) => {
     const response = await axios.post("/api/auth/login", credentials);
@@ -153,7 +159,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, loading, refreshToken }}
+      value={{ user, setUser, login, logout, loading, refreshToken }}
     >
       {children}
     </AuthContext.Provider>

@@ -8,7 +8,7 @@ import ChangePasswordPage from "../pages/customer/ChangePasswordPage";
 import MainLayout from "../components/layout/MainLayout";
 import ViewTestingServiceList from "../../src/components/layout/navbar/blogDropDown/Care/ViewTestingServiceList";
 import BarrenMale from "../components/layout/navbar/blogDropDown/Learn/BarrenMale";
-import BarrenFemale from "../components/layout/navbar/blogDropDown/Learn/BarrenFemale"
+import BarrenFemale from "../components/layout/navbar/blogDropDown/Learn/BarrenFemale";
 import Infertility from "../components/layout//navbar/blogDropDown/Learn/Infertility";
 import NotFound from "../pages/customer/NotFound";
 import BookingAppointment from "../pages/customer/BookingAppointment";
@@ -24,7 +24,8 @@ import BlogForum from "@/pages/customer/BlogForum";
 import LabtestHistory from "@/pages/customer/LabtestHistory";
 import ChatWidget from "@/components/chat/Chat";
 import ProfileUser from "@/pages/customer/ProfileUser";
-
+import MedicineSearch from "@/pages/customer/MedicineSearch";
+import SettingPage from "@/pages/customer/SettingPage";
 
 const router = createBrowserRouter([
   {
@@ -61,8 +62,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/viewDoctorList",
-        element:
-          <DoctorList />,
+        element: <DoctorList />,
       },
       {
         path: "/doctors/:userId",
@@ -104,6 +104,10 @@ const router = createBrowserRouter([
         path: "/blog-forum",
         element: <BlogForum />,
       },
+      {
+        path: "/medicine",
+        element: <MedicineSearch />,
+      },
     ],
   },
   {
@@ -111,9 +115,12 @@ const router = createBrowserRouter([
     element: <RegisterPage />,
   },
   {
+    path: "/setting",
+    element: <SettingPage />,
+  },
+  {
     path: "/viewAppointment",
-    element: <ViewAppointment />
-
+    element: <ViewAppointment />,
   },
   {
     path: "/login",

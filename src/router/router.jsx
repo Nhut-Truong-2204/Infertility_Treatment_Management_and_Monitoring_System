@@ -26,11 +26,15 @@ import ChatWidget from "@/components/chat/Chat";
 import ProfileUser from "@/pages/customer/ProfileUser";
 import MedicineSearch from "@/pages/customer/MedicineSearch";
 import SettingPage from "@/pages/customer/SettingPage";
-
+import { AuthProvider } from "../context/AuthContext";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />,
+    element: (
+      <AuthProvider>
+        <MainLayout />
+      </AuthProvider>
+    ),
     children: [
       {
         index: true,
@@ -124,7 +128,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <LoginPage />,
+    element: (
+      <AuthProvider > {/* Quan trọng */}
+        < LoginPage />
+      </AuthProvider>
+    )
   },
 
   {

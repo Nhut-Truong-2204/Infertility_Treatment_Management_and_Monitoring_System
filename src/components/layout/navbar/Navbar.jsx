@@ -392,17 +392,7 @@ export default function Navbar() {
 
                 {menuOpen && (
                   <div className="absolute right-0 mt-2 w-52 bg-[#2e6fd8] rounded-md shadow-lg z-20 py-2">
-                    <button
-                      onClick={() => navigate("/profile")}
-                      className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
-                    >
-                      <User
-                        stroke="#152c4f"
-                        color="action"
-                        className="mr-2 text-blue-600"
-                      />
-                      Hồ sơ cá nhân
-                    </button>
+                    
 
                     <button
                       onClick={() => navigate("/viewAppointment")}

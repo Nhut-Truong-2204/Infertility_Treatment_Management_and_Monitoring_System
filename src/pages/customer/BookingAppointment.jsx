@@ -88,23 +88,7 @@ const BookingAppointment = () => {
     return `${pad(timeObj.hour)}:${pad(timeObj.minute)}`;
   };
 
-  const handleCancel = () => {
-    Swal.fire({
-      title: "Bạn có chắc muốn huỷ?",
-      text: "Mọi thay đổi chưa lưu sẽ bị mất!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Có, huỷ ngay",
-      cancelButtonText: "Không",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Ví dụ: chuyển hướng về trang chủ
-        navigate("/");
-      }
-    });
-  };
+  
   const [formData, setFormData] = useState({
     patientProfileId: 1,
     doctorUserId: 0,
@@ -218,8 +202,8 @@ const BookingAppointment = () => {
       const payload = {
         date: selectedDate,
         shift: {
-          startTime: selectedShift.startTime, // "HH:mm"
-          endTime: selectedShift.endTime, // "HH:mm"
+          startTime: selectedShift.startTime,
+          endTime: selectedShift.endTime, 
         },
         dayOfWeek: {
           code: dayInfo.code,
@@ -252,8 +236,7 @@ const BookingAppointment = () => {
   useEffect(() => {
     if (selectedDate) {
       setLoadingShifts(true);
-      instance
-        .get("/api/work-schedules/working-shifts", {
+      instance.get("/api/work-schedules/working-shifts", {
           params: { date: selectedDate },
         })
         .then((res) => {
@@ -427,6 +410,32 @@ const BookingAppointment = () => {
       setCurrentStep(2);
     }
   }, [currentStep]);
+
+
+
+
+
+
+
+  const handleCancel = () => {
+    Swal.fire({
+      title: "Bạn có chắc muốn huỷ?",
+      text: "Mọi thay đổi chưa lưu sẽ bị mất!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Có, huỷ ngay",
+      cancelButtonText: "Không",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Ví dụ: chuyển hướng về trang chủ
+        navigate("/");
+      }
+    });
+  };
+
+  
   const canProceed = () => {
     switch (currentStep) {
       case 1:

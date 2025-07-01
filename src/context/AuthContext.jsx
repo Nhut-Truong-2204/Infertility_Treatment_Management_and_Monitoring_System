@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 import axios from "../config/axios";
 import Cookies from "js-cookie";
-import useOAuth2Callback from "../hooks/useOAuth2Callback";
+import useOAuth2Callback from "../context/useOAuth2Callback";
 
 const AuthContext = createContext();
 

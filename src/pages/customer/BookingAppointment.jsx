@@ -96,7 +96,7 @@ const BookingAppointment = () => {
     appointmentDateTime: "",
     estimatedDurationMinutes: 30,
     appointmentType: {
-      typeName: "EXAMINATION",
+      typeName: "MEDICAL_EXAM",
       description: "Khám sức khỏe tổng quát",
     },
     reasonForVisit: "",
@@ -402,7 +402,7 @@ const BookingAppointment = () => {
         ...prev,
         serviceDefinitionId: 1,
         appointmentType: {
-          typeName: "CONSULTATION",
+          typeName: "MEDICAL_EXAM",
           description: "Khám bệnh cơ bản",
         },
       }));

@@ -150,7 +150,7 @@ const TreatmentHistory = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-6">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto ">
           <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
             <div className="animate-pulse space-y-8">
               <div className="space-y-4">
@@ -211,7 +211,7 @@ const TreatmentHistory = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-4 md:p-6 ">
-      <div className="max-w-7xl mx-auto space-y-8 mt-20">
+      <div className="max-w-7xl mx-auto space-y-8 mt-30 mb-100">
         {/* Header */}
         <div className="text-center space-y-4 py-8">
           <div className="relative inline-block">

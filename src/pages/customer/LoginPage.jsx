@@ -27,57 +27,66 @@ const InputField = ({
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className="relative mb-6 group">
+    <div className="mb-6">
       <div
-        className={`relative transition-all duration-300 ${
-          isFocused ? "transform scale-105" : ""
+        className={`flex items-center gap-3 transition-all duration-300 ${
+          isFocused ? "scale-105" : ""
         }`}
       >
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-          <Icon
-            className={`h-5 w-5 transition-colors duration-300 ${
+        {/* ICON BÊN TRÁI, NGOÀI INPUT */}
+        {Icon && (
+          <div
+            className={`text-gray-400 transition-colors duration-300 ${
               isFocused
                 ? "text-blue-500"
                 : error
                 ? "text-red-400"
                 : "text-gray-400"
             }`}
-          />
-        </div>
-        <input
-          type={type === "password" && showPassword ? "text" : type}
-          name={name}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          className={`w-full pl-12 pr-12 py-4 bg-white/80 backdrop-blur-sm border-2 rounded-xl
-                    transition-all duration-300 text-gray-800 placeholder-gray-500
-                    focus:outline-none focus:ring-0 focus:shadow-lg focus:shadow-blue-500/20
-                    ${
-                      error
-                        ? "border-red-300 focus:border-red-500 bg-red-50/50"
-                        : isFocused
-                        ? "border-blue-400 focus:border-blue-500"
-                        : "border-gray-200 hover:border-gray-300"
-                    }
-                    ${isFocused ? "transform scale-105" : ""}`}
-        />
-        {type === "password" && (
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-4 flex items-center z-10"
           >
-            {showPassword ? (
-              <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
-            ) : (
-              <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
-            )}
-          </button>
+            <Icon className="h-5 w-5" />
+          </div>
         )}
+
+        {/* INPUT + ICON MẮT */}
+        <div className="relative w-full">
+          <input
+            type={type === "password" && showPassword ? "text" : type}
+            name={name}
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            className={`w-full pr-12 py-4 pl-4 bg-white/80 backdrop-blur-sm border-2 rounded-xl
+              transition-all duration-300 text-gray-800 placeholder-gray-500
+              focus:outline-none focus:ring-0 focus:shadow-lg focus:shadow-blue-500/20
+              ${
+                error
+                  ? "border-red-300 focus:border-red-500 bg-red-50/50"
+                  : isFocused
+                  ? "border-blue-400 focus:border-blue-500"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+          />
+
+          {type === "password" && (
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10"
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+              ) : (
+                <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+              )}
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* ERROR MESSAGE */}
       <AnimatePresence mode="wait">
         {error && (
           <motion.div

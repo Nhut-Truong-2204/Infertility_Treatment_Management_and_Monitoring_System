@@ -102,9 +102,8 @@ export default function Navbar() {
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full z-60 transition-all duration-300 ${
-        isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 w-full z-60 transition-all duration-300 ${isScrolled ? "bg-[#183383]/90 shadow-lg" : "bg-transparent"
+        }`}
     >
       <nav className="py-10 px-40 flex items-center justify-between text-white sticky top-0 z-50">
         {/* Logo */}
@@ -392,17 +391,7 @@ export default function Navbar() {
 
                 {menuOpen && (
                   <div className="absolute right-0 mt-2 w-52 bg-[#2e6fd8] rounded-md shadow-lg z-20 py-2">
-                    <button
-                      onClick={() => navigate("/profile")}
-                      className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
-                    >
-                      <User
-                        stroke="#152c4f"
-                        color="action"
-                        className="mr-2 text-blue-600"
-                      />
-                      Hồ sơ cá nhân
-                    </button>
+
 
                     <button
                       onClick={() => navigate("/viewAppointment")}
@@ -413,15 +402,16 @@ export default function Navbar() {
                     </button>
 
                     <button
-                      onClick={() => navigate("/")}
+                      onClick={() => navigate("/treatmentContract")}
                       className="flex items-center w-full px-4 py-2 text-sm hover:bg-[#1c398e]"
                     >
                       <ClipboardCopy
-                        stroke="#16a34a"
-                        className="mr-2 text-green-600"
+                        stroke="#e7000b "
+                        className="mr-2 text-red-600"
                       />
-                      Kết quả xét nghiệm
+                      Xem hợp đồng
                     </button>
+
 
                     <button
                       onClick={() => navigate("/payment")}
@@ -442,7 +432,7 @@ export default function Navbar() {
                         stroke="#3B82F6 "
                         className="mr-2 text-yellow-600"
                       />
-                      Lịch sử điều trị
+                      Quản lý điều trị
                     </button>
 
                     <button
@@ -453,8 +443,10 @@ export default function Navbar() {
                         stroke="#16a34a "
                         className="mr-2 text-yellow-600"
                       />
-                      Lịch sử xét nghiệm
+                      Quản lý xét nghiệm
                     </button>
+
+                    
 
                     <button
                       onClick={() => navigate("/setting")}

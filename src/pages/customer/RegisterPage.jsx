@@ -256,7 +256,7 @@ const RegisterPage = () => {
           <div className="absolute top-60 left-1/3 w-3 h-3 bg-blue-300 rounded-full opacity-45 animate-particle-float-slower"></div>
         </div>
 
-        <div className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4">
+        <div className="relative z-10 min-h-screen flex items-center justify-center  px-4">
           <div
             className="max-w-6xl w-full bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden 
                         grid grid-cols-1 lg:grid-cols-2 animate-slideUp"

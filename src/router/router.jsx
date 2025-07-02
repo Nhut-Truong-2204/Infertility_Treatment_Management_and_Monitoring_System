@@ -27,6 +27,7 @@ import ProfileUser from "@/pages/customer/ProfileUser";
 import MedicineSearch from "@/pages/customer/MedicineSearch";
 import SettingPage from "@/pages/customer/SettingPage";
 import { AuthProvider } from "../context/AuthContext";
+import TreatmentContract from "@/pages/customer/TreatmentContract";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -95,6 +96,10 @@ const router = createBrowserRouter([
       {
         path: "/historyLabtest",
         element: <LabtestHistory />,
+      },
+      {
+        path: "/treatmentContract",
+        element: <TreatmentContract />,
       },
       {
         path: "/payment",

@@ -87,23 +87,37 @@ const TreatmentHistoryTimeline = () => {
     }).format(amount);
   };
 
-  // Enhanced loading component
-  const LoadingComponent = () => (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-6">
-      <div className="text-center">
-        <div className="relative">
-          <div className="w-20 h-20 border-4 border-blue-200 rounded-full animate-spin border-t-blue-600 mx-auto mb-6"></div>
-          <div className="absolute inset-0 w-20 h-20 border-4 border-transparent rounded-full animate-ping border-t-blue-400 mx-auto"></div>
-        </div>
-        <div className="mb-4">
-          <Heart className="w-8 h-8 text-blue-500 animate-pulse mx-auto mb-2" />
-          <h2 className="text-2xl font-bold text-slate-800 mb-2">Đang tải dữ liệu điều trị</h2>
-          <p className="text-slate-600">Vui lòng chờ trong giây lát...</p>
-        </div>
-        <div className="flex justify-center space-x-2">
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-6">
+        <div className="max-w-7xl mx-auto ">
+          <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+            <div className="animate-pulse space-y-8">
+              <div className="space-y-4">
+                <div className="h-10 bg-gradient-to-r from-gray-200 to-gray-300 rounded-2xl w-1/2"></div>
+                <div className="h-6 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl w-3/4"></div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-6 h-32"
+                  ></div>
+                ))}
+              </div>
+
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl h-24"
+                  ></div>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -132,13 +146,65 @@ const TreatmentHistoryTimeline = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 transition-all duration-1000 ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
-      {/* Animated background elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none ">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse "></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse" style={{ animationDelay: '4s' }}></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-4 md:p-6 ">
+      <div className="max-w-7xl mx-auto space-y-8 mt-30 mb-100">
+        {/* Header */}
+        <div className="text-center space-y-4 py-8">
+          <div className="relative inline-block">
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent">
+              Lịch Sử Điều Trị
+            </h1>
+            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 rounded-lg blur opacity-20"></div>
+          </div>
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            Theo dõi toàn bộ quá trình điều trị và lịch sử khám bệnh của bạn
+          </p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl">
+                <FileText className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Tổng phác đồ</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.totalProtocols}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl">
+                <Activity className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Đang điều trị</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.activeProtocols}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
+                <CheckCircle className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Hoàn thành</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.completedProtocols}
+                </p>
+              </div>
+            </div>
+          </div>
+
 
       <div className="relative z-10 p-6 ">
         <div className="max-w-7xl mx-auto mt-20">

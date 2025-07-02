@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-
+import instance from '@/config/axios';
 export default function ClinicIntroduction() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -10,17 +10,22 @@ export default function ClinicIntroduction() {
     const fetchClinicInfo = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://infertility-treatment-management-and.onrender.com/api/clinic-info');
-        if (!response.ok) {
+        const response = await instance.get('/api/clinic-info');
+
+        // Sửa ở đây
+        if (!response.data.success) {
           if (response.status === 404) {
             throw new Error('Không tìm thấy thông tin phòng khám');
           }
           throw new Error('Lỗi khi tải dữ liệu');
         }
-        const result = await response.json();
-        setData(result.data);
+
+        setData(response.data.data); // Nếu API trả về data lồng trong data.success, hãy cập nhật đúng
+        console.log(response.data);
+
       } catch (err) {
         setError(err.message);
+        console.log(err);
       } finally {
         setLoading(false);
       }

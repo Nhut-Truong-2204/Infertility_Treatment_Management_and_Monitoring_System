@@ -17,7 +17,26 @@ import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../api/customer/registerUser";
 import { toast } from "react-toastify"; // Uncomment if using react-toastify
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"; // Mock functions to replace imports
+import instance from "@/config/axios";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import EmailVerificationCard from "./VerifyEmail";
+const getPasswordStrengthProgress = (password) => {
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score++;
 
+  const percent = (score / 5) * 100;
+  let color = "bg-red-500";
+  if (score === 3) color = "bg-yellow-500";
+  if (score === 4) color = "bg-yellow-400";
+  if (score === 5) color = "bg-green-500";
+
+  return { percent, color };
+};
 const InputField = ({
   name,
   type = "text",
@@ -35,24 +54,25 @@ const InputField = ({
   };
 
   return (
-    <div className="relative mb-6 group">
+    <div className="mb-6 group">
       <div
-        className={`relative transition-all duration-300 ${
-          isFocused ? "transform scale-105" : ""
-        }`}
+        className={`flex items-center bg-white/80 backdrop-blur-sm border-2 rounded-xl transition-all duration-300 
+        ${error ? "border-red-300 bg-red-50/50" : isFocused ? "border-blue-400" : "border-gray-200 hover:border-gray-300"}
+        ${isFocused ? "shadow-lg shadow-blue-500/20 scale-[1.02]" : ""}`}
       >
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+        {/* Icon bên trái */}
+        <div className="pl-4 pr-2 flex items-center">
           <Icon
-            className={`h-5 w-5 transition-colors duration-300 ${
-              isFocused
-                ? "text-blue-500"
-                : error
+            className={`h-5 w-5 transition-colors duration-300 ${isFocused
+              ? "text-blue-500"
+              : error
                 ? "text-red-400"
                 : "text-gray-400"
-            }`}
+              }`}
           />
         </div>
 
+        {/* Input chính */}
         <input
           type={type === "password" && showPassword ? "text" : type}
           name={name}
@@ -61,35 +81,26 @@ const InputField = ({
           onChange={onChange}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className={`w-full pl-12 pr-12 py-4 bg-white/80 backdrop-blur-sm border-2 rounded-xl
-            transition-all duration-300 text-gray-800 placeholder-gray-500
-            focus:outline-none focus:ring-0 focus:shadow-lg focus:shadow-blue-500/20
-            ${
-              error
-                ? "border-red-300 focus:border-red-500 bg-red-50/50"
-                : isFocused
-                ? "border-blue-400 focus:border-blue-500"
-                : "border-gray-200 hover:border-gray-300"
-            }
-            ${isFocused ? "transform scale-105" : ""}
-          `}
+          className=" flex-1 py-4 px-2 h-13 text-gray-800 placeholder-gray-500 bg-transparent border-none focus:outline-none"
         />
 
+        {/* Toggle hiện mật khẩu */}
         {type === "password" && (
           <button
             type="button"
             onClick={togglePasswordVisibility}
-            className="absolute inset-y-0 right-0 pr-4 flex items-center z-10"
+            className="px-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
           >
             {showPassword ? (
-              <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+              <EyeOff className="h-5 w-5" />
             ) : (
-              <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+              <Eye className="h-5 w-5" />
             )}
           </button>
         )}
       </div>
 
+      {/* Lỗi hiển thị */}
       {error && (
         <div className="flex items-center mt-2 text-red-600 text-sm animate-slideIn">
           <AlertCircle className="h-4 w-4 mr-2" />
@@ -100,12 +111,17 @@ const InputField = ({
   );
 };
 
+
 const RegisterPage = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
+  const [showVerifyCard, setShowVerifyCard] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
+
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -115,7 +131,6 @@ const RegisterPage = () => {
     phoneNumber: "",
   });
 
-  const [errors, setErrors] = useState({});
   // const handleGoogleLogin = () => {
   //   try {
   //     setLoading(true);
@@ -197,26 +212,19 @@ const RegisterPage = () => {
     setTimeout(() => setShowToast(false), 3000);
   };
 
-  const handleRegister = async () => {
-    if (!validate() || isLoading) return; // nếu form không hợp lệ hoặc đang loading thì không xử lý
 
+
+
+  const handleRegister = async () => {
+    if (!validate() || isLoading) return;
     setIsLoading(true);
+
     try {
       const response = await registerUser(formData);
 
       if (response.success) {
-        const { userId, fullName, email } = response.data;
-
-        console.log("User ID:", userId);
-        console.log("Full Name:", fullName);
-        console.log("Email:", email);
-
-        toast({
-          title: "Thành công",
-          description: response.message,
-          variant: "success",
-        });
-        navigate("/login");
+        setRegisteredEmail(formData.email); // lưu email để truyền xuống VerifyEmailCard
+        setShowVerifyCard(true); // hiện giao diện xác minh OTP
       } else {
         toast({
           title: "Đăng ký thất bại",
@@ -225,15 +233,17 @@ const RegisterPage = () => {
         });
       }
     } catch (err) {
-      // Xử lý lỗi trả về từ API hoặc lỗi khác
       showToastMessage(
         err?.response?.data?.message || err?.message || "Đăng ký thất bại!",
         "error"
       );
     } finally {
-      setIsLoading(false); // Dù thành công hay thất bại cũng kết thúc loading
+      setIsLoading(false);
     }
   };
+
+
+
 
   return (
     <div className="relative bg-[url('https://i.pinimg.com/736x/ed/47/1b/ed471bb12dd54f43cc7b7b5877371853.jpg')] w-screen h-screen bg-cover bg-center bg-no-repeat">
@@ -257,181 +267,227 @@ const RegisterPage = () => {
         </div>
 
         <div className="relative z-10 min-h-screen flex items-center justify-center  px-4">
-          <div
-            className="max-w-6xl w-full bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden 
+          {showVerifyCard ? (
+            <EmailVerificationCard
+              email={registeredEmail}
+              onSuccess={() => {
+                toast({
+                  title: "Thành công",
+                  description: "Xác minh tài khoản thành công! Hãy đăng nhập.",
+                  variant: "success",
+                });
+                setTimeout(() => {
+                  navigate("/login");
+                }, 3000);   
+              }}
+              onCancel={() => {
+                setShowVerifyCard(false);
+                setRegisteredEmail("");
+              }}
+            />
+          ) : (
+            <div
+              className="max-w-6xl w-full bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden 
                         grid grid-cols-1 lg:grid-cols-2 animate-slideUp"
-          >
-            {/* Medical themed left side */}
-            <div className="relative bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500 p-12 flex flex-col justify-center items-center text-white overflow-hidden animate-gradientShimmer">
-              {/* Background pattern */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-10 left-10 w-20 h-20 border-2 border-white rounded-full animate-pulse-slow"></div>
-                <div className="absolute bottom-20 right-10 w-16 h-16 border-2 border-white rounded-full animate-pulse delay-500"></div>
-                <div className="absolute top-1/2 left-20 w-12 h-12 border-2 border-white rounded-full animate-pulse-slower delay-1000"></div>
-                <div className="absolute top-1/3 right-1/3 w-8 h-8 border border-white rounded-full animate-pulse delay-700"></div>
-                <div className="absolute bottom-1/3 left-1/4 w-6 h-6 border border-white rounded-full animate-pulse-slow delay-300"></div>
-              </div>
-
-              {/* Animated gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-sky-600/20 via-transparent to-cyan-100/20 animate-gradientSweep"></div>
-
-              <div className="relative z-10 text-center animate-fadeIn">
-                <div className="mb-8 transform animate-bounce">
-                  <Heart className="w-20 h-20 mx-auto mb-4 text-white drop-shadow-lg" />
+            >
+              {/* Medical themed left side */}
+              <div className="relative bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500 p-12 flex flex-col justify-center items-center text-white overflow-hidden animate-gradientShimmer">
+                {/* Background pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-10 left-10 w-20 h-20 border-2 border-white rounded-full animate-pulse-slow"></div>
+                  <div className="absolute bottom-20 right-10 w-16 h-16 border-2 border-white rounded-full animate-pulse delay-500"></div>
+                  <div className="absolute top-1/2 left-20 w-12 h-12 border-2 border-white rounded-full animate-pulse-slower delay-1000"></div>
+                  <div className="absolute top-1/3 right-1/3 w-8 h-8 border border-white rounded-full animate-pulse delay-700"></div>
+                  <div className="absolute bottom-1/3 left-1/4 w-6 h-6 border border-white rounded-full animate-pulse-slow delay-300"></div>
                 </div>
 
-                {/* //back button */}
-                <div
-                onClick={() => navigate(-1)}
-                  className="absolute flex items-center justify-center w-[77px] h-[77px] -top-30 -left-2 rounded-4xl hover:bg-blue-400 transition-all duration-300"
-                >
-                  <span>
-                    <ArrowBackIcon fontSize="large" />
-                  </span>
-                </div>
-                <h1 className="text-4xl font-bold mb-6 leading-tight">
-                  Chào mừng đến với
-                  <span className="block text-cyan-200 text-3xl mt-2">
-                    ReproTrack
-                  </span>
-                </h1>
+                {/* Animated gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-sky-600/20 via-transparent to-cyan-100/20 animate-gradientSweep"></div>
 
-                <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                  Đăng ký để trải nghiệm dịch vụ chăm sóc sức khỏe tốt nhất
-                </p>
+                <div className="relative z-10 text-center animate-fadeIn">
+                  <div className="mb-8 transform animate-bounce">
+                    <Heart className="w-20 h-20 mx-auto mb-4 text-white drop-shadow-lg" />
+                  </div>
 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-center space-x-3 text-blue-100">
-                    <CheckCircle className="w-5 h-5" />
-                    <span>Tư vấn y tế chuyên nghiệp</span>
+                  {/* //back button */}
+                  <div
+                    onClick={() => navigate(-1)}
+                    className="absolute flex items-center justify-center w-[77px] h-[77px] -top-28 -left-2 rounded-4xl hover:bg-blue-400 transition-all duration-300"
+                  >
+                    <span>
+                      <ArrowBackIcon fontSize="large" />
+                    </span>
                   </div>
-                  <div className="flex items-center justify-center space-x-3 text-blue-100">
-                    <CheckCircle className="w-5 h-5" />
-                    <span>Theo dõi sức khỏe 24/7</span>
-                  </div>
-                  <div className="flex items-center justify-center space-x-3 text-blue-100">
-                    <CheckCircle className="w-5 h-5" />
-                    <span>Bảo mật thông tin tuyệt đối</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+                  <h1 className="text-4xl font-bold mb-6 leading-tight">
+                    Chào mừng đến với
+                    <span className="block text-cyan-200 text-3xl mt-2">
+                      ReproTrack
+                    </span>
+                  </h1>
 
-            {/* Registration form */}
-            <div className="p-12 relative">
-              <div className="animate-slideInRight">
-                <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                    Tạo tài khoản
-                  </h2>
-                  <p className="text-gray-600">
-                    Điền thông tin để bắt đầu hành trình chăm sóc sức khỏe
+                  <p className="text-xl text-blue-100 mb-8 leading-relaxed">
+                    Đăng ký để trải nghiệm dịch vụ chăm sóc sức khỏe tốt nhất
                   </p>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center space-x-3 text-blue-100">
+                      <CheckCircle className="w-5 h-5" />
+                      <span>Tư vấn y tế chuyên nghiệp</span>
+                    </div>
+                    <div className="flex items-center justify-center space-x-3 text-blue-100">
+                      <CheckCircle className="w-5 h-5" />
+                      <span>Theo dõi sức khỏe 24/7</span>
+                    </div>
+                    <div className="flex items-center justify-center space-x-3 text-blue-100">
+                      <CheckCircle className="w-5 h-5" />
+                      <span>Bảo mật thông tin tuyệt đối</span>
+                    </div>
+                  </div>
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <InputField
-                    name="fullName"
-                    placeholder="Họ và tên"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    error={errors.fullName}
-                    icon={User}
-                  />
+              {/* Registration form */}
+              <div className="p-12 relative">
+                <div className="animate-slideInRight">
+                  <div className="text-center mb-8">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                      Tạo tài khoản
+                    </h2>
+                    <p className="text-gray-600">
+                      Điền thông tin để bắt đầu hành trình chăm sóc sức khỏe
+                    </p>
+                  </div>
 
-                  <InputField
-                    name="email"
-                    type="email"
-                    placeholder="Địa chỉ email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    error={errors.email}
-                    icon={Mail}
-                  />
+                  <div className="space-y-2">
+                    <InputField
+                      name="fullName"
+                      placeholder="Họ và tên"
+                      value={formData.fullName}
+                      onChange={handleChange}
+                      error={errors.fullName}
+                      icon={User}
+                    />
 
-                  <InputField
-                    name="password"
-                    type="password"
-                    placeholder="Mật khẩu"
-                    value={formData.password}
-                    onChange={handleChange}
-                    error={errors.password}
-                    icon={Lock}
-                  />
+                    <InputField
+                      name="email"
+                      type="email"
+                      placeholder="Địa chỉ email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      error={errors.email}
+                      icon={Mail}
+                    />
 
-                  <InputField
-                    name="confirmPassword"
-                    type="password"
-                    placeholder="Xác nhận mật khẩu"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    error={errors.confirmPassword}
-                    icon={Lock}
-                  />
+                    <InputField
+                      name="password"
+                      type="password"
+                      placeholder="Mật khẩu"
+                      value={formData.password}
+                      onChange={handleChange}
+                      error={errors.password}
+                      icon={Lock}
+                    />
+                    {formData.password && (
+                      <div className="mt-2">
+                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full transition-all duration-300 ${getPasswordStrengthProgress(
+                              formData.password
+                            ).color
+                              }`}
+                            style={{
+                              width: `${getPasswordStrengthProgress(
+                                formData.password
+                              ).percent
+                                }%`,
+                            }}
+                          ></div>
+                        </div>
+                        <p className="text-sm mt-1 text-gray-600">
+                          Mức độ bảo mật:{" "}
+                          {
+                            getPasswordStrengthProgress(formData.password)
+                              .percent
+                          }
+                          % an toàn
+                        </p>
+                      </div>
+                    )}
 
-                  <InputField
-                    name="phoneNumber"
-                    placeholder="Số điện thoại"
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    error={errors.phoneNumber}
-                    icon={Phone}
-                  />
-                </div>
+                    <InputField
+                      name="confirmPassword"
+                      type="password"
+                      placeholder="Xác nhận mật khẩu"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      error={errors.confirmPassword}
+                      icon={Lock}
+                    />
 
-                <div className="flex flex-col space-y-4 mt-8">
-                  <button
-                    onClick={handleRegister}
-                    disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 px-6 rounded-xl 
+                    <InputField
+                      name="phoneNumber"
+                      placeholder="Số điện thoại"
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      error={errors.phoneNumber}
+                      icon={Phone}
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-4 mt-8">
+                    <button
+                      onClick={handleRegister}
+                      disabled={isLoading}
+                      className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 px-6 rounded-xl 
                            font-semibold text-lg transition-all duration-300 transform hover:scale-105 
                            hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed
                            focus:outline-none focus:ring-4 focus:ring-blue-300"
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center justify-center space-x-2">
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Đang xử lý...</span>
-                      </div>
-                    ) : (
-                      "Đăng ký tài khoản"
-                    )}
-                  </button>
-
-                  <div className="flex space-x-3">
-                    <motion.button
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.8 }}
-                      whileHover={{
-                        scale: 1.02,
-                        backgroundColor: "#f8fafc",
-                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                      // onClick={handleGoogleLogin}
-                      type="button"
-                      className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300"
                     >
-                      <motion.div
-                        initial={{ rotate: -180 }}
-                        animate={{ rotate: 0 }}
-                        transition={{ delay: 1, type: "spring" }}
-                        className="flex items-center justify-center"
+                      {isLoading ? (
+                        <div className="flex items-center justify-center space-x-2">
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Đang xử lý...</span>
+                        </div>
+                      ) : (
+                        "Đăng ký tài khoản"
+                      )}
+                    </button>
+
+                    <div className="flex space-x-3">
+                      <motion.button
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.8 }}
+                        whileHover={{
+                          scale: 1.02,
+                          backgroundColor: "#f8fafc",
+                          boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                        }}
+                        whileTap={{ scale: 0.98 }}
+                        // onClick={handleGoogleLogin}
+                        type="button"
+                        className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-300"
                       >
-                        <img
-                          src={GoogleLogo}
-                          alt="Google"
-                          className="w-6 h-6 object-contain"
-                        />
-                      </motion.div>
-                      <span>Đăng ký với Google</span>
-                    </motion.button>
+                        <motion.div
+                          initial={{ rotate: -180 }}
+                          animate={{ rotate: 0 }}
+                          transition={{ delay: 1, type: "spring" }}
+                          className="flex items-center justify-center"
+                        >
+                          <img
+                            src={GoogleLogo}
+                            alt="Google"
+                            className="w-6 h-6 object-contain"
+                          />
+                        </motion.div>
+                        <span>Đăng ký với Google</span>
+                      </motion.button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Toast notification */}
@@ -439,11 +495,10 @@ const RegisterPage = () => {
           <div
             className={`fixed top-8 left-1/2 transform -translate-x-1/2 z-50 
                         px-6 py-4 rounded-xl shadow-2xl animate-slideDown
-                        ${
-                          toastType === "success"
-                            ? "bg-green-500 text-white"
-                            : "bg-red-500 text-white"
-                        }`}
+                        ${toastType === "success"
+                ? "bg-green-500 text-white"
+                : "bg-red-500 text-white"
+              }`}
           >
             <div className="flex items-center space-x-3">
               {toastType === "success" ? (

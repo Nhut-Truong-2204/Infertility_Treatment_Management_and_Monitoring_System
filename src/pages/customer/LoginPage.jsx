@@ -29,20 +29,18 @@ const InputField = ({
   return (
     <div className="mb-6">
       <div
-        className={`flex items-center gap-3 transition-all duration-300 ${
-          isFocused ? "scale-105" : ""
-        }`}
+        className={`flex items-center gap-3 transition-all duration-300 ${isFocused ? "scale-105" : ""
+          }`}
       >
         {/* ICON BÊN TRÁI, NGOÀI INPUT */}
         {Icon && (
           <div
-            className={`text-gray-400 transition-colors duration-300 ${
-              isFocused
+            className={`text-gray-400 transition-colors duration-300 ${isFocused
                 ? "text-blue-500"
                 : error
-                ? "text-red-400"
-                : "text-gray-400"
-            }`}
+                  ? "text-red-400"
+                  : "text-gray-400"
+              }`}
           >
             <Icon className="h-5 w-5" />
           </div>
@@ -61,10 +59,9 @@ const InputField = ({
             className={`w-full pr-12 py-4 pl-4 bg-white/80 backdrop-blur-sm border-2 rounded-xl
               transition-all duration-300 text-gray-800 placeholder-gray-500
               focus:outline-none focus:ring-0 focus:shadow-lg focus:shadow-blue-500/20
-              ${
-                error
-                  ? "border-red-300 focus:border-red-500 bg-red-50/50"
-                  : isFocused
+              ${error
+                ? "border-red-300 focus:border-red-500 bg-red-50/50"
+                : isFocused
                   ? "border-blue-400 focus:border-blue-500"
                   : "border-gray-200 hover:border-gray-300"
               }`}
@@ -447,17 +444,16 @@ export default function LoginPage() {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={loading}
-                className={`w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 ${
-                  loading ? "opacity-80" : ""
-                }`}
+                className={`w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 ${loading ? "opacity-80" : ""
+                  }`}
               >
                 <motion.span
                   animate={
                     loading
                       ? {
-                          opacity: [1, 0.7, 1],
-                          transition: { duration: 1.5, repeat: Infinity },
-                        }
+                        opacity: [1, 0.7, 1],
+                        transition: { duration: 1.5, repeat: Infinity },
+                      }
                       : {}
                   }
                 >

@@ -20,6 +20,7 @@ import Swal from "sweetalert2";
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [isDarkMode, setIsDarkMode] = useState(false);
+  
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     new: false,
@@ -211,17 +212,15 @@ const SettingsPage = () => {
                     <div className="mt-2">
                       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div
-                          className={`h-full transition-all duration-300 ${
-                            getPasswordStrengthProgress(
-                              passwordForm.newPassword
-                            ).color
-                          }`}
+                          className={`h-full transition-all duration-300 ${getPasswordStrengthProgress(
+                            passwordForm.newPassword
+                          ).color
+                            }`}
                           style={{
-                            width: `${
-                              getPasswordStrengthProgress(
-                                passwordForm.newPassword
-                              ).percent
-                            }%`,
+                            width: `${getPasswordStrengthProgress(
+                              passwordForm.newPassword
+                            ).percent
+                              }%`,
                           }}
                         ></div>
                       </div>
@@ -445,11 +444,10 @@ const SettingsPage = () => {
                       <li key={tab.id}>
                         <button
                           onClick={() => setActiveTab(tab.id)}
-                          className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                            activeTab === tab.id
+                          className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${activeTab === tab.id
                               ? "bg-blue-100 text-blue-700 border border-blue-200"
                               : "hover:bg-gray-100 text-gray-700"
-                          }`}
+                            }`}
                         >
                           <Icon className="w-5 h-5" />
                           <span>{tab.name}</span>

@@ -13,6 +13,7 @@ import { ClipboardCopy } from "@/components/ui/ClipboardCopy";
 import { Bolt } from "@/components/ui/Bolt";
 import { ToggleLeft } from "@/components/ui/ToggleLeft ";
 import { Clock8 } from "@/components/ui/Clock8";
+import NotificationSystem from "@/pages/customer/NotificationSystem";
 // Icons
 import {
   ArrowDropDown as ArrowDropDownIcon,
@@ -446,7 +447,7 @@ export default function Navbar() {
                       Quản lý xét nghiệm
                     </button>
 
-                    
+
 
                     <button
                       onClick={() => navigate("/setting")}
@@ -471,6 +472,8 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
+              <NotificationSystem />
+
             </div>
           ) : (
             // Nếu chưa đăng nhập, hiển thị nút Đăng nhập và Đăng ký
@@ -521,6 +524,7 @@ export default function Navbar() {
                   <span className="absolute top-0 left-[-100%] w-full h-full bg-white/20 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 ease-in-out"></span>
                 </Button>
               </div>
+
             </>
           )}
         </div>

@@ -9,6 +9,8 @@ import {
   CardFooter
 } from "../../components/ui/card";
 import { Button } from "../../components/ui/Button";
+import instance from "@/config/axios";
+import toast from "react-hot-toast";
 
 const PaymentPage = () => {
   const [activeTab, setActiveTab] = useState("contracts");
@@ -16,37 +18,22 @@ const PaymentPage = () => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-
+  const [contracts, setContracts] = useState([]);
   // Mock data - sẽ được thay thế bằng API calls
-  const contracts = [
-    {
-      id: 1,
-      contractNumber: "HD-2024-001",
-      serviceName: "Điều trị IVF",
-      totalAmount: 50000000,
-      paidAmount: 20000000,
-      remainingAmount: 30000000,
-      dueDate: "2024-12-31",
-      status: "active",
-      installments: [
-        { id: 1, amount: 20000000, dueDate: "2024-06-30", status: "paid" },
-        { id: 2, amount: 30000000, dueDate: "2024-12-31", status: "pending" }
-      ]
-    },
-    {
-      id: 2,
-      contractNumber: "HD-2024-002",
-      serviceName: "Tư vấn và Khám tổng quát",
-      totalAmount: 15000000,
-      paidAmount: 15000000,
-      remainingAmount: 0,
-      dueDate: "2024-11-15",
-      status: "completed",
-      installments: [
-        { id: 1, amount: 15000000, dueDate: "2024-11-15", status: "paid" }
-      ]
+  useEffect(() => {
+    async function fetchContracts() {
+      try {
+        const response = await instance.get("/api/customer/treatment-contracts")
+        // Axios: dữ liệu nằm trong response.data
+        setContracts(response.data || [])
+      } catch (error) {
+        toast.error("Lỗi khi tải hợp đồng: " + error.message)
+      }
     }
-  ];
+
+    fetchContracts()
+  }, [])
+
 
   const transactions = [
     {
@@ -81,8 +68,27 @@ const PaymentPage = () => {
   };
 
   const handlePayment = async (contractId) => {
-    setSelectedContract(contracts.find(c => c.id === contractId));
-    setShowPaymentModal(true);
+    try {
+      const response = await instance.get("/api/payment/payos-link", {
+        params: {
+          contractId,
+        },
+      });
+
+      console.log("Response data:", response.data);
+
+      const paymentUrl = response.data.payosUrl;
+
+      if (paymentUrl) {
+        console.log("Redirecting to:", paymentUrl);
+        window.location.href = paymentUrl; // ⬅️ chuyển hướng sang PayOS
+      } else {
+        alert("Không tìm thấy link thanh toán trong response");
+      }
+    } catch (error) {
+      console.error("Lỗi khi gọi API thanh toán:", error);
+      alert("Có lỗi xảy ra khi tạo link thanh toán!");
+    }
   };
 
   const processPayment = async () => {
@@ -152,96 +158,84 @@ const PaymentPage = () => {
               exit={{ opacity: 0, x: 20 }}
               className="space-y-6"
             >
-              {contracts.map((contract, index) => (
+              {contracts.map((contract) => (
                 <motion.div
-                  key={contract.id}
+                  key={contract.treatmentContractId}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
                 >
                   <Card className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-600">
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
                           <CardTitle className="text-xl text-blue-900">
-                            {contract.serviceName}
-                          </CardTitle>
-                          <CardDescription className="text-gray-600">
                             Số hợp đồng: {contract.contractNumber}
-                          </CardDescription>
+                          </CardTitle>
+
                         </div>
                         <div className="text-right">
-                          <div className={`px-3 py-1 rounded-full text-sm font-medium ${contract.status === 'active'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
+                          <div className={`px-3 py-1 rounded-full text-sm font-medium ${contract.status === "SIGNED"
+                            ? "bg-green-100 text-green-800"
+                            : contract.status === "PENDING"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-gray-100 text-gray-800"
                             }`}>
-                            {contract.status === 'active' ? 'Đang thực hiện' : 'Hoàn thành'}
+                            {{
+                              PENDING: "Chờ xác nhận",
+                              SIGNED: "Chờ thanh toán",
+                              ACTIVE: "Đang thực hiện",
+                              COMPLETED: "Hoàn thành"
+                            }[contract.status] || "Không rõ"}
                           </div>
                         </div>
                       </div>
                     </CardHeader>
 
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-4">
                         <div className="text-center p-4 bg-blue-50 rounded-lg">
                           <div className="text-2xl font-bold text-blue-900">
-                            {formatCurrency(contract.totalAmount)}
+                            {formatCurrency(contract.totalValue)}
                           </div>
                           <div className="text-sm text-gray-600">Tổng giá trị</div>
                         </div>
-                        <div className="text-center p-4 bg-green-50 rounded-lg">
-                          <div className="text-2xl font-bold text-green-700">
-                            {formatCurrency(contract.paidAmount)}
+                      </div>
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-gray-800">Thông tin thanh toán:</h4>
+                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <div className="font-medium">
+                              Số tiền cần thanh toán: {formatCurrency(contract.totalValue)}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              Trạng thái:{" "}
+                              <span className={`font-semibold ${contract.status === "PENDING"
+                                ? "text-yellow-700"
+                                : "text-green-700"
+                                }`}>
+                                {contract.status === "SIGNED" ? "Đã ký" : "Chưa ký"}
+                              </span>
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-600">Đã thanh toán</div>
-                        </div>
-                        <div className="text-center p-4 bg-orange-50 rounded-lg">
-                          <div className="text-2xl font-bold text-orange-700">
-                            {formatCurrency(contract.remainingAmount)}
-                          </div>
-                          <div className="text-sm text-gray-600">Còn lại</div>
+
+                          {contract.status === "SIGNED" ? (
+                            <Button
+                              onClick={() => handlePayment(contract.treatmentContractId)}
+                              className="bg-green-400 text-green6100 hover:bg-green-700"
+                            >
+                              Thanh toán
+                            </Button>
+                          ) : <>
+                            <span className="text-red-600">Bạn phải ký hợp đồng mới được thanh toán</span>
+                          </>}
                         </div>
                       </div>
 
-                      {/* Installments */}
-                      <div className="space-y-3">
-                        <h4 className="font-semibold text-gray-800">Các đợt thanh toán:</h4>
-                        {contract.installments.map((installment) => (
-                          <div
-                            key={installment.id}
-                            className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
-                          >
-                            <div>
-                              <div className="font-medium">
-                                Đợt {installment.id}: {formatCurrency(installment.amount)}
-                              </div>
-                              <div className="text-sm text-gray-600">
-                                Hạn thanh toán: {formatDate(installment.dueDate)}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${installment.status === 'paid'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                {installment.status === 'paid' ? 'Đã thanh toán' : 'Chờ thanh toán'}
-                              </span>
-                              {installment.status === 'pending' && (
-                                <Button
-                                  onClick={() => handlePayment(contract.id)}
-                                  className="bg-blue-600 hover:bg-blue-700"
-                                >
-                                  Thanh toán
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
               ))}
+
             </motion.div>
           )}
 

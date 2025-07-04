@@ -28,6 +28,8 @@ import MedicineSearch from "@/pages/customer/MedicineSearch";
 import SettingPage from "@/pages/customer/SettingPage";
 import { AuthProvider } from "../context/AuthContext";
 import TreatmentContract from "@/pages/customer/TreatmentContract";
+import PaymentFail from "@/components/ui/paymentFail";
+import PaymentSuccess from "@/components/ui/paymentSuccess";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -138,6 +140,14 @@ const router = createBrowserRouter([
         < LoginPage />
       </AuthProvider>
     )
+  },
+  {
+    path: "/payment-success.html",
+    element: <PaymentSuccess />,
+  },
+  {
+    path: "/payment-cancel.html",
+    element: <PaymentFail />,
   },
 
   {

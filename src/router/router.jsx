@@ -17,7 +17,7 @@ import ClinicIntroduction from "../pages/customer/ClinicIntroduction";
 import ServicesPage from "../pages/customer/Servicepage";
 import DoctorDetail from "../pages/customer/DoctorDetail";
 import TreatmentHistory from "@/pages/customer/TreatmentHistory";
-import ViewAppointment from "../pages/customer/AppointmentHistory";
+import AppointmentHistory from "../pages/customer/AppointmentHistory";
 import PaymentPage from "@/pages/customer/PaymentPage";
 import Feedback from "@/pages/customer/Feedback";
 import BlogForum from "@/pages/customer/BlogForum";
@@ -119,6 +119,10 @@ const router = createBrowserRouter([
         path: "/medicine",
         element: <MedicineSearch />,
       },
+      {
+        path: "/viewAppointment",
+        element: <AppointmentHistory />,
+      },
     ],
   },
   {
@@ -130,16 +134,13 @@ const router = createBrowserRouter([
     element: <SettingPage />,
   },
   {
-    path: "/viewAppointment",
-    element: <ViewAppointment />,
-  },
-  {
     path: "/login",
     element: (
-      <AuthProvider > {/* Quan trọng */}
-        < LoginPage />
+      <AuthProvider>
+        {" "}
+        <LoginPage />
       </AuthProvider>
-    )
+    ),
   },
   {
     path: "/payment-success.html",

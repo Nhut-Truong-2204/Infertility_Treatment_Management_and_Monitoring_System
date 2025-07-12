@@ -30,7 +30,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { getDoctors, getDoctorDetail } from "../../api/customer/doctorList";
 import { createAppointment } from "../../api/customer/appointmentAPI";
-import ServiceSelection from "@/components/ServiceSelection ";
+import ServiceSelection from "@/components/bookingComponent/ServiceSelection ";
 import instance from "@/config/axios";
 
 const BookingAppointment = () => {
@@ -52,6 +52,7 @@ const BookingAppointment = () => {
   const [loadingShifts, setLoadingShifts] = useState(false);
   const [loadingDoctors, setLoadingDoctors] = useState(false);
   const [error, setError] = useState(null);
+  const [bookingResult, setBookingResult] = useState(null);
 
   //date
   const formatTimeObj = (timeObj) => {
@@ -87,23 +88,6 @@ const BookingAppointment = () => {
     return `${pad(timeObj.hour)}:${pad(timeObj.minute)}`;
   };
 
-  const handleCancel = () => {
-    Swal.fire({
-      title: "Bạn có chắc muốn huỷ?",
-      text: "Mọi thay đổi chưa lưu sẽ bị mất!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Có, huỷ ngay",
-      cancelButtonText: "Không",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Ví dụ: chuyển hướng về trang chủ
-        navigate("/");
-      }
-    });
-  };
   const [formData, setFormData] = useState({
     patientProfileId: 1,
     doctorUserId: 0,
@@ -111,7 +95,7 @@ const BookingAppointment = () => {
     appointmentDateTime: "",
     estimatedDurationMinutes: 30,
     appointmentType: {
-      typeName: "EXAMINATION",
+      typeName: "MEDICAL_EXAM",
       description: "Khám sức khỏe tổng quát",
     },
     reasonForVisit: "",
@@ -129,14 +113,11 @@ const BookingAppointment = () => {
   const handleNext = () => {
     switch (currentStep) {
       case 1:
-        if (!selectedService) {
-          alert("Vui lòng chọn dịch vụ");
-          return;
-        }
+        // Bỏ luôn điều kiện — vì đã set mặc định rồi
         setCurrentStep(2);
         break;
       case 2:
-        if (!selectedDate || !selectedTime) {
+        if (!selectedDate || !selectedShift) {
           Swal.fire({
             icon: "warning",
             title: "Thiếu thời gian khám",
@@ -190,37 +171,82 @@ const BookingAppointment = () => {
         break;
     }
   };
-  // API calls
+  const handleBack = () => {
+    // Dọn dữ liệu tương ứng theo từng bước
+    switch (currentStep) {
+      case 2:
+        setSelectedDate("");
+        setSelectedTime("");
+        setSelectedShifts(null);
+        break;
+      case 3:
+        setSelectedDoctor(null);
+        setDoctorDetails(null);
+        break;
+      case 4:
+        setFormData((prev) => ({
+          ...prev,
+          reasonForVisit: "",
+          notes: "",
+        }));
+        break;
+      default:
+        break;
+    }
+
+    setCurrentStep(Math.max(1, currentStep - 1));
+  };
+
+  function getDayOfWeekInfo(dateString) {
+    const dayOfWeekList = [
+      { code: "SUNDAY", displayName: "Chủ nhật" },
+      { code: "MONDAY", displayName: "Thứ hai" },
+      { code: "TUESDAY", displayName: "Thứ ba" },
+      { code: "WEDNESDAY", displayName: "Thứ tư" },
+      { code: "THURSDAY", displayName: "Thứ năm" },
+      { code: "FRIDAY", displayName: "Thứ sáu" },
+      { code: "SATURDAY", displayName: "Thứ bảy" },
+    ];
+
+    const index = new Date(dateString).getDay(); // 0 - 6
+    return dayOfWeekList[index];
+  }
+
   const fetchDoctors = async () => {
     if (!selectedDate || !selectedShift) return;
 
     setLoadingDoctors(true);
     setDoctors([]);
+    setError(null);
 
     try {
-      const response = await instance.post(
-        "/api/customer/work-schedules/date",
-        {
-          date: selectedDate,
-          startTime: {
-            hour: parseInt(selectedShift.startTime.split(":")[0], 10),
-            minute: parseInt(selectedShift.startTime.split(":")[1], 10),
-            second: 0,
-            nano: 0,
-          },
-          endTime: {
-            hour: parseInt(selectedShift.endTime.split(":")[0], 10),
-            minute: parseInt(selectedShift.endTime.split(":")[1], 10),
-            second: 0,
-            nano: 0,
-          },
-        }
-      );
+      const dayInfo = getDayOfWeekInfo(selectedDate); // Lấy đúng thứ
+
+      const payload = {
+        date: selectedDate,
+        shift: {
+          startTime: selectedShift.startTime,
+          endTime: selectedShift.endTime,
+        },
+        dayOfWeek: {
+          code: dayInfo.code,
+          displayName: dayInfo.displayName,
+        },
+      };
+      console.log("Payload gửi bác sĩ:", payload);
+
+      const response = await instance.post("/api/work-schedules/date", payload);
 
       if (response.data?.success) {
-        setDoctors(response.data.data.doctors || []);
+        const doctors = response.data.data.doctors || [];
+        setDoctors(doctors);
+
+        if (doctors.length === 0) {
+          setError("Không có bác sĩ nào trong ca trực vừa chọn.");
+        }
       } else {
         setDoctors([]);
+        setError("Không có bác sĩ nào trong ca trực vừa chọn.");
       }
     } catch (err) {
       console.error("Lỗi khi lấy danh sách bác sĩ:", err);
@@ -296,11 +322,22 @@ const BookingAppointment = () => {
   };
 
   const submitAppointment = async () => {
+    // ✅ Kiểm tra đăng nhập trước
+    if (!userProfile) {
+      Swal.fire({
+        icon: "warning",
+        title: "Bạn chưa đăng nhập",
+        text: "Vui lòng đăng nhập để đặt lịch khám.",
+        confirmButtonText: "Đăng nhập",
+      }).then(() => {
+        window.location.href = "/login"; // Chuyển tới trang đăng nhập
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      const selectedSlot = availableTimeSlots.find(
-        (slot) => slot.label === selectedTime
-      );
+      const selectedShift = shifts.find((slot) => slot.label === selectedTime);
 
       const appointmentDateTime = `${selectedDate}T${selectedTime}:00`;
 
@@ -309,17 +346,37 @@ const BookingAppointment = () => {
         appointmentDateTime,
         estimatedDurationMinutes:
           selectedShift && selectedShift.duration ? selectedShift.duration : 30,
+        patientProfileId: userProfile.id, // ✅ Gán ID người dùng đã đăng nhập
       };
 
-      const response = await createAppointment(appointmentDateTime);
+      console.log("Dữ liệu gửi lịch hẹn:", appointmentData);
+
+      const response = await createAppointment(appointmentData);
 
       if (!response.success) {
         alert(response.message || "Tạo cuộc hẹn thất bại");
         return;
       }
 
-      alert("Đặt lịch thành công!");
-      window.location.href = "/";
+      const result = {
+        bookingId: response.data?.bookingId || "Không rõ",
+        doctor: selectedDoctor,
+        date: selectedDate,
+        time: selectedTime,
+        duration: selectedShift?.duration || 30,
+        fee: selectedDoctor?.consultationFee || 500000,
+      };
+
+      setBookingResult(result);
+
+      Swal.fire({
+        icon: "success",
+        title: "Đặt lịch thành công!",
+        text: "Thông tin cuộc hẹn đã được gửi đi.",
+        confirmButtonText: "OK",
+      }).then(() => {
+        window.location.href = "/";
+      });
     } catch (err) {
       console.error("Lỗi tạo lịch hẹn:", err);
       alert("Lỗi tạo lịch hẹn: " + err.message);
@@ -328,12 +385,15 @@ const BookingAppointment = () => {
     }
   };
 
-  const getCookie = (name) => {
+  function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(";").shifts();
+    if (parts.length === 2) return parts.pop().split(";").shift();
     return null;
-  };
+  }
+  useEffect(() => {
+    fetchUserProfile(); // nên đặt trong lần đầu render
+  }, []);
 
   useEffect(() => {
     if (currentStep === 5) {
@@ -352,6 +412,46 @@ const BookingAppointment = () => {
       fetchShifts(selectedDate);
     }
   }, [selectedDate]);
+  useEffect(() => {
+    if (currentStep === 1) {
+      setSelectedService({
+        id: 1,
+        name: "CONSULTATION",
+        description: "Khám bệnh cơ bản",
+      });
+
+      // Gán dịch vụ vào formData
+      setFormData((prev) => ({
+        ...prev,
+        serviceDefinitionId: 1,
+        appointmentType: {
+          typeName: "MEDICAL_EXAM",
+          description: "Khám bệnh cơ bản",
+        },
+      }));
+
+      setCurrentStep(2);
+    }
+  }, [currentStep]);
+
+  const handleCancel = () => {
+    Swal.fire({
+      title: "Bạn có chắc muốn huỷ?",
+      text: "Mọi thay đổi chưa lưu sẽ bị mất!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Có, huỷ ngay",
+      cancelButtonText: "Không",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Ví dụ: chuyển hướng về trang chủ
+        navigate("/");
+      }
+    });
+  };
+
   const canProceed = () => {
     switch (currentStep) {
       case 1:
@@ -398,6 +498,15 @@ const BookingAppointment = () => {
       minute: "2-digit",
     });
   };
+  function getFormattedDateWithWeekday(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  }
 
   const isSaturday = (dateStr) => {
     if (!dateStr) return false;
@@ -428,19 +537,55 @@ const BookingAppointment = () => {
   };
 
   const renderStep = () => {
+    if (!userProfile)
+      return (
+        <div className="flex flex-col items-center justify-center py-16 px-6 bg-white rounded-2xl shadow-md border border-blue-100">
+          <div className="bg-blue-100 text-blue-600 rounded-full p-4 mb-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M12 12c4.418 0 8 1.79 8 4v2H4v-2c0-2.21 3.582-4 8-4z"
+              />
+            </svg>
+          </div>
+
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            Bạn chưa đăng nhập
+          </h2>
+          <p className="text-gray-600 mb-6 text-sm text-center max-w-md">
+            Vui lòng đăng nhập để tiếp tục đặt lịch khám với bác sĩ. Đăng nhập
+            giúp bạn theo dõi lịch sử đặt lịch và nhận thông báo chính xác hơn.
+          </p>
+
+          <a
+            href="/login"
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition duration-200 font-medium"
+          >
+            Đăng nhập ngay
+          </a>
+        </div>
+      );
     switch (currentStep) {
       case 1:
-        return (
-          <div>
-            {currentStep === 1 && (
-              <ServiceSelection
-                onServiceSelect={handleServiceSelect}
-                selectedService={selectedService}
-                instanceConfig={instance}
-              />
-            )}
-          </div>
-        );
+        return null;
+      // <div>
+      //   {currentStep === 1 && (
+      //     <ServiceSelection
+      //       onServiceSelect={handleServiceSelect}
+      //       selectedService={selectedService}
+      //       instanceConfig={instance}
+      //     />
+      //   )}
+      // </div>
+
       case 2:
         return (
           <div className="max-w-6xl mx-auto">
@@ -709,7 +854,7 @@ const BookingAppointment = () => {
               </p>
             </div>
 
-            {loading ? (
+            {loadingDoctors ? (
               <div className="text-center py-20">
                 <div className="relative">
                   <div className="animate-spin rounded-full h-20 w-20 border-4 border-blue-500 border-t-transparent mx-auto mb-6"></div>
@@ -739,121 +884,137 @@ const BookingAppointment = () => {
               </div>
             ) : (
               <div className="space-y-6">
-                {doctors.map((doctor) => (
-                  <div
-                    key={doctor.userId}
-                    className={`group relative bg-white rounded-3xl p-8 transition-all duration-500 cursor-pointer border-2 hover:shadow-2xl ${
-                      selectedDoctor?.userId === doctor.userId
-                        ? "border-blue-500 shadow-2xl transform scale-[1.02] bg-gradient-to-r from-blue-50 to-indigo-50"
-                        : "border-gray-200 hover:border-blue-300 hover:-translate-y-1"
-                    }`}
-                    onClick={() => selectDoctor(doctor)}
-                  >
-                    <div className="flex items-center space-x-8">
-                      {/* Custom Checkbox */}
-                      <div className="flex-shrink-0">
-                        <div
-                          className={`relative w-8 h-8 rounded-full border-2 transition-all duration-300 ${
-                            selectedDoctor?.userId === doctor.userId
-                              ? "border-blue-500 bg-blue-500"
-                              : "border-gray-300 group-hover:border-blue-400"
-                          }`}
-                        >
-                          {selectedDoctor?.userId === doctor.userId && (
-                            <Check className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Avatar */}
-                      <div className="relative">
-                        <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl overflow-hidden shadow-xl border-4 border-white">
-                          {doctor.profilePictureUrl ? (
-                            <img
-                              src={doctor.profilePictureUrl}
-                              alt={doctor.fullName}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-white">
-                              <User className="w-12 h-12" />
-                            </div>
-                          )}
-                        </div>
-                        {selectedDoctor?.userId === doctor.userId && (
-                          <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-                            <Check className="w-5 h-5 text-white" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Doctor Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                              {doctor.fullName}
-                            </h3>
-                            <div className="flex items-center space-x-2 mb-3">
-                              <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                                {doctor.specializationName}
-                              </div>
-                            </div>
-                            <p className="text-gray-600 mb-4 leading-relaxed line-clamp-2">
-                              {doctor.shortBio ||
-                                "Bác sĩ có nhiều năm kinh nghiệm trong chuyên khoa"}
-                            </p>
-
-                            <div className="flex items-center space-x-6 text-sm">
-                              <div className="flex items-center space-x-2 text-amber-600">
-                                <Award className="w-5 h-5" />
-                                <span className="font-medium">
-                                  {doctor.experienceYears || 5}+ năm kinh nghiệm
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-2 text-yellow-500">
-                                <Star className="w-5 h-5 fill-current" />
-                                <span className="font-medium text-gray-700">
-                                  4.8 (120+ đánh giá)
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Price and Actions */}
-                          <div className="text-right pl-6">
-                            <div className="mb-6">
-                              <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                                {formatCurrency(
-                                  doctor.consultationFee || 500000
-                                )}
-                              </p>
-                              <p className="text-sm text-gray-500 font-medium">
-                                Phí khám
-                              </p>
-                            </div>
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                fetchDoctorDetails(doctor.userId);
-                              }}
-                              className="group/btn px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 rounded-xl hover:from-blue-500 hover:to-indigo-600 hover:text-white transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg font-medium"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <Info className="w-4 h-4" />
-                                <span>Chi tiết</span>
-                              </div>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                {doctors.length === 0 ? (
+                  <div className="text-center py-20">
+                    <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <User className="w-10 h-10 text-yellow-600" />
                     </div>
+                    <p className="text-yellow-700 text-xl font-medium mb-4">
+                      Không có bác sĩ nào phù hợp trong ca đã chọn
+                    </p>
+                    <p className="text-gray-500">
+                      Vui lòng chọn thời gian khác hoặc thử lại sau
+                    </p>
                   </div>
-                ))}
+                ) : (
+                  <div className="space-y-6">
+                    {doctors.map((doctor) => (
+                      <div
+                        key={doctor.userId}
+                        className={`group relative bg-white rounded-3xl p-8 transition-all duration-500 cursor-pointer border-2 hover:shadow-2xl ${
+                          selectedDoctor?.userId === doctor.userId
+                            ? "border-blue-500 shadow-2xl transform scale-[1.02] bg-gradient-to-r from-blue-50 to-indigo-50"
+                            : "border-gray-200 hover:border-blue-300 hover:-translate-y-1"
+                        }`}
+                        onClick={() => selectDoctor(doctor)}
+                      >
+                        <div className="flex items-center space-x-8">
+                          {/* Custom Checkbox */}
+                          <div className="flex-shrink-0">
+                            <div
+                              className={`relative w-8 h-8 rounded-full border-2 transition-all duration-300 ${
+                                selectedDoctor?.userId === doctor.userId
+                                  ? "border-blue-500 bg-blue-500"
+                                  : "border-gray-300 group-hover:border-blue-400"
+                              }`}
+                            >
+                              {selectedDoctor?.userId === doctor.userId && (
+                                <Check className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Avatar */}
+                          <div className="relative">
+                            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl overflow-hidden shadow-xl border-4 border-white">
+                              {doctor.profilePictureUrl ? (
+                                <img
+                                  src={doctor.profilePictureUrl}
+                                  alt={doctor.fullName}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-white">
+                                  <User className="w-12 h-12" />
+                                </div>
+                              )}
+                            </div>
+                            {selectedDoctor?.userId === doctor.userId && (
+                              <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                                <Check className="w-5 h-5 text-white" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Doctor Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                                  {doctor.fullName}
+                                </h3>
+                                <div className="flex items-center space-x-2 mb-3">
+                                  <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                                    {doctor.specializationName}
+                                  </div>
+                                </div>
+                                <p className="text-gray-600 mb-4 leading-relaxed line-clamp-2">
+                                  {doctor.shortBio ||
+                                    "Bác sĩ có nhiều năm kinh nghiệm trong chuyên khoa"}
+                                </p>
+
+                                <div className="flex items-center space-x-6 text-sm">
+                                  <div className="flex items-center space-x-2 text-amber-600">
+                                    <Award className="w-5 h-5" />
+                                    <span className="font-medium">
+                                      {doctor.experienceYears || 5}+ năm kinh
+                                      nghiệm
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center space-x-2 text-yellow-500">
+                                    <Star className="w-5 h-5 fill-current" />
+                                    <span className="font-medium text-gray-700">
+                                      4.8 (120+ đánh giá)
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Price and Actions */}
+                              <div className="text-right pl-6">
+                                <div className="mb-6">
+                                  <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                    {formatCurrency(
+                                      doctor.consultationFee || 500000
+                                    )}
+                                  </p>
+                                  <p className="text-sm text-gray-500 font-medium">
+                                    Phí khám
+                                  </p>
+                                </div>
+
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    fetchDoctorDetails(doctor.userId);
+                                  }}
+                                  className="group/btn px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 rounded-xl hover:from-blue-500 hover:to-indigo-600 hover:text-white transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg font-medium"
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <Info className="w-4 h-4" />
+                                    <span>Chi tiết</span>
+                                  </div>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
-
             {/* Doctor Detail Modal với overlay mờ */}
             {isDetailOpen && (
               <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
@@ -1344,20 +1505,14 @@ const BookingAppointment = () => {
                       <div className="flex items-center space-x-3">
                         <Calendar className="w-5 h-5 text-gray-600" />
                         <span className="font-semibold text-gray-800">
-                          {selectedDate &&
-                            new Date(selectedDate).toLocaleDateString("vi-VN", {
-                              weekday: "long",
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })}
+                          {getFormattedDateWithWeekday(selectedDate)}
                         </span>
                       </div>
 
                       <div className="flex items-center space-x-3">
                         <Clock className="w-5 h-5 text-gray-600" />
                         <span className="font-semibold text-gray-800">
-                          {selectedTime}
+                          {selectedShift?.startTime} - {selectedShift?.endTime}
                         </span>
                       </div>
 
@@ -1453,7 +1608,9 @@ const BookingAppointment = () => {
                 <div className="mt-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-xl">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-green-100 text-lg">Tổng chi phí</p>
+                      <p className="text-green-100 text-lg">
+                        Tổng chi phí dự tính
+                      </p>
                       <p className="text-3xl font-bold">
                         {formatCurrency(
                           selectedDoctor?.consultationFee || 500000
@@ -1549,7 +1706,10 @@ const BookingAppointment = () => {
                         <div>
                           <p className="text-sm text-gray-600">Thời gian</p>
                           <p className="font-bold text-lg text-gray-800">
-                            {formatDateTime(selectedDate, selectedTime)}
+                            {getFormattedDateWithWeekday(
+                              selectedDate,
+                              selectedTime
+                            )}
                           </p>
                         </div>
                       </div>
@@ -1666,7 +1826,7 @@ const BookingAppointment = () => {
         {renderStep()}
 
         {/* Navigation Buttons */}
-        {currentStep !== 5 && (
+        {currentStep !== 6 && (
           <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-md px-6 py-4">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
               {/* Nút Quay lại */}

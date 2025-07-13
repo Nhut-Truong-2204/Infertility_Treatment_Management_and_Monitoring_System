@@ -13,6 +13,8 @@ import Swal from "sweetalert2";
 import instance from "../../config/axios";
 import { createAppointment } from "@/api/customer/appointmentAPI";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   User,
   Calendar,
@@ -46,6 +48,7 @@ const BookingAppointment = () => {
   } = useBookingStep({
     defaultStep: 2, // ✅ Bắt đầu từ bước chọn ngày/giờ
   });
+  const navigate = useNavigate();
 
   const [shifts, setShifts] = useState([]);
   const [loadingShifts, setLoadingShifts] = useState(false);

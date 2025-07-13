@@ -3,9 +3,13 @@ export const useGenerateCalendarDays = () => {
     const today = new Date();
     const days = [];
 
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; days.length < 7; i++) {
       const date = new Date(today);
       date.setDate(date.getDate() + i);
+
+      // ❌ Bỏ qua Chủ Nhật
+      if (date.getDay() === 0) continue;
+
       const formatted = date.toISOString().split("T")[0];
       days.push({
         date: formatted,

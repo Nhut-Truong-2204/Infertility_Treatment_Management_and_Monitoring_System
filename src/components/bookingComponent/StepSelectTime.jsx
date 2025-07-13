@@ -25,20 +25,23 @@ const StepSelectTime = ({
   };
 
   // Kiểm tra nếu là thứ 7 thì không hiển thị ca chiều
-
   const getSession = (timeStr) => {
     const hour = parseInt(timeStr.split(":")[0]);
     return hour < 12 ? "MORNING" : "AFTERNOON";
   };
 
   const isSaturday = (dateStr) => {
-    return new Date(dateStr).getDay() === 6;
+    return new Date(dateStr).getDay() === 5;
   };
 
   const filteredShifts = shifts.filter((s) => {
     if (!s.startTime) return false;
+
     const session = getSession(s.startTime);
-    if (isSaturday && session === "AFTERNOON") return false;
+
+    // Nếu ngày được chọn là thứ 7 và ca là buổi chiều → loại bỏ
+    if (isSaturday(selectedDate) && session === "AFTERNOON") return false;
+
     return true;
   });
 

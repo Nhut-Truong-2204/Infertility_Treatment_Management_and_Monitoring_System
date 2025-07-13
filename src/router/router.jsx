@@ -63,10 +63,7 @@ const router = createBrowserRouter([
         path: "/infertility",
         element: <Infertility />,
       },
-      {
-        path: "/bookingAppointment",
-        element: <BookingAppointment />,
-      },
+
       {
         path: "/viewDoctorList",
         element: <DoctorList />,
@@ -141,6 +138,10 @@ const router = createBrowserRouter([
         <LoginPage />
       </AuthProvider>
     ),
+  },
+  {
+    path: "/bookingAppointment",
+    element: <BookingAppointment />,
   },
   {
     path: "/payment-success.html",

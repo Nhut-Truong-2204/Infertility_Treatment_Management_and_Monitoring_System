@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Header from "../../components/layout/Header";
 import PaymentSuccess from "@/components/ui/paymentSuccess";
 import PaymentFail from "@/components/ui/paymentFail";
+import InfoCardHome from "@/components/DashboardComponents/InfoCardHome";
 const doctors = [
   {
     name: "Dr. Nguyễn Văn A",
@@ -10,7 +10,7 @@ const doctors = [
     username: "@nguyenvana",
     img: "https://randomuser.me/api/portraits/men/32.jpg",
     hoverImg: "https://randomuser.me/api/portraits/men/33.jpg",
-    bio: "20 năm kinh nghiệm trong lĩnh vực hỗ trợ sinh sản. Tốt nghiệp tại ĐH Y Hà Nội và tu nghiệp tại Nhật Bản."
+    bio: "20 năm kinh nghiệm trong lĩnh vực hỗ trợ sinh sản. Tốt nghiệp tại ĐH Y Hà Nội và tu nghiệp tại Nhật Bản.",
   },
   {
     name: "Dr. Trần Thị B",
@@ -18,7 +18,7 @@ const doctors = [
     username: "@tranthib",
     img: "https://randomuser.me/api/portraits/women/44.jpg",
     hoverImg: "https://randomuser.me/api/portraits/women/45.jpg",
-    bio: "Chuyên khám và điều trị các vấn đề phụ khoa, đồng hành cùng hàng nghìn ca mang thai thành công."
+    bio: "Chuyên khám và điều trị các vấn đề phụ khoa, đồng hành cùng hàng nghìn ca mang thai thành công.",
   },
   {
     name: "Dr. Lê Văn C",
@@ -26,24 +26,27 @@ const doctors = [
     username: "@levanc",
     img: "https://randomuser.me/api/portraits/men/54.jpg",
     hoverImg: "https://randomuser.me/api/portraits/men/55.jpg",
-    bio: "Hơn 10 năm tư vấn tâm lý cho các cặp đôi hiếm muộn, luôn lắng nghe và đồng hành."
+    bio: "Hơn 10 năm tư vấn tâm lý cho các cặp đôi hiếm muộn, luôn lắng nghe và đồng hành.",
   },
 ];
 
 const reviews = [
   {
     name: "Nguyễn Thị Hồng",
-    feedback: "Tôi rất hài lòng với đội ngũ bác sĩ tận tâm và chuyên nghiệp. Hệ thống dễ sử dụng và rất hữu ích.",
+    feedback:
+      "Tôi rất hài lòng với đội ngũ bác sĩ tận tâm và chuyên nghiệp. Hệ thống dễ sử dụng và rất hữu ích.",
     rating: 5,
   },
   {
     name: "Trần Văn Nam",
-    feedback: "Một trải nghiệm tuyệt vời! Đặt lịch nhanh chóng và được tư vấn kỹ càng.",
+    feedback:
+      "Một trải nghiệm tuyệt vời! Đặt lịch nhanh chóng và được tư vấn kỹ càng.",
     rating: 4,
   },
   {
     name: "Lê Thị Hoa",
-    feedback: "Bác sĩ tư vấn cực kỳ dễ hiểu và tận tình. Cảm thấy được an tâm hơn rất nhiều.",
+    feedback:
+      "Bác sĩ tư vấn cực kỳ dễ hiểu và tận tình. Cảm thấy được an tâm hơn rất nhiều.",
     rating: 5,
   },
   {
@@ -68,19 +71,19 @@ const reviews = [
   },
 ];
 
-
 const HomePage = () => {
   const [hoveredDoctor, setHoveredDoctor] = useState(null);
   return (
     <>
-      <Header />
+    <InfoCardHome/>
       <section className="bg-gradient-to-tr from-white via-[#f2f4f8] to-white dark:from-[#1a1a1a] dark:via-[#2a2a2a] dark:to-[#1a1a1a] py-12 px-4">
         <div className="max-w-6xl mx-auto relative">
           <h2 className="text-3xl md:text-4xl font-bold text-center text-[#2c3e50] dark:text-white mb-6">
             Đội ngũ Chuyên gia
           </h2>
           <p className="text-center max-w-xl mx-auto text-gray-600 dark:text-gray-300 mb-10">
-            Những người đồng hành cùng bạn trong hành trình chăm sóc sức khoẻ sinh sản và tinh thần.
+            Những người đồng hành cùng bạn trong hành trình chăm sóc sức khoẻ
+            sinh sản và tinh thần.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 relative">
@@ -91,8 +94,12 @@ const HomePage = () => {
                 <motion.div
                   key={index}
                   className={`relative rounded-3xl transition-all duration-500 p-6 text-center cursor-pointer 
-                    ${isActive ? 'z-50 scale-[1.03] shadow-2xl' : ''}
-                    ${isOther ? 'opacity-30 translate-y-2 blur-[1px]' : 'opacity-100'} 
+                    ${isActive ? "z-50 scale-[1.03] shadow-2xl" : ""}
+                    ${
+                      isOther
+                        ? "opacity-30 translate-y-2 blur-[1px]"
+                        : "opacity-100"
+                    } 
                     bg-[#fdfdfd] dark:bg-[#2c2c2c]`}
                   onMouseEnter={() => setHoveredDoctor(doc)}
                   onMouseLeave={() => setHoveredDoctor(null)}
@@ -122,7 +129,6 @@ const HomePage = () => {
                   <p className="text-sm text-blue-500 dark:text-blue-300">
                     {doc.username}
                   </p>
-
                   <AnimatePresence>
                     {isActive && (
                       <motion.div
@@ -145,7 +151,6 @@ const HomePage = () => {
               );
             })}
           </div>
-
           <h3 className="text-2xl font-bold text-center text-[#2c3e50] dark:text-white mt-24 mb-6">
             Đánh giá từ người dùng
           </h3>
@@ -163,7 +168,9 @@ const HomePage = () => {
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <img
-                      src={`https://randomuser.me/api/portraits/${idx % 2 === 0 ? "women" : "men"}/${idx + 30}.jpg`}
+                      src={`https://randomuser.me/api/portraits/${
+                        idx % 2 === 0 ? "women" : "men"
+                      }/${idx + 30}.jpg`}
                       alt={review.name}
                       className="w-12 h-12 object-cover rounded-full border-2 border-[#A1C4FD]"
                     />
@@ -172,7 +179,8 @@ const HomePage = () => {
                         {review.name}
                       </p>
                       <p className="text-yellow-400 text-xs">
-                        {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                        {"★".repeat(review.rating)}
+                        {"☆".repeat(5 - review.rating)}
                       </p>
                     </div>
                   </div>
@@ -185,8 +193,6 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
-      
     </>
   );
 };

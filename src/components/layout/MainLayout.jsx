@@ -1,29 +1,31 @@
+import Topbar from "./Topbar";
 import Navbar from "./navbar/Navbar";
+import Hero from "../layout/Hero";
 import Footer from "./Footer";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import CommunicationWidget from "../chat/CommunicationWidget";
+
 const MainLayout = () => {
-  const location = useLocation();
-
-  // Danh sách các route cần ẩn Navbar + Footer
-  const hiddenLayoutRoutes = [
-    "/bookingAppointment",
-    "/viewAppointment",
-    // Thêm route khác nếu cần
-  ];
-
-  // Kiểm tra route hiện tại có nằm trong danh sách không
-  const shouldHideLayout = hiddenLayoutRoutes.includes(location.pathname);
-
+  // Layout theo bố cục ferlix
   return (
-    <div>
-      {!shouldHideLayout && <Navbar />}
+    <div className="min-h-screen flex flex-col mt-20">
+      {/* Topbar */}
 
-      <div>
+      {/* Navbar */}
+      <Navbar />
+      {/* Hero section chỉ hiển thị ở trang chủ */}
+      {window.location.pathname === "/" && <Hero /> }
+
+      {/* Main Content */}
+      <main className="flex-1 w-full mx-auto max-w-[1440px] px-4 lg:px-12 py-8">
         <Outlet />
-      </div>
+      </main>
+
+      {/* Widget chat */}
       <CommunicationWidget />
-      {!shouldHideLayout && <Footer />}
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

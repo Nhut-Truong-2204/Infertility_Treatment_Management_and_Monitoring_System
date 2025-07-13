@@ -1,12 +1,12 @@
 // axios.js
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const instance = axios.create({
-  baseURL: 'https://infertility-treatment-management-and.onrender.com',
+  baseURL: "https://infertility-treatment-management-and.onrender.com",
   timeout: 20000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   withCredentials: true, // Để gửi cookie refresh token nếu server dùng cookie
 });
@@ -14,7 +14,7 @@ const instance = axios.create({
 // Gắn accessToken vào request
 instance.interceptors.request.use(
   (config) => {
-    const token = Cookies.get('accessToken');
+    const token = Cookies.get("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -55,7 +55,7 @@ instance.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers['Authorization'] = 'Bearer ' + token;
+            originalRequest.headers["Authorization"] = "Bearer " + token;
             return instance(originalRequest);
           })
           .catch((err) => Promise.reject(err));
@@ -64,24 +64,34 @@ instance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const response = await instance.post('/api/auth/refresh-token');
+        const response = await instance.post("/api/auth/refresh-token");
         const newAccessToken = response.data.accessToken;
 
-        Cookies.set('accessToken', newAccessToken, {
+        Cookies.set("accessToken", newAccessToken, {
           expires: 1,
           secure: true,
-          sameSite: 'Strict',
+          sameSite: "Strict",
         });
 
-        originalRequest.headers['Authorization'] = 'Bearer ' + newAccessToken;
+        originalRequest.headers["Authorization"] = "Bearer " + newAccessToken;
         processQueue(null, newAccessToken);
         return instance(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        // OPTIONAL: bạn có thể gọi logout() nếu có thể truy cập AuthContext
-        Cookies.remove('accessToken');
-        Cookies.remove('user');
-        window.location.href = '/login'; // hoặc redirect thủ công
+
+        import("sweetalert2").then(({ default: Swal }) => {
+          Swal.fire({
+            icon: "warning",
+            title: "Phiên đăng nhập đã hết hạn",
+            text: "Vui lòng đăng nhập lại để tiếp tục.",
+            confirmButtonText: "Đăng nhập",
+          }).then(() => {
+            Cookies.remove("accessToken");
+            Cookies.remove("user");
+            window.location.href = "/login";
+          });
+        });
+
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

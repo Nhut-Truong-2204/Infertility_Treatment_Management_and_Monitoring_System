@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import DoctorCard from '../../components/ui/DoctorCard';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from '@/components/ui/pagination';
-import LoadingPage from '../../components/layout/LoadingPage';
+import LoadingPage from '../../components/layout/Loading';
 import { getDoctors } from '../../api/customer/doctorList'; // Import từ thư mục api
 
 const DoctorList = () => {

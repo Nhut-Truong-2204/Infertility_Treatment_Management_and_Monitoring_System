@@ -1,175 +1,41 @@
 import { createBrowserRouter } from "react-router-dom";
-import HomePage from "./../pages/customer/HomePage";
-import RegisterPage from "./../pages/customer/RegisterPage";
-import EmailVerificationPage from "../pages/customer/EmailVerificationPage";
-import LoginPage from "../pages/customer/LoginPage";
-import ForgetPasswordPage from "../pages/customer/ForgetPasswordPage";
-import ChangePasswordPage from "../pages/customer/ChangePasswordPage";
-import MainLayout from "../components/layout/MainLayout";
-import ViewTestingServiceList from "../../src/components/layout/navbar/blogDropDown/Care/ViewTestingServiceList";
-import BarrenMale from "../components/layout/navbar/blogDropDown/Learn/BarrenMale";
-import BarrenFemale from "../components/layout/navbar/blogDropDown/Learn/BarrenFemale";
-import Infertility from "../components/layout//navbar/blogDropDown/Learn/Infertility";
-import NotFound from "../pages/customer/NotFound";
-import BookingAppointment from "../pages/customer/BookingAppointment";
-import DoctorList from "../pages/customer/DoctorList";
-import ClinicIntroduction from "../pages/customer/ClinicIntroduction";
-import ServicesPage from "../pages/customer/Servicepage";
-import DoctorDetail from "../pages/customer/DoctorDetail";
-import TreatmentHistory from "@/pages/customer/TreatmentHistory";
-import AppointmentHistory from "../pages/customer/AppointmentHistory";
-import PaymentPage from "@/pages/customer/PaymentPage";
-import Feedback from "@/pages/customer/Feedback";
-import BlogForum from "@/pages/customer/BlogForum";
-import LabtestHistory from "@/pages/customer/LabtestHistory";
-import ChatWidget from "@/components/chat/Chat";
-import ProfileUser from "@/pages/customer/ProfileUser";
-import MedicineSearch from "@/pages/customer/MedicineSearch";
-import SettingPage from "@/pages/customer/SettingPage";
-import { AuthProvider } from "../context/AuthContext";
-import TreatmentContract from "@/pages/customer/TreatmentContract";
-import PaymentFail from "@/components/ui/paymentFail";
-import PaymentSuccess from "@/components/ui/paymentSuccess";
+import Home from "../pages/guest/Home";
+import GuestLayout from "../pages/GuestLayout";
+import CustomerLayout from "../pages/CustomerLayout";
+import AboutUs from "../pages/guest/AboutUs";
+import Dashboard from "../pages/customer/Dashboard";
+import AppointmentList from "../pages/customer/AppointmentList";
+
+// Shared components
+import Services from "../pages/shared/Services";
+import Blog from "../pages/shared/Blog";
+import Contact from "../pages/shared/Contact";
+
+// Import SmartHeader Layout
+import MainLayout from "../pages/MainLayout";
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <AuthProvider>
-        <MainLayout />
-      </AuthProvider>
-    ),
+    element: <MainLayout />,
     children: [
-      {
-        index: true,
-        element: <HomePage />,
-      },
-      {
-        path: "/homapage",
-        element: <HomePage />,
-      },
-      {
-        path: "/viewTestingList",
-        element: <ViewTestingServiceList />,
-      },
-      {
-        path: "/barrenMale",
-        element: <BarrenMale />,
-      },
-      {
-        path: "/barrenFemale",
-        element: <BarrenFemale />,
-      },
-      {
-        path: "/infertility",
-        element: <Infertility />,
-      },
+      { index: true, element: <Home /> },
+      { path: "about", element: <AboutUs /> },
+      { path: "services", element: <Services /> },
+      { path: "blog", element: <Blog /> },
+      { path: "contact", element: <Contact /> },
 
-      {
-        path: "/viewDoctorList",
-        element: <DoctorList />,
-      },
-      {
-        path: "/doctors/:userId",
-        element: <DoctorDetail />,
-      },
-      {
-        path: "/clinicpage",
-        element: <ClinicIntroduction />,
-      },
-      {
-        path: "/profile",
-        element: <ProfileUser />,
-      },
-      {
-        path: "/chat",
-        element: <ChatWidget />,
-      },
-      {
-        path: "/servicepage",
-        element: <ServicesPage />,
-      },
-      {
-        path: "/historyTreatment",
-        element: <TreatmentHistory />,
-      },
-      {
-        path: "/historyLabtest",
-        element: <LabtestHistory />,
-      },
-      {
-        path: "/treatmentContract",
-        element: <TreatmentContract />,
-      },
-      {
-        path: "/payment",
-        element: <PaymentPage />,
-      },
-      {
-        path: "/feedback",
-        element: <Feedback />,
-      },
-      {
-        path: "/blog-forum",
-        element: <BlogForum />,
-      },
-      {
-        path: "/medicine",
-        element: <MedicineSearch />,
-      },
-      {
-        path: "/viewAppointment",
-        element: <AppointmentHistory />,
-      },
+      // Customer routes (với Dashboard làm trang chính khi đăng nhập)
+      { path: "dashboard", element: <Dashboard /> },
+      { path: "customer", element: <Dashboard /> }, // Redirect customer -> dashboard
+      { path: "customer/dashboard", element: <Dashboard /> },
+      { path: "customer/appointments", element: <AppointmentList /> }, // Trang danh sách lịch hẹn
+      { path: "customer/medical-records", element: <Dashboard /> }, // Tạm thời dùng Dashboard
+      { path: "customer/prescriptions", element: <Dashboard /> }, // Tạm thời dùng Dashboard
+      { path: "customer/profile", element: <Dashboard /> }, // Tạm thời dùng Dashboard
+      { path: "customer/settings", element: <Dashboard /> }, // Tạm thời dùng Dashboard
     ],
   },
-  {
-    path: "/register",
-    element: <RegisterPage />,
-  },
-  {
-    path: "/setting",
-    element: <SettingPage />,
-  },
-  {
-    path: "/login",
-    element: (
-      <AuthProvider>
-        {" "}
-        <LoginPage />
-      </AuthProvider>
-    ),
-  },
-  {
-    path: "/bookingAppointment",
-    element: <BookingAppointment />,
-  },
-  {
-    path: "/payment-success.html",
-    element: <PaymentSuccess />,
-  },
-  {
-    path: "/payment-cancel.html",
-    element: <PaymentFail />,
-  },
-
-  {
-    path: "/forgot-password",
-    element: <ForgetPasswordPage />,
-  },
-
-  {
-    path: "/change-password",
-    element: <ChangePasswordPage />,
-  },
-
-  {
-    path: "/email-verification",
-    element: <EmailVerificationPage />,
-  },
-
-  {
-    path: "*",
-    element: <NotFound />,
-  },
 ]);
+
 export default router;

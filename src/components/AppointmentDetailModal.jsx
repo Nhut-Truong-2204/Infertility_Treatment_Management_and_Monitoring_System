@@ -106,7 +106,7 @@ const AppointmentDetailModal = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4 hide-scrollbar"
         style={{ backgroundColor: "rgba(32, 41, 110, 0.3)" }}
         onClick={handleOverlayClick}
       >
@@ -114,7 +114,7 @@ const AppointmentDetailModal = ({
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] scrollable-hidden modal-container"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Modal Header */}
@@ -131,17 +131,19 @@ const AppointmentDetailModal = ({
                   </p>
                 </div>
               </div>
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
-              >
-                <XCircle className="w-6 h-6" />
-              </button>
+              <div className="z-10">
+                <button
+                  onClick={onClose}
+                  className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+                >
+                  <XCircle className="w-6 h-6" />
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Modal Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          <div className="p-6 max-h-[80vh] overflow-y-auto hide-scrollbar">
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

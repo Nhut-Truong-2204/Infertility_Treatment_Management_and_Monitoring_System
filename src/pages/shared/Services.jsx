@@ -1,5 +1,6 @@
 import React from "react";
 import { useAuth } from "../../hooks/useAuth";
+import { MedicalCard, MedicalAlert, Button } from "../../components/ui";
 
 const Services = () => {
   const { user, isAuthenticated } = useAuth();
@@ -22,81 +23,87 @@ const Services = () => {
 
         {/* Thông báo cho user đã đăng nhập */}
         {isAuthenticated && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
-            <p className="text-blue-800">
-              Chào mừng {user?.name || "bạn"}! Bạn có thể đặt lịch hẹn trực tiếp
-              cho các dịch vụ bên dưới.
-            </p>
-          </div>
+          <MedicalAlert
+            type="info"
+            title={`Chào mừng ${user?.name || "bạn"}!`}
+            message="Bạn có thể đặt lịch hẹn trực tiếp cho các dịch vụ bên dưới."
+            variant="outline"
+            className="mb-8"
+          />
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Dịch vụ 1 */}
-          <div className="bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-shadow">
+          <MedicalCard variant="medical" size="medium" hover>
             <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mb-4">
               <i className="fas fa-heartbeat text-white text-2xl"></i>
             </div>
-            <h3 className="text-xl font-bold text-primary mb-3">
-              Khám Tổng Quát
-            </h3>
-            <p className="text-text-color mb-4">
+            <MedicalCard.Title>Khám Tổng Quát</MedicalCard.Title>
+            <MedicalCard.Description>
               Khám sức khỏe tổng quát định kỳ với các xét nghiệm cơ bản và tư
               vấn từ bác sĩ chuyên khoa.
-            </p>
-            {isAuthenticated ? (
-              <button className="bg-accent text-white px-6 py-2 rounded-lg hover:bg-accent/90 transition-colors">
-                Đặt Lịch Hẹn
-              </button>
-            ) : (
-              <button className="bg-gray-300 text-gray-600 px-6 py-2 rounded-lg cursor-not-allowed">
-                Đăng nhập để đặt lịch
-              </button>
-            )}
-          </div>
+            </MedicalCard.Description>
+            <div className="mt-4">
+              {isAuthenticated ? (
+                <Button variant="medical" className="w-full">
+                  <i className="fas fa-calendar-plus mr-2"></i>
+                  Đặt Lịch Hẹn
+                </Button>
+              ) : (
+                <Button variant="secondary" disabled className="w-full">
+                  Đăng nhập để đặt lịch
+                </Button>
+              )}
+            </div>
+          </MedicalCard>
 
           {/* Dịch vụ 2 */}
-          <div className="bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-shadow">
+          <MedicalCard variant="medical" size="medium" hover>
             <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mb-4">
               <i className="fas fa-user-md text-white text-2xl"></i>
             </div>
-            <h3 className="text-xl font-bold text-primary mb-3">
-              Tư Vấn Chuyên Khoa
-            </h3>
-            <p className="text-text-color mb-4">
+            <MedicalCard.Title>Tư Vấn Chuyên Khoa</MedicalCard.Title>
+            <MedicalCard.Description>
               Tư vấn và khám chữa bệnh với các bác sĩ chuyên khoa có kinh nghiệm
               nhiều năm trong ngành.
-            </p>
-            {isAuthenticated ? (
-              <button className="bg-accent text-white px-6 py-2 rounded-lg hover:bg-accent/90 transition-colors">
-                Đặt Lịch Hẹn
-              </button>
-            ) : (
-              <button className="bg-gray-300 text-gray-600 px-6 py-2 rounded-lg cursor-not-allowed">
-                Đăng nhập để đặt lịch
-              </button>
-            )}
-          </div>
+            </MedicalCard.Description>
+            <div className="mt-4">
+              {isAuthenticated ? (
+                <Button variant="medical" className="w-full">
+                  <i className="fas fa-calendar-plus mr-2"></i>
+                  Đặt Lịch Hẹn
+                </Button>
+              ) : (
+                <Button variant="secondary" disabled className="w-full">
+                  Đăng nhập để đặt lịch
+                </Button>
+              )}
+            </div>
+          </MedicalCard>
 
           {/* Dịch vụ 3 */}
-          <div className="bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-shadow">
+          <MedicalCard variant="medical" size="medium" hover>
             <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mb-4">
               <i className="fas fa-flask text-white text-2xl"></i>
             </div>
-            <h3 className="text-xl font-bold text-primary mb-3">Xét Nghiệm</h3>
-            <p className="text-text-color mb-4">
+            <MedicalCard.Title>Xét Nghiệm</MedicalCard.Title>
+            <MedicalCard.Description>
               Thực hiện các xét nghiệm cần thiết với máy móc hiện đại và kết quả
               chính xác, nhanh chóng.
-            </p>
-            {isAuthenticated ? (
-              <button className="bg-accent text-white px-6 py-2 rounded-lg hover:bg-accent/90 transition-colors">
-                Đặt Lịch Hẹn
-              </button>
-            ) : (
-              <button className="bg-gray-300 text-gray-600 px-6 py-2 rounded-lg cursor-not-allowed">
-                Đăng nhập để đặt lịch
-              </button>
-            )}
-          </div>
+            </MedicalCard.Description>
+            <div className="mt-4">
+              {isAuthenticated ? (
+                <Button variant="medical" className="w-full">
+                  <i className="fas fa-calendar-plus mr-2"></i>
+                  Đặt Lịch Hẹn
+                </Button>
+              ) : (
+                <Button variant="secondary" disabled className="w-full">
+                  Đăng nhập để đặt lịch
+                </Button>
+              )}
+            </div>
+          </MedicalCard>
         </div>
       </div>
     </div>

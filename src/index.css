@@ -49,3 +49,244 @@
 .focus\:ring-primary:focus {
   box-shadow: 0 0 0 2px var(--color-primary) !important;
 }
+
+/* Custom Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(32, 41, 110, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(32, 41, 110, 0.6);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.5s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+.animate-reverse {
+  animation-direction: reverse;
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-accent)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Medical UI Components Styles */
+.medical-card-hover {
+  transition: all 0.2s ease-in-out;
+}
+
+.medical-card-hover:hover {
+  box-shadow: 0 10px 25px rgba(32, 41, 110, 0.1);
+  transform: translateY(-2px);
+}
+
+.medical-loading-pulse {
+  animation: medicalPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes medicalPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.medical-gentle-shadow {
+  box-shadow: 0 4px 6px rgba(255, 112, 163, 0.1),
+    0 2px 4px rgba(255, 112, 163, 0.06);
+}
+
+.medical-soft-border {
+  border: 1px solid rgba(32, 41, 110, 0.1);
+}
+
+/* Màu sắc y tế bổ sung */
+.bg-medical {
+  background-color: #ff70a3;
+}
+
+.text-medical {
+  color: #ff70a3;
+}
+
+.border-medical {
+  border-color: #ff70a3;
+}
+
+.bg-medical-light {
+  background-color: #fef7f3;
+}
+
+.text-medical-dark {
+  color: #cc4f82;
+}
+
+/* Animation cho y tế */
+.medical-fade-in {
+  animation: medicalFadeIn 0.4s ease-out;
+}
+
+@keyframes medicalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.medical-scale-in {
+  animation: medicalScaleIn 0.3s ease-out;
+}
+
+@keyframes medicalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Loading dots animation */
+.medical-loading-dots {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.medical-loading-dots > div {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: currentColor;
+  animation: medicalDotPulse 1.4s ease-in-out infinite both;
+}
+
+.medical-loading-dots > div:nth-child(1) {
+  animation-delay: -0.32s;
+}
+.medical-loading-dots > div:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes medicalDotPulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Focus states for accessibility */
+.medical-focus:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(32, 41, 110, 0.1);
+}
+
+.medical-focus-accent:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 112, 163, 0.2);
+}
+
+/* Hide scrollbar but keep scrolling functionality */
+.hide-scrollbar {
+  /* Firefox */
+  scrollbar-width: none;
+  /* Safari and Chrome */
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Apply to all modal containers */
+.modal-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.modal-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Override any default scrollbars in the app */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for the entire body when modals are open */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Custom class for scrollable content with hidden scrollbar */
+.scrollable-hidden {
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollable-hidden::-webkit-scrollbar {
+  display: none;
+}

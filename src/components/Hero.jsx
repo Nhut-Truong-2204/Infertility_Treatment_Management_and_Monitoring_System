@@ -7,12 +7,12 @@ import { faCircleCheck, faPlay } from "@fortawesome/free-solid-svg-icons";
 const Hero = () => {
   // const dispatch = useDispatch();
   return (
-    <div className="relative bg-primary bg-cover bg-center -mt-[115px] pt-[200px] pb-[80px] overflow-hidden">
+    <div className="relative bg-primary bg-cover bg-center -mt-[115px] pt-[200px] pb-[80px] overflow-hidden rounded-b-3xl">
       <div
-        className="absolute inset-0 bg-cover bg-center z-0"
+        className="absolute inset-0 bg-cover bg-center z-0 rounded-b-3xl"
         style={{ backgroundImage: "url('./src/assets/images/hero-bg-2.jpg')" }}
       ></div>
-      <div className="absolute inset-0 bg-primary opacity-90 z-0"></div>
+      <div className="absolute inset-0 bg-primary opacity-90 z-0 rounded-b-3xl"></div>
       <div className="relative z-10 max-w-[1480px] mx-auto">
         <div className="container-fluid px-4">
           <div className="flex flex-wrap items-center">
@@ -20,7 +20,7 @@ const Hero = () => {
               <div className="hero-content text-white">
                 <div className="section-title">
                   <h3 className="text-accent uppercase font-semibold text-sm tracking-widest pl-5 relative mb-2.5 before:content-[''] before:absolute before:w-2 before:h-2 before:bg-accent before:rounded-full before:left-0 before:top-1/2 before:-translate-y-1/2">
-                    Chào mừng đến Ferlix
+                    Chào mừng đến với Repro Track
                   </h3>
                   <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-0">
                     Giúp bạn xây dựng gia đình trong <span>mơ!</span>

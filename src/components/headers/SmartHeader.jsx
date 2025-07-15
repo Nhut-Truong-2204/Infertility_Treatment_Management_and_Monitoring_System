@@ -3,7 +3,11 @@ import { useSelector } from "react-redux";
 import GuestHeader from "./GuestHeader";
 import CustomerHeader from "./CustomerHeader";
 
-const SmartHeader = ({ onLoginClick, hasBackground = false }) => {
+const SmartHeader = ({
+  onLoginClick,
+  onRegisterClick,
+  hasBackground = false,
+}) => {
   const user = useSelector((state) => state.auth.user);
   const isAuthenticated = !!user;
 
@@ -11,7 +15,11 @@ const SmartHeader = ({ onLoginClick, hasBackground = false }) => {
     return <CustomerHeader />;
   }
   return (
-    <GuestHeader onLoginClick={onLoginClick} hasBackground={hasBackground} />
+    <GuestHeader
+      onLoginClick={onLoginClick}
+      onRegisterClick={onRegisterClick}
+      hasBackground={hasBackground}
+    />
   );
 };
 

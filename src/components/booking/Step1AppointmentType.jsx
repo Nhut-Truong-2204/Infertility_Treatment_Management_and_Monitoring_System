@@ -28,30 +28,35 @@ const Step1AppointmentType = ({ onSelect, formData }) => {
       </p>
 
       <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-        {appointmentTypes.map((type) => (
-          <label
-            key={type.typeName}
-            className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 transition-all"
-          >
-            <input
-              type="radio"
-              name="appointmentType"
-              value={type.typeName}
-              checked={formData.appointmentType?.typeName === type.typeName}
-              onChange={() =>
-                onSelect("appointmentType", {
-                  typeName: type.typeName,
-                  description: type.description,
-                })
-              }
-              className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-            />
-            <div className="ml-4 flex-1">
-              <p className="font-semibold text-gray-800">{type.description}</p>
-              <p className="text-sm text-gray-500 mt-1">({type.typeName})</p>
-            </div>
-          </label>
-        ))}
+        {appointmentTypes
+          .filter(
+            (type) => type.typeName !== "PROCEDURE" && type.typeName !== "TESTS"
+          )
+          .map((type) => (
+            <label
+              key={type.typeName}
+              className="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 transition-all"
+            >
+              <input
+                type="radio"
+                name="appointmentType"
+                value={type.typeName}
+                checked={formData.appointmentType?.typeName === type.typeName}
+                onChange={() =>
+                  onSelect("appointmentType", {
+                    typeName: type.typeName,
+                    description: type.description,
+                  })
+                }
+                className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+              />
+              <div className="ml-4 flex-1">
+                <p className="font-semibold text-gray-800">
+                  {type.description}
+                </p>
+              </div>
+            </label>
+          ))}
       </div>
     </div>
   );

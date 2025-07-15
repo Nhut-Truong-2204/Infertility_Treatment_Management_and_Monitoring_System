@@ -1,8 +1,8 @@
 import instance from "../config/axios";
 
-export const getTreatmentHistory = async () => {
+export const getTreatmentTimeline = async () => {
   try {
-    const response = await instance.get("/api/customer/treatment-history");
+    const response = await instance.get("/api/treatment-protocols/my-timeline");
     if (response.data.success) {
       return {
         success: true,

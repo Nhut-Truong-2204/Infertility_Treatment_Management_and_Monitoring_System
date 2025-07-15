@@ -22,6 +22,11 @@ const CustomerHeader = () => {
       icon: "fa-calendar-check",
     },
     {
+      path: "/customer/treatment-timeline",
+      name: "Phác Đồ Điều Trị",
+      icon: "fa-procedures",
+    },
+    {
       path: "/customer/medical-records",
       name: "Hồ Sơ Y Tế",
       icon: "fa-file-medical",
@@ -99,9 +104,6 @@ const CustomerHeader = () => {
                   </div>
                   {/* Tên và Icon */}
                   <div className="flex items-center space-x-2">
-                    <span className="text-white font-medium">
-                      {user?.fullName || "User"}
-                    </span>
                     <i className="fa-solid fa-chevron-down text-white text-sm transition-transform group-hover:rotate-180"></i>
                   </div>
                 </button>

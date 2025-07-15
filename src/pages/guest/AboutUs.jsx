@@ -1,28 +1,38 @@
 import React from "react";
 import useClinicInfo from "../../hooks/useClinicIntro";
-
-// Component con để hiển thị khi đang tải hoặc có lỗi
-const LoadingSpinner = () => (
-  <div className="text-center p-20">Đang tải dữ liệu...</div>
-);
-const ErrorDisplay = ({ message }) => (
-  <div className="text-center p-20 text-red-500">Lỗi: {message}</div>
-);
+import { MedicalLoading, MedicalAlert, MedicalCard } from "../../components/ui";
 
 const AboutUs = () => {
   const { clinicIntro: clinicInfo, loading, error } = useClinicInfo();
 
   // Xử lý trạng thái tải và lỗi
-  if (loading) return <LoadingSpinner />;
-  if (error || !clinicInfo)
+  if (loading) {
     return (
-      <ErrorDisplay
-        message={
-          error?.response?.data?.message ||
-          "Không thể tải thông tin phòng khám."
-        }
+      <MedicalLoading
+        variant="primary"
+        fullScreen
+        message="Đang tải thông tin phòng khám..."
       />
     );
+  }
+
+  if (error || !clinicInfo) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-16">
+        <div className="container mx-auto px-4 max-w-md">
+          <MedicalAlert
+            type="error"
+            title="Không thể tải thông tin"
+            message={
+              error?.response?.data?.message ||
+              "Không thể tải thông tin phòng khám. Vui lòng thử lại sau."
+            }
+            className="shadow-lg"
+          />
+        </div>
+      </div>
+    );
+  }
 
   // Chuyển đổi chuỗi JSON thành mảng nếu có
   const additionalImages = clinicInfo.additionalImagesJSON
@@ -128,8 +138,6 @@ const AboutUs = () => {
             </div>
           </div>
         )}
-
-        {/* Bản đồ */}
         {clinicInfo.mapEmbedURL && (
           <div className="mt-20">
             <h2 className="text-3xl font-bold text-primary mb-6 text-center">

@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import logo from "../../assets/images/logo.svg";
 import Topbar from "../Topbar";
 
-const GuestHeader = ({ onLoginClick, hasBackground = false }) => {
+const GuestHeader = ({
+  onLoginClick,
+  onRegisterClick,
+  hasBackground = false,
+}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
+  const location = useLocation();
+
+  // Kiểm tra nếu không phải trang chủ thì tự động thêm background
+  const shouldHaveBackground = hasBackground || location.pathname !== "/";
 
   // Hook để xử lý hiệu ứng sticky header khi cuộn trang
   useEffect(() => {
@@ -33,9 +41,11 @@ const GuestHeader = ({ onLoginClick, hasBackground = false }) => {
   return (
     <header
       className={`${
-        hasBackground ? "relative" : "absolute"
+        shouldHaveBackground ? "relative" : "absolute"
       } top-0 left-0 w-full z-50 ${
-        hasBackground ? "bg-primary shadow-md" : ""
+        shouldHaveBackground
+          ? "bg-primary shadow-md rounded-t-2xl rounded-b-2xl mt-12"
+          : ""
       }`}
     >
       <div
@@ -43,22 +53,24 @@ const GuestHeader = ({ onLoginClick, hasBackground = false }) => {
           isSticky ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
         }`}
       >
-        {/* Chỉ hiện Topbar khi không có background cố định */}
-        {!hasBackground && <Topbar />}
+        {/* Hiện Topbar ở trang chủ (không có background) hoặc các trang khác (có background) */}
+        {(!shouldHaveBackground || location.pathname !== "/") && <Topbar />}
       </div>
 
       {/* Header chính */}
       <div
         className={`transition-all duration-300 ${
           isSticky
-            ? "fixed top-0 left-0 right-0 bg-primary shadow-lg animate__animated animate__fadeInDown"
+            ? "fixed top-0 left-0 right-0 bg-primary shadow-lg rounded-b-2xl animate__animated animate__fadeInDown"
             : "relative"
-        } ${hasBackground ? "bg-primary" : ""}`}
+        } ${
+          shouldHaveBackground ? "bg-primary rounded-t-2xl rounded-b-2xl" : ""
+        }`}
       >
         <div className="max-w-[1480px] mx-auto">
           <nav className="flex items-center py-4 px-4">
             <NavLink className="navbar-brand" to="/">
-              <img src={logo} alt="Logo Ferlix" />
+              <img src={logo} alt="Logo Repro Track" />
             </NavLink>
 
             {/* Menu cho Desktop */}
@@ -70,7 +82,7 @@ const GuestHeader = ({ onLoginClick, hasBackground = false }) => {
                       to={item.path}
                       className={({ isActive }) =>
                         `relative transition-all duration-300 hover:text-accent ${
-                          hasBackground
+                          shouldHaveBackground
                             ? "text-white"
                             : isActive
                             ? "text-accent"
@@ -85,13 +97,19 @@ const GuestHeader = ({ onLoginClick, hasBackground = false }) => {
               </ul>
             </div>
 
-            {/* Nút Đăng Nhập */}
+            {/* Nút Đăng Nhập và Đăng Ký */}
             <div className="hidden lg:flex items-center ml-auto space-x-4">
               <button
                 onClick={onLoginClick}
-                className="bg-white text-primary font-bold capitalize rounded-lg px-8 py-3 hover:bg-accent hover:text-white transition-all duration-300"
+                className="bg-transparent border border-white text-white font-bold capitalize rounded-lg px-6 py-3 hover:bg-white hover:text-primary transition-all duration-300"
               >
                 Đăng Nhập
+              </button>
+              <button
+                onClick={onRegisterClick}
+                className="bg-white text-primary font-bold capitalize rounded-lg px-6 py-3 hover:bg-accent hover:text-white transition-all duration-300"
+              >
+                Đăng Ký
               </button>
             </div>
 
@@ -110,7 +128,7 @@ const GuestHeader = ({ onLoginClick, hasBackground = false }) => {
 
       {/* Menu di động */}
       <div
-        className={`lg:hidden fixed top-0 left-0 w-full h-screen bg-primary/95 backdrop-blur-sm transition-transform duration-500 ease-in-out ${
+        className={`lg:hidden fixed top-0 left-0 w-full h-screen bg-primary/95 backdrop-blur-sm transition-transform duration-500 ease-in-out rounded-b-2xl ${
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{ paddingTop: "80px" }}
@@ -127,15 +145,24 @@ const GuestHeader = ({ onLoginClick, hasBackground = false }) => {
               </NavLink>
             </li>
           ))}
-          <li className="pt-8">
+          <li className="pt-8 space-y-4">
             <button
               onClick={() => {
                 onLoginClick();
                 setIsMenuOpen(false);
               }}
-              className="bg-accent text-white font-bold py-3 px-8 rounded-lg text-lg"
+              className="bg-transparent border border-white text-white font-bold py-3 px-8 rounded-lg text-lg block w-full mb-4"
             >
               Đăng Nhập
+            </button>
+            <button
+              onClick={() => {
+                onRegisterClick();
+                setIsMenuOpen(false);
+              }}
+              className="bg-accent text-white font-bold py-3 px-8 rounded-lg text-lg block w-full"
+            >
+              Đăng Ký
             </button>
           </li>
         </ul>

@@ -5,11 +5,16 @@ import CustomerLayout from "../pages/CustomerLayout";
 import AboutUs from "../pages/guest/AboutUs";
 import Dashboard from "../pages/customer/Dashboard";
 import AppointmentList from "../pages/customer/AppointmentList";
+import TreatmentTimeline from "../pages/customer/TreatmentTimeline";
+import MedicalRecords from "../pages/customer/MedicalRecords";
+import Profile from "../pages/customer/Profile";
+import Settings from "../pages/customer/Settings";
 
 // Shared components
 import Services from "../pages/shared/Services";
 import Blog from "../pages/shared/Blog";
 import Contact from "../pages/shared/Contact";
+import NotFound from "../pages/shared/NotFound";
 
 // Import SmartHeader Layout
 import MainLayout from "../pages/MainLayout";
@@ -30,10 +35,14 @@ const router = createBrowserRouter([
       { path: "customer", element: <Dashboard /> }, // Redirect customer -> dashboard
       { path: "customer/dashboard", element: <Dashboard /> },
       { path: "customer/appointments", element: <AppointmentList /> }, // Trang danh sách lịch hẹn
-      { path: "customer/medical-records", element: <Dashboard /> }, // Tạm thời dùng Dashboard
+      { path: "customer/treatment-timeline", element: <TreatmentTimeline /> }, // Trang phác đồ điều trị
+      { path: "customer/medical-records", element: <MedicalRecords /> }, // Trang hồ sơ y tế
       { path: "customer/prescriptions", element: <Dashboard /> }, // Tạm thời dùng Dashboard
-      { path: "customer/profile", element: <Dashboard /> }, // Tạm thời dùng Dashboard
-      { path: "customer/settings", element: <Dashboard /> }, // Tạm thời dùng Dashboard
+      { path: "customer/profile", element: <Profile /> }, // Trang hồ sơ cá nhân
+      { path: "customer/settings", element: <Settings /> }, // Trang cài đặt
+
+      // 404 route - phải đặt cuối cùng
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);

@@ -3,6 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   isLoginModalOpen: false,
   isBookingModalOpen: false,
+  isRegisterModalOpen: false,
+  isOTPModalOpen: false,
 };
 
 const uiSlice = createSlice({
@@ -21,6 +23,18 @@ const uiSlice = createSlice({
     closeBookingModal: (state) => {
       state.isBookingModalOpen = false;
     },
+    openRegisterModal: (state) => {
+      state.isRegisterModalOpen = true;
+    },
+    closeRegisterModal: (state) => {
+      state.isRegisterModalOpen = false;
+    },
+    openOTPModal: (state) => {
+      state.isOTPModalOpen = true;
+    },
+    closeOTPModal: (state) => {
+      state.isOTPModalOpen = false;
+    },
   },
 });
 
@@ -29,6 +43,10 @@ export const {
   closeLoginModal,
   openBookingModal,
   closeBookingModal,
+  openRegisterModal,
+  closeRegisterModal,
+  openOTPModal,
+  closeOTPModal,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

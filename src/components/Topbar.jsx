@@ -17,7 +17,7 @@ const Topbar = () => {
     fetchClinicInfo();
   }, []);
   return (
-    <div className="bg-white max-w-[1480px] mx-auto py-6">
+    <div className="bg-white max-w-[1480px] mx-auto py-6 rounded-2xl">
       <div className="container-fluid px-4">
         <div className="flex items-center">
           <div className="w-3/4">

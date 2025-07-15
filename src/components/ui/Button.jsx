@@ -19,18 +19,24 @@ const Button = React.forwardRef(
 
     const variants = {
       default:
-        "bg-primary text-white hover:bg-primary/90 focus:ring-primary/50 shadow-sm",
+        "bg-primary text-white hover:bg-primary/90 focus:ring-primary/50 shadow-sm hover:shadow-md",
       secondary:
-        "bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500/50",
+        "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500/50 border border-gray-300",
       outline:
-        "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-gray-500/50",
-      ghost: "text-gray-700 hover:bg-gray-100 focus:ring-gray-500/50",
+        "border border-primary bg-white text-primary hover:bg-primary/5 focus:ring-primary/50 hover:border-primary/80",
+      ghost: "text-primary hover:bg-primary/10 focus:ring-primary/50",
+      medical:
+        "bg-accent text-white hover:bg-accent/90 focus:ring-accent/50 shadow-sm hover:shadow-md",
+      gentle:
+        "bg-pink-100 text-pink-700 hover:bg-pink-200 focus:ring-pink-500/50 border border-pink-300",
+      professional:
+        "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500/50 shadow-sm",
       destructive:
-        "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500/50",
+        "bg-red-500 text-white hover:bg-red-600 focus:ring-red-500/50 shadow-sm",
       success:
-        "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500/50",
-      modal:
-        "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500/50 shadow-md hover:shadow-lg transform hover:-translate-y-0.5",
+        "bg-emerald-500 text-white hover:bg-emerald-600 focus:ring-emerald-500/50 shadow-sm",
+      warning:
+        "bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-500/50 shadow-sm",
     };
 
     const sizes = {

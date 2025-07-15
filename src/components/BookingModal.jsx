@@ -222,11 +222,11 @@ const BookingModal = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50"
+      className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50 p-4 hide-scrollbar"
       style={{ backgroundColor: "rgba(32, 41, 110, 0.3)" }}
       onClick={handleOverlayClick}
     >
-      <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-2xl relative max-h-[90vh] overflow-y-auto transition-all duration-300 transform scale-100">
+      <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-2xl relative max-h-[90vh] scrollable-hidden modal-container transition-all duration-300 transform scale-100">
         <Button
           variant="ghost"
           size="icon"

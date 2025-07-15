@@ -20,9 +20,18 @@ import {
 // eslint-disable-next-line
 import { motion, AnimatePresence } from "framer-motion";
 import AppointmentDetailModal from "../../components/AppointmentDetailModal";
+import RescheduleModal from "../../components/RescheduleModal";
 import useAppointments from "../../hooks/useAppointments";
 import useAppointmentTypes from "../../hooks/useAppointmentTypes";
-import useAppointmentActions from "../../hooks/useAppointmentActions";
+import useAppointmentActionsWithModal from "../../hooks/useAppointmentActionsWithModal";
+import {
+  MedicalLoading,
+  MedicalStatusBadge,
+  MedicalEmptyState,
+  MedicalAlert,
+  MedicalCard,
+  Button,
+} from "../../components/ui";
 
 const AppointmentList = () => {
   const {
@@ -80,7 +89,11 @@ const AppointmentList = () => {
     canCancelOrReschedule,
     handleCancelAppointment,
     handleRescheduleAppointment,
-  } = useAppointmentActions(handleRefresh);
+    showRescheduleModal,
+    selectedAppointment: selectedAppointmentForReschedule,
+    handleCloseRescheduleModal,
+    handleRescheduleSuccess,
+  } = useAppointmentActionsWithModal(handleRefresh);
 
   // Status options from API
   const statusOptions = getStatusOptions();
@@ -233,13 +246,14 @@ const AppointmentList = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">
-            Đang tải danh sách lịch hẹn...
-          </p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <MedicalLoading
+          variant="professional"
+          size="large"
+          text="Đang tải danh sách lịch hẹn..."
+          subText="Vui lòng đợi trong giây lát"
+          fullScreen
+        />
       </div>
     );
   }
@@ -247,20 +261,24 @@ const AppointmentList = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-red-500" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Có lỗi xảy ra
-          </h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={handleRefresh}
-            className="bg-primary hover:bg-accent text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200"
+        <div className="max-w-md mx-auto p-6">
+          <MedicalAlert
+            type="error"
+            title="Có lỗi xảy ra khi tải lịch hẹn"
+            message={error}
+            size="large"
           >
-            Thử lại
-          </button>
+            <div className="mt-4">
+              <Button
+                variant="medical"
+                onClick={handleRefresh}
+                className="w-full"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Thử lại
+              </Button>
+            </div>
+          </MedicalAlert>
         </div>
       </div>
     );
@@ -636,9 +654,7 @@ const AppointmentList = () => {
                             {canCancelOrReschedule(appointment) && (
                               <button
                                 onClick={() =>
-                                  handleRescheduleAppointment(
-                                    appointment.appointmentId
-                                  )
+                                  handleRescheduleAppointment(appointment)
                                 }
                                 disabled={actionLoading}
                                 className="inline-flex items-center px-3 py-2 text-sm font-medium text-yellow-600 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -711,6 +727,14 @@ const AppointmentList = () => {
         isOpen={showDetailModal}
         onClose={handleCloseModal}
         loading={detailLoading}
+      />
+
+      {/* Reschedule Modal */}
+      <RescheduleModal
+        isOpen={showRescheduleModal}
+        onClose={handleCloseRescheduleModal}
+        appointment={selectedAppointmentForReschedule}
+        onSuccess={handleRescheduleSuccess}
       />
     </div>
   );

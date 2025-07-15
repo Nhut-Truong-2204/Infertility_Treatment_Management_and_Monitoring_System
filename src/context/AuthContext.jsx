@@ -191,6 +191,25 @@ export const AuthProvider = ({ children }) => {
     return response.data;
   };
 
+  // Hàm refresh user data
+  const refreshUser = useCallback(async () => {
+    try {
+      const res = await authAxios.get("/api/auth/information");
+      const userData = res.data.data;
+      setUser(userData);
+      // Cập nhật lại cookie user
+      Cookies.set("user", JSON.stringify(userData), {
+        expires: 1,
+        secure: true,
+        sameSite: "Strict",
+      });
+      return userData;
+    } catch (error) {
+      console.error("Error refreshing user data:", error);
+      throw error;
+    }
+  }, []);
+
   // --- Hook Khởi Tạo Chính ---
   useEffect(() => {
     const initializeAuth = async () => {
@@ -247,7 +266,7 @@ export const AuthProvider = ({ children }) => {
   }, [startIdleMonitoring, cleanupEventListeners]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
       <IdleWarningModal
         isOpen={showWarning}
         onContinue={continueSession}

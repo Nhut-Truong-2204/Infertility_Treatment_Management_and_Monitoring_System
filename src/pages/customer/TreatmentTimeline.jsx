@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useTreatmentTimeline } from "../../hooks/useTreatmentTimeline";
 import {
-  MedicalLoading,
+  Loading,
   MedicalStatusBadge,
   MedicalEmptyState,
   MedicalAlert,
@@ -48,12 +48,13 @@ const TreatmentTimeline = () => {
   if (loading) {
     return (
       <div className="bg-gray-50 min-h-screen py-8 font-onest">
-        <MedicalLoading
-          variant="treatment"
+        <Loading
+          variant="accent"
           size="large"
           text="Đang tải phác đồ điều trị..."
           subText="Vui lòng đợi trong giây lát"
           fullScreen
+          type="treatment"
         />
       </div>
     );

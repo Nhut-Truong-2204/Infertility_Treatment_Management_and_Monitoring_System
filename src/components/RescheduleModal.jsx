@@ -3,7 +3,7 @@ import { Calendar, Clock, X, CheckCircle, AlertTriangle } from "lucide-react";
 import Swal from "sweetalert2";
 import useWorkingShifts from "../hooks/useWorkingShifts";
 import { rescheduleAppointment } from "../api/appointmentAPI";
-import GlobalLoading from "./ui/GlobalLoading";
+import { Loading } from "./ui";
 
 const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
   const [selectedDate, setSelectedDate] = useState("");
@@ -295,7 +295,11 @@ const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
                   </div>
                 ) : shiftsLoading ? (
                   <div className="py-8">
-                    <GlobalLoading isLoading={true} />
+                    <Loading
+                      variant="primary"
+                      type="appointment"
+                      text="Đang tải ca khám..."
+                    />
                   </div>
                 ) : futureShifts.length === 0 ? (
                   <div className="text-center py-8">

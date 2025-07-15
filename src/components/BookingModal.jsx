@@ -5,17 +5,15 @@ import Swal from "sweetalert2";
 
 // Import UI components
 import Button from "./ui/Button";
-import GlobalLoading from "./ui/GlobalLoading";
+import { Loading } from "./ui";
 
 // Import các component con
-import Step2ServiceType from "./booking/Step2ServiceType";
-import Step3ServiceDefinition from "./booking/Step3ServiceDefinition";
-import Step1AppointmentType from "./booking/Step1AppointmentType";
-import Step4DateTime from "./booking/Step4DateTime"; // Đã đổi tên
-import Step5Doctor from "./booking/Step5Doctor"; // Đã đổi tên
-import Step6Confirmation from "./booking/Step6Confirmation";
+import Step1ServiceDefinition from "./booking/Step1ServiceDefinition";
+import Step2DateTime from "./booking/Step2DateTime";
+import Step3Doctor from "./booking/Step3Doctor";
+import Step4Confirmation from "./booking/Step4Confirmation";
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 4; // Giảm từ 6 xuống 4 bước
 
 const BookingModal = ({ isOpen, onClose }) => {
   const { user, loading } = useAuth(); // Sử dụng hook mới
@@ -26,7 +24,17 @@ const BookingModal = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen) {
       setCurrentStep(1);
-      setFormData({});
+      // Hard code các giá trị mặc định cho Step1 và Step2
+      setFormData({
+        appointmentType: {
+          typeName: "MEDICAL_EXAM",
+          description: "Khám bệnh tổng quát hoặc chuyên khoa",
+        },
+        serviceType: {
+          typeName: "CONSULTATION",
+          description: "Khám bệnh",
+        },
+      });
     }
   }, [isOpen]);
   useEffect(() => {
@@ -50,7 +58,14 @@ const BookingModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   if (loading) {
-    return <GlobalLoading isLoading={true} />;
+    return (
+      <Loading
+        fullScreen
+        variant="appointment"
+        type="appointment"
+        text="Đang tải..."
+      />
+    );
   }
 
   // Hàm xử lý click overlay
@@ -96,17 +111,13 @@ const BookingModal = ({ isOpen, onClose }) => {
 
   const isNextDisabled = () => {
     switch (currentStep) {
-      case 1:
-        return !formData.appointmentType;
-      case 2:
-        return !formData.serviceType || !formData.serviceType.typeName;
-      case 3:
+      case 1: // Step3ServiceDefinition
         return !formData.serviceDefinition;
-      case 4:
+      case 2: // Step4DateTime
         return !formData.date || !formData.shift || !isSelectedTimeValid();
-      case 5:
+      case 3: // Step5Doctor
         return !formData.doctor;
-      case 6:
+      case 4: // Step6Confirmation
         return (
           !formData.reasonForVisit || formData.reasonForVisit.trim() === ""
         );
@@ -119,21 +130,15 @@ const BookingModal = ({ isOpen, onClose }) => {
     switch (currentStep) {
       case 1:
         return (
-          <Step1AppointmentType onSelect={handleSelect} formData={formData} />
+          <Step1ServiceDefinition onSelect={handleSelect} formData={formData} />
         );
       case 2:
-        return <Step2ServiceType onSelect={handleSelect} formData={formData} />;
+        return <Step2DateTime onSelect={handleSelect} formData={formData} />;
       case 3:
-        return (
-          <Step3ServiceDefinition onSelect={handleSelect} formData={formData} />
-        );
+        return <Step3Doctor onSelect={handleSelect} formData={formData} />;
       case 4:
-        return <Step4DateTime onSelect={handleSelect} formData={formData} />;
-      case 5:
-        return <Step5Doctor onSelect={handleSelect} formData={formData} />;
-      case 6:
         return (
-          <Step6Confirmation onSelect={handleSelect} formData={formData} />
+          <Step4Confirmation onSelect={handleSelect} formData={formData} />
         );
       default:
         return null;

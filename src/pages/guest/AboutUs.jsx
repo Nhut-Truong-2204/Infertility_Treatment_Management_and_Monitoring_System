@@ -1,6 +1,6 @@
 import React from "react";
 import useClinicInfo from "../../hooks/useClinicIntro";
-import { MedicalLoading, MedicalAlert, MedicalCard } from "../../components/ui";
+import { Loading, MedicalAlert, MedicalCard } from "../../components/ui";
 
 const AboutUs = () => {
   const { clinicIntro: clinicInfo, loading, error } = useClinicInfo();
@@ -8,10 +8,12 @@ const AboutUs = () => {
   // Xử lý trạng thái tải và lỗi
   if (loading) {
     return (
-      <MedicalLoading
+      <Loading
         variant="primary"
         fullScreen
-        message="Đang tải thông tin phòng khám..."
+        text="Đang tải thông tin phòng khám..."
+        type="spinner"
+        size="large"
       />
     );
   }

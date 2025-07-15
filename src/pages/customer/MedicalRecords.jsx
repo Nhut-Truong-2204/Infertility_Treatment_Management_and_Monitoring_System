@@ -3,7 +3,7 @@ import { useMedicalRecords } from "../../hooks/useMedicalRecords";
 import MedicalRecordDetailModal from "../../components/MedicalRecordDetailModal";
 import MedicalRecordsSummary from "../../components/MedicalRecordsSummary";
 import {
-  MedicalLoading,
+  Loading,
   MedicalStatusBadge,
   MedicalEmptyState,
   MedicalAlert,
@@ -94,8 +94,8 @@ const MedicalRecords = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <MedicalLoading
-          variant="professional"
+        <Loading
+          variant="info"
           size="large"
           text="Đang tải hồ sơ y tế..."
           subText="Vui lòng đợi trong giây lát"

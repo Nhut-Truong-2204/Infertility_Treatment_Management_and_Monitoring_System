@@ -15,7 +15,7 @@ import {
 import { useAuth } from "../../hooks/useAuth";
 import { getCurrentProfile } from "../../api/profileAPI";
 import UpdateProfileModal from "../../components/UpdateProfileModal";
-import { MedicalLoading, MedicalCard, Button } from "../../components/ui";
+import { Loading, MedicalCard, Button } from "../../components/ui";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -77,8 +77,8 @@ const Profile = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <MedicalLoading
-          variant="gentle"
+        <Loading
+          variant="primary"
           size="large"
           text="Đang tải thông tin hồ sơ..."
           subText="Vui lòng đợi trong giây lát"

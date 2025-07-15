@@ -1,11 +1,13 @@
 // Export các component UI chính cho ứng dụng y tế hiếm muộn
 export { default as Button } from "./Button";
 
-// Loading Components - Tối ưu cho y tế
-export { default as MedicalLoading } from "./MedicalLoading";
-export { default as ProcessLoading } from "./ProcessLoading";
-export { default as GlobalLoading } from "./GlobalLoading";
-export { default as LoadingSpinner } from "./LoadingSpinner";
+// Loading Component - Component duy nhất cho toàn bộ hệ thống
+export { default as Loading } from "./Loading";
+// Aliases for backward compatibility
+export { default as MedicalLoading } from "./Loading";
+export { default as ProcessLoading } from "./Loading";
+export { default as GlobalLoading } from "./Loading";
+export { default as LoadingSpinner } from "./Loading";
 
 // Status & State Components
 export { default as MedicalStatusBadge } from "./StatusBadge";

@@ -25,7 +25,7 @@ import useAppointments from "../../hooks/useAppointments";
 import useAppointmentTypes from "../../hooks/useAppointmentTypes";
 import useAppointmentActionsWithModal from "../../hooks/useAppointmentActionsWithModal";
 import {
-  MedicalLoading,
+  Loading,
   MedicalStatusBadge,
   MedicalEmptyState,
   MedicalAlert,
@@ -247,12 +247,13 @@ const AppointmentList = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <MedicalLoading
-          variant="professional"
+        <Loading
+          variant="info"
           size="large"
           text="Đang tải danh sách lịch hẹn..."
           subText="Vui lòng đợi trong giây lát"
           fullScreen
+          type="appointment"
         />
       </div>
     );

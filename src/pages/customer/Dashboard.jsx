@@ -3,7 +3,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { Navigate, Link } from "react-router-dom";
 import useDashboard from "../../hooks/useDashboard";
 import {
-  MedicalLoading,
+  Loading,
   MedicalStatusBadge,
   MedicalEmptyState,
   MedicalAlert,
@@ -31,7 +31,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="bg-gray-50 py-8 font-onest min-h-screen">
-        <MedicalLoading
+        <Loading
           size="large"
           variant="medical"
           text="Đang tải thông tin bảng điều khiển..."

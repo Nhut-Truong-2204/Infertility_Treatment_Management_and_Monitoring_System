@@ -1,6 +1,6 @@
-// axios.js
 import axios from "axios";
 import Cookies from "js-cookie";
+import Swal from "sweetalert2";
 
 const instance = axios.create({
   baseURL: "https://infertility-treatment-management-and.onrender.com",
@@ -8,10 +8,9 @@ const instance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // Để gửi cookie refresh token nếu server dùng cookie
+  withCredentials: true,
 });
 
-// Gắn accessToken vào request
 instance.interceptors.request.use(
   (config) => {
     const token = Cookies.get("accessToken");
@@ -23,7 +22,6 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// RESPONSE interceptor xử lý refresh token
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -43,13 +41,18 @@ instance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Chỉ thử refresh token nếu:
+    // 1. Có lỗi 401/403
+    // 2. Chưa retry
+    // 3. Có token ban đầu (không phải guest user)
+    // 4. Không phải request đến auth endpoints
     if (
       error.response &&
-      error.response.status === 403 &&
-      !originalRequest._retry
+      (error.response.status === 401 || error.response.status === 403) &&
+      !originalRequest._retry &&
+      Cookies.get("accessToken") && // Chỉ retry nếu có token
+      !originalRequest.url.includes("/api/auth/") // Không retry cho auth endpoints
     ) {
-      originalRequest._retry = true;
-
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
@@ -61,11 +64,12 @@ instance.interceptors.response.use(
           .catch((err) => Promise.reject(err));
       }
 
+      originalRequest._retry = true;
       isRefreshing = true;
 
       try {
         const response = await instance.post("/api/auth/refresh-token");
-        const newAccessToken = response.data.accessToken;
+        const newAccessToken = response.data.data;
 
         Cookies.set("accessToken", newAccessToken, {
           expires: 1,
@@ -73,24 +77,29 @@ instance.interceptors.response.use(
           sameSite: "Strict",
         });
 
+        instance.defaults.headers.common["Authorization"] =
+          "Bearer " + newAccessToken;
         originalRequest.headers["Authorization"] = "Bearer " + newAccessToken;
+
         processQueue(null, newAccessToken);
         return instance(originalRequest);
       } catch (err) {
         processQueue(err, null);
 
-        import("sweetalert2").then(({ default: Swal }) => {
+        // Chỉ hiển thị popup khi thực sự cần thiết
+        const hasToken = Cookies.get("accessToken");
+        if (hasToken) {
           Swal.fire({
             icon: "warning",
             title: "Phiên đăng nhập đã hết hạn",
             text: "Vui lòng đăng nhập lại để tiếp tục.",
-            confirmButtonText: "Đăng nhập",
+            confirmButtonText: "Đồng ý",
           }).then(() => {
             Cookies.remove("accessToken");
             Cookies.remove("user");
-            window.location.href = "/login";
+            window.location.href = "/";
           });
-        });
+        }
 
         return Promise.reject(err);
       } finally {

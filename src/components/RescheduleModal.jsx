@@ -24,13 +24,11 @@ const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
     }
   }, [isOpen]);
 
-  // Lấy ngày hiện tại theo định dạng YYYY-MM-DD
   const getTodayDate = () => {
     const today = new Date();
     return today.toISOString().split("T")[0];
   };
 
-  // Kiểm tra ca khám có trong tương lai không (giống Step4DateTime)
   const isShiftInFuture = (shift, selectedDate) => {
     if (!selectedDate) return true;
 

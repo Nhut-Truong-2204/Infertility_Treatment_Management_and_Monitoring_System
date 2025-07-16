@@ -10,6 +10,7 @@ export const getDoctors = async (doctocName) => {
     );
     return response.data;
   } catch (_) {
+    console.error("❌ Failed to fetch doctors:", _);
     throw new Error("Lỗi khi lấy danh sách bác sĩ");
   }
 };

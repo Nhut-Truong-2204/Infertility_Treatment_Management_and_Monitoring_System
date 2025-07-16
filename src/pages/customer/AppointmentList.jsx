@@ -565,7 +565,7 @@ const AppointmentList = () => {
                                 #{appointment.appointmentId}
                               </p>
                               <p className="text-sm text-gray-500">
-                                {appointment.appointmentType?.typeName ||
+                                {appointment.appointmentType?.description ||
                                   "Không rõ"}
                               </p>
                             </div>

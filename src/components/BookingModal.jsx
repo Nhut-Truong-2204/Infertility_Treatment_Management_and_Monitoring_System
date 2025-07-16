@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth"; // Sử dụng hook mới
 import axios from "../config/axios";
-import Swal from "sweetalert2";
+import MedicalAlert from "./ui/MedicalAlert";
+import MedicalCard from "./ui/MedicalCard";
 
 // Import UI components
 import Button from "./ui/Button";
@@ -20,6 +21,7 @@ const BookingModal = ({ isOpen, onClose }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [alert, setAlert] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -149,7 +151,11 @@ const BookingModal = ({ isOpen, onClose }) => {
     console.log("User object:", user); // Debug log
 
     if (!user) {
-      Swal.fire("Lỗi", "Vui lòng đăng nhập để đặt lịch hẹn.", "error");
+      setAlert({
+        type: "error",
+        title: "Lỗi",
+        message: "Vui lòng đăng nhập để đặt lịch hẹn.",
+      });
       return;
     }
 
@@ -163,21 +169,21 @@ const BookingModal = ({ isOpen, onClose }) => {
     console.log("Patient Profile ID:", patientProfileId); // Debug log
 
     if (!patientProfileId) {
-      Swal.fire(
-        "Lỗi",
-        "Không tìm thấy thông tin bệnh nhân. Vui lòng đăng nhập lại.",
-        "error"
-      );
+      setAlert({
+        type: "error",
+        title: "Lỗi",
+        message: "Không tìm thấy thông tin bệnh nhân. Vui lòng đăng nhập lại.",
+      });
       return;
     }
 
     // Kiểm tra thời gian được chọn có hợp lệ không
     if (!isSelectedTimeValid()) {
-      Swal.fire(
-        "Lỗi",
-        "Thời gian đã chọn đã qua. Vui lòng chọn thời gian khác.",
-        "error"
-      );
+      setAlert({
+        type: "error",
+        title: "Lỗi",
+        message: "Thời gian đã chọn đã qua. Vui lòng chọn thời gian khác.",
+      });
       return;
     }
 
@@ -208,18 +214,21 @@ const BookingModal = ({ isOpen, onClose }) => {
     setIsSubmitting(true);
     try {
       await axios.post("/api/customer/appointments", payload);
-      Swal.fire(
-        "Thành công!",
-        "Lịch hẹn của bạn đã được tạo thành công.",
-        "success"
-      );
-      onClose();
+      setAlert({
+        type: "success",
+        title: "Thành công!",
+        message: "Lịch hẹn của bạn đã được tạo thành công.",
+      });
+      setTimeout(() => {
+        setAlert(null);
+        onClose();
+      }, 2000);
     } catch (error) {
-      Swal.fire(
-        "Lỗi!",
-        error.response?.data?.message || "Không thể tạo lịch hẹn.",
-        "error"
-      );
+      setAlert({
+        type: "error",
+        title: "Lỗi!",
+        message: error.response?.data?.message || "Không thể tạo lịch hẹn.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -231,7 +240,12 @@ const BookingModal = ({ isOpen, onClose }) => {
       style={{ backgroundColor: "rgba(32, 41, 110, 0.3)" }}
       onClick={handleOverlayClick}
     >
-      <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-2xl relative max-h-[90vh] scrollable-hidden modal-container transition-all duration-300 transform scale-100">
+      <MedicalCard
+        variant="medical"
+        size="large"
+        shadow="xl"
+        className="w-full max-w-2xl relative max-h-[90vh] scrollable-hidden modal-container transition-all duration-300 transform scale-100"
+      >
         <Button
           variant="ghost"
           size="icon"
@@ -241,7 +255,7 @@ const BookingModal = ({ isOpen, onClose }) => {
           <i className="fas fa-times text-xl"></i>
         </Button>
 
-        <div className="mb-6">
+        <MedicalCard.Header>
           <span className="text-sm font-medium text-accent">
             Bước {currentStep} trên {TOTAL_STEPS}
           </span>
@@ -251,11 +265,24 @@ const BookingModal = ({ isOpen, onClose }) => {
               style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
             ></div>
           </div>
-        </div>
+        </MedicalCard.Header>
 
-        <div className="min-h-[300px]">{renderStepContent()}</div>
+        {alert && (
+          <MedicalAlert
+            type={alert.type}
+            title={alert.title}
+            message={alert.message}
+            dismissible
+            onDismiss={() => setAlert(null)}
+            className="mb-4"
+          />
+        )}
 
-        <div className="flex justify-between mt-8 pt-4 border-t border-gray-200">
+        <MedicalCard.Content>
+          <div className="min-h-[300px]">{renderStepContent()}</div>
+        </MedicalCard.Content>
+
+        <MedicalCard.Footer>
           <Button
             variant="outline"
             onClick={prevStep}
@@ -288,8 +315,8 @@ const BookingModal = ({ isOpen, onClose }) => {
               {isSubmitting ? "Đang xử lý..." : "Xác Nhận Lịch Hẹn"}
             </Button>
           )}
-        </div>
-      </div>
+        </MedicalCard.Footer>
+      </MedicalCard>
     </div>
   );
 };

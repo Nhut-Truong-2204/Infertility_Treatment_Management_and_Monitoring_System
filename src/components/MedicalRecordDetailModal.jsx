@@ -100,7 +100,10 @@ const MedicalRecordDetailModal = ({ record, isOpen, onClose, loading }) => {
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-6 max-h-[80vh] overflow-y-auto hide-scrollbar">
+        <div
+          className="p-4 sm:p-6 max-h-[80vh] overflow-y-auto hide-scrollbar"
+          style={{ paddingBottom: "80px" }}
+        >
           {loading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>

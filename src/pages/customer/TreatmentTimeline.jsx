@@ -62,21 +62,22 @@ const TreatmentTimeline = () => {
 
   if (error) {
     return (
-      <div className="bg-gray-50 min-h-screen py-8 font-onest">
-        <div className="container mx-auto px-4">
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i className="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+      <div className="bg-gray-50 min-h-screen py-8 font-onest flex items-center justify-center">
+        <MedicalCard className="max-w-lg w-full mx-auto">
+          <MedicalCard.Content>
+            <MedicalAlert
+              type="error"
+              title="Có lỗi xảy ra"
+              message={error}
+              className="mb-6"
+            />
+            <div className="flex justify-center">
+              <Button onClick={refetch} variant="default">
+                Thử lại
+              </Button>
             </div>
-            <h3 className="text-xl font-semibold text-primary mb-2">
-              Có lỗi xảy ra
-            </h3>
-            <p className="text-text-color mb-6">{error}</p>
-            <Button onClick={refetch} variant="default">
-              Thử lại
-            </Button>
-          </div>
-        </div>
+          </MedicalCard.Content>
+        </MedicalCard>
       </div>
     );
   }

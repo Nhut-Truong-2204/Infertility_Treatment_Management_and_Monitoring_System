@@ -143,7 +143,10 @@ const AppointmentDetailModal = ({
           </div>
 
           {/* Modal Content */}
-          <div className="p-6 max-h-[80vh] overflow-y-auto hide-scrollbar">
+          <div
+            className="p-6 max-h-[80vh] overflow-y-auto hide-scrollbar"
+            style={{ paddingBottom: "80px" }}
+          >
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -509,11 +512,12 @@ const AppointmentDetailModal = ({
           </div>
 
           {/* Modal Footer */}
-          <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+          <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 sticky bottom-0 left-0 right-0 z-20">
             <div className="flex justify-end space-x-3">
               <button
                 onClick={onClose}
-                className="px-6 py-2 bg-primary hover:bg-accent text-white rounded-xl transition-colors duration-200"
+                className="px-6 py-2 bg-primary hover:!bg-accent text-white rounded-xl transition-colors duration-200"
+                style={{ minWidth: 100 }}
               >
                 Đóng
               </button>

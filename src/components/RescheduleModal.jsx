@@ -103,6 +103,7 @@ const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
 
     // Kiểm tra ngày giờ mới phải khác với ngày giờ hiện tại
     const currentDateTime = new Date(appointment.appointmentDateTime);
+    // Tạo newDateTime đúng với giờ người dùng chọn
     const newDateTime = new Date(
       `${selectedDate}T${selectedShift.startTime}:00`
     );
@@ -120,15 +121,14 @@ const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
   const handleReschedule = async () => {
     if (!validateSelection()) return;
 
-    const newDateTime = new Date(
-      `${selectedDate}T${selectedShift.startTime}:00`
-    );
+    // Tạo newDateTime đúng với giờ người dùng chọn
+    const newDateTime = `${selectedDate}T${selectedShift.startTime}:00`;
 
     try {
       setLoading(true);
-
+      console.log("Rescheduling appointment to:", newDateTime);
       const response = await rescheduleAppointment(appointment.appointmentId, {
-        newAppointmentDateTime: newDateTime.toISOString(),
+        newAppointmentDateTime: newDateTime,
         reasonForReschedule: rescheduleReason || "",
       });
 

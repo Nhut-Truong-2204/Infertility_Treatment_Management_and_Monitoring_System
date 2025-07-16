@@ -18,6 +18,7 @@
     "@reduxjs/toolkit": "^2.8.2",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/vite": "^4.1.7",
+    "antd": "^5.26.5",
     "axios": "^1.10.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

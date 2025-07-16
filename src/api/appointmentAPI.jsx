@@ -14,6 +14,7 @@ export const createAppointment = async (data) => {
 export const getAppointmentTypes = async () => {
   try {
     const res = await axios.get("/api/appointment-types");
+
     return res.data.data || [];
   } catch (err) {
     console.error("API Appointment Types Error:", err.response?.data || err);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import Swal from "sweetalert2";
+import MedicalCard from "./ui/MedicalCard";
+import MedicalAlert from "./ui/MedicalAlert";
 import { closeOTPModal, openLoginModal } from "../redux/slices/uiSlice";
 import {
   verifyRegistrationOTP,
@@ -66,23 +67,22 @@ const OTPVerificationModal = () => {
   }, [isOpen, dispatch]);
 
   // Chuyển đến login modal khi xác thực thành công
+  const [alert, setAlert] = useState(null);
   useEffect(() => {
     if (registrationSuccess) {
-      // Clear localStorage khi thành công
       localStorage.removeItem("pendingVerificationEmail");
-
-      dispatch(closeOTPModal());
-      dispatch(clearAllRegisterState());
-
-      Swal.fire({
-        icon: "success",
+      setAlert({
+        type: "success",
         title: "Đăng ký thành công!",
-        text: "Tài khoản của bạn đã được xác thực. Vui lòng đăng nhập để tiếp tục.",
-        confirmButtonText: "Đăng nhập ngay",
-        confirmButtonColor: "#10b981",
-      }).then(() => {
-        dispatch(openLoginModal());
+        message:
+          "Tài khoản của bạn đã được xác thực. Vui lòng đăng nhập để tiếp tục.",
       });
+      setTimeout(() => {
+        setAlert(null);
+        dispatch(closeOTPModal());
+        dispatch(clearAllRegisterState());
+        dispatch(openLoginModal());
+      }, 2500);
     }
   }, [registrationSuccess, dispatch]);
 
@@ -171,20 +171,20 @@ const OTPVerificationModal = () => {
   const handleResendOTP = async () => {
     try {
       await dispatch(resendRegistrationOTP(currentEmail)).unwrap();
-      Swal.fire({
-        icon: "success",
+      setAlert({
+        type: "success",
         title: "Đã gửi lại OTP!",
-        text: "Vui lòng kiểm tra email của bạn.",
-        timer: 3000,
-        showConfirmButton: false,
+        message: "Vui lòng kiểm tra email của bạn.",
       });
+      setTimeout(() => setAlert(null), 2500);
     } catch (err) {
       console.error("Resend OTP error:", err);
-      Swal.fire({
-        icon: "error",
+      setAlert({
+        type: "error",
         title: "Lỗi!",
-        text: "Không thể gửi lại OTP. Vui lòng thử lại sau.",
+        message: "Không thể gửi lại OTP. Vui lòng thử lại sau.",
       });
+      setTimeout(() => setAlert(null), 2500);
     }
   };
 
@@ -201,80 +201,95 @@ const OTPVerificationModal = () => {
       style={{ backgroundColor: "rgba(32, 41, 110, 0.3)" }}
       onClick={handleOverlayClick}
     >
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md relative max-h-[95vh] scrollable-hidden modal-container">
-        <div className="absolute top-4 right-4 z-10">
-          <button
-            onClick={() => dispatch(closeOTPModal())}
-            className="text-2xl w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-800 hover:bg-gray-100 cursor-pointer"
-          >
-            &times;
-          </button>
-        </div>
-
-        <h2 className="text-3xl font-bold text-primary mb-2 text-center">
-          Xác Thực OTP
-        </h2>
-        <p className="text-center text-text-color mb-2">
-          Nhập mã xác thực đã được gửi đến
-        </p>
-        <p className="text-center text-accent font-medium mb-6">
-          {currentEmail || "Email không xác định"}
-        </p>
-
-        {error && (
-          <p className="bg-red-100 text-red-700 p-3 rounded-lg text-center mb-4">
-            {error}
+      <MedicalCard className="w-full max-w-md relative max-h-[95vh] scrollable-hidden modal-container">
+        <button
+          onClick={() => dispatch(closeOTPModal())}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-xl font-bold"
+        >
+          &times;
+        </button>
+        <MedicalCard.Content>
+          <h2 className="text-3xl font-bold text-primary mb-2 text-center">
+            Xác Thực OTP
+          </h2>
+          <p className="text-center text-text-color mb-2">
+            Nhập mã xác thực đã được gửi đến
           </p>
-        )}
+          <p className="text-center text-accent font-medium mb-6">
+            {currentEmail || "Email không xác định"}
+          </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex justify-center space-x-2">
-            {otp.map((digit, index) => (
-              <input
-                key={index}
-                ref={(el) => (inputRefs.current[index] = el)}
-                type="text"
-                maxLength="1"
-                value={digit}
-                onChange={(e) => handleOTPChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                onPaste={handlePaste}
-                className="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
-                inputMode="numeric"
-                pattern="\d*"
-              />
-            ))}
+          {alert && (
+            <MedicalAlert
+              type={alert.type}
+              title={alert.title}
+              message={alert.message}
+              dismissible
+              onDismiss={() => setAlert(null)}
+              className="mb-4"
+            />
+          )}
+
+          {error && (
+            <MedicalAlert
+              type="error"
+              title="Lỗi xác thực OTP"
+              message={error}
+              dismissible
+              onDismiss={() => {}}
+              className="mb-4"
+            />
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="flex justify-center space-x-2">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  type="text"
+                  maxLength="1"
+                  value={digit}
+                  onChange={(e) => handleOTPChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  onPaste={handlePaste}
+                  className="w-12 h-12 text-center text-xl font-bold border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
+                  inputMode="numeric"
+                  pattern="\d*"
+                />
+              ))}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-accent text-white font-bold py-3 rounded-lg hover:bg-primary transition-colors duration-300 disabled:opacity-50"
+              disabled={loading || !isOTPComplete}
+            >
+              {loading ? "Đang xác thực..." : "Xác Thực"}
+            </button>
+          </form>
+
+          <div className="text-center mt-6 space-y-2">
+            <p className="text-sm text-gray-600">
+              Không nhận được mã?{" "}
+              <button
+                onClick={handleResendOTP}
+                className="text-accent hover:underline font-medium"
+              >
+                Gửi lại
+              </button>
+            </p>
+            <p className="text-sm text-gray-600">
+              <button
+                onClick={backToLogin}
+                className="text-accent hover:underline font-medium"
+              >
+                Quay lại đăng nhập
+              </button>
+            </p>
           </div>
-
-          <button
-            type="submit"
-            className="w-full bg-accent text-white font-bold py-3 rounded-lg hover:bg-primary transition-colors duration-300 disabled:opacity-50"
-            disabled={loading || !isOTPComplete}
-          >
-            {loading ? "Đang xác thực..." : "Xác Thực"}
-          </button>
-        </form>
-
-        <div className="text-center mt-6 space-y-2">
-          <p className="text-sm text-gray-600">
-            Không nhận được mã?{" "}
-            <button
-              onClick={handleResendOTP}
-              className="text-accent hover:underline font-medium"
-            >
-              Gửi lại
-            </button>
-          </p>
-          <p className="text-sm text-gray-600">
-            <button
-              onClick={backToLogin}
-              className="text-accent hover:underline font-medium"
-            >
-              Quay lại đăng nhập
-            </button>
-          </p>
-        </div>
-      </div>
+        </MedicalCard.Content>
+      </MedicalCard>
     </div>
   );
 };

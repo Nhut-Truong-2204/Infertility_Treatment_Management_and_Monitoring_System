@@ -5,7 +5,6 @@ import { logout } from "../../redux/slices/authSlice";
 import { openBookingModal } from "../../redux/slices/uiSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
-import logo from "../../assets/images/logo.svg";
 
 const CustomerHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -52,10 +51,6 @@ const CustomerHeader = () => {
       <div className="bg-primary">
         <div className="max-w-[1480px] mx-auto">
           <nav className="flex items-center py-4 px-4">
-            <NavLink className="navbar-brand" to="/dashboard">
-              <img src={logo} alt="Logo Ferlix" />
-            </NavLink>
-
             {/* Menu cho Desktop */}
             <div className="hidden lg:flex flex-grow justify-center">
               <ul className="flex items-center space-x-6">
@@ -87,7 +82,7 @@ const CustomerHeader = () => {
                 className="bg-accent text-white px-4 py-2 rounded-lg hover:bg-accent/90 transition-colors flex items-center space-x-2 font-medium"
               >
                 <i className="fas fa-plus text-sm"></i>
-                <span>Đặt Lịch Hẹn</span>
+                <span>Đặt Lịch Khám</span>
               </button>
 
               {/* Notifications */}

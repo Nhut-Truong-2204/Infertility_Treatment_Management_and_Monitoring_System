@@ -27,6 +27,11 @@ const CustomerHeader = () => {
       icon: "fa-procedures",
     },
     {
+      path: "/customer/treatment-contracts",
+      name: "Hợp Đồng Điều Trị",
+      icon: "fa-file-contract",
+    },
+    {
       path: "/customer/medical-records",
       name: "Hồ Sơ Y Tế",
       icon: "fa-file-medical",

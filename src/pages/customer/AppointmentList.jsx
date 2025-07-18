@@ -119,7 +119,6 @@ const AppointmentList = () => {
     };
   };
 
-  // Helper function để tính khoảng cách ngày so với hôm nay
   const getDaysFromToday = (dateTimeString) => {
     if (!dateTimeString) return null;
     const appointmentDate = new Date(dateTimeString);

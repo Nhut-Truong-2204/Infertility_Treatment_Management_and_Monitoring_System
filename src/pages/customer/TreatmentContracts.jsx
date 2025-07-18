@@ -521,7 +521,6 @@ const TreatmentContracts = () => {
               description="Bạn chưa có hợp đồng điều trị nào. Hãy liên hệ với phòng khám để được tư vấn."
               actionText="Tìm hiểu thêm"
               onAction={() => {
-                // Navigate to services or contact page
                 window.location.href = "/services";
               }}
             />
@@ -597,9 +596,8 @@ const TreatmentContracts = () => {
                               <Eye className="w-4 h-4" />
                               Xem chi tiết
                             </Button>
-                            {/* Nút ký hợp đồng nếu trạng thái là PENDING hoặc SIGNED */}
-                            {(contract.status?.typeName === "PENDING" ||
-                              contract.status?.typeName === "SIGNED") && (
+                            {/* Nút ký hợp đồng nếu trạng thái là PENDING */}
+                            {contract.status?.typeName === "PENDING" && (
                               <Button
                                 onClick={(e) => {
                                   e.stopPropagation();

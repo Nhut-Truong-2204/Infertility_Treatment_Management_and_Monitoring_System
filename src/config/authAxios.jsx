@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 // Tạo instance riêng cho authentication để tránh interceptor loops
 const authAxios = axios.create({
-  baseURL: "https://infertility-treatment-management-and.onrender.com",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",

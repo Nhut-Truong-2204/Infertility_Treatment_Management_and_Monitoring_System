@@ -1,103 +1,59 @@
 import React from "react";
 import TreatmentTimeline from "./TreatmentTimeline";
-import {
-  MEDICAL_GRADIENTS,
-  MEDICAL_COLORS,
-  MEDICAL_BORDER_RADIUS,
-  MEDICAL_SHADOWS,
-  MEDICAL_TYPOGRAPHY,
-} from "../../styles/medicalTheme";
 
 const TreatmentProtocolModal = ({ protocol, onClose }) => {
   if (!protocol) return null;
   return (
     <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        background: "rgba(32,41,110,0.12)",
-        zIndex: 1000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-[rgba(32,41,110,0.12)] overflow-hidden"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
+        className="treatment-timeline-modal max-w-[900px] w-[98vw] max-h-[90vh] min-h-[200px] p-10 pt-10 pb-8 relative flex flex-col overflow-y-auto rounded-3xl shadow-2xl"
         style={{
-          background: MEDICAL_GRADIENTS.gentle,
-          borderRadius: MEDICAL_BORDER_RADIUS["2xl"],
-          boxShadow: MEDICAL_SHADOWS.large,
-          maxWidth: "700px",
-          width: "100%",
-          padding: "2.5rem 2rem 2rem 2rem",
-          position: "relative",
+          background: "linear-gradient(135deg, #fef7f3 0%, #f4f5ff 100%)",
+          boxShadow:
+            "0 10px 15px rgba(32, 41, 110, 0.1), 0 4px 6px rgba(32, 41, 110, 0.05)",
+          borderRadius: "1.5rem",
+          scrollbarWidth: "none", // Firefox
+          msOverflowStyle: "none", // IE/Edge
         }}
       >
-        <button
-          onClick={onClose}
-          style={{
-            position: "absolute",
-            top: "1.5rem",
-            right: "1.5rem",
-            background: MEDICAL_GRADIENTS.primary,
-            color: MEDICAL_COLORS.accent[50],
-            border: "none",
-            borderRadius: MEDICAL_BORDER_RADIUS.lg,
-            fontWeight: 700,
-            fontSize: MEDICAL_TYPOGRAPHY.sizes.base,
-            padding: "0.5rem 1.25rem",
-            cursor: "pointer",
-            boxShadow: MEDICAL_SHADOWS.medium,
-          }}
-        >
-          Đóng
-        </button>
+        <style>{`
+          .treatment-timeline-modal::-webkit-scrollbar { display: none; }
+          .treatment-timeline-modal { -ms-overflow-style: none; scrollbar-width: none; }
+        `}</style>
         <h2
+          className="text-center text-2xl font-bold font-display mb-4"
           style={{
-            color: MEDICAL_COLORS.primary[700],
-            fontFamily: MEDICAL_TYPOGRAPHY.fonts.display.join(","),
-            fontSize: MEDICAL_TYPOGRAPHY.sizes["2xl"],
-            fontWeight: 700,
-            marginBottom: "1rem",
-            textAlign: "center",
+            color: "#151c47",
+            fontFamily: "Poppins, Montserrat, sans-serif",
           }}
         >
           {protocol.templateName}{" "}
-          <span
-            style={{
-              color: MEDICAL_COLORS.gray[600],
-              fontSize: MEDICAL_TYPOGRAPHY.sizes.sm,
-            }}
-          >
+          <span className="text-sm font-normal" style={{ color: "#6b7280" }}>
             ({protocol.version})
           </span>
         </h2>
         <div
-          style={{
-            color: MEDICAL_COLORS.gray[700],
-            fontSize: MEDICAL_TYPOGRAPHY.sizes.base,
-            marginBottom: "0.5rem",
-            textAlign: "center",
-          }}
+          className="text-center text-base mb-2 font-sans"
+          style={{ color: "#374151" }}
         >
           {protocol.description}
         </div>
         <div
-          style={{
-            color: MEDICAL_COLORS.info[600],
-            fontSize: MEDICAL_TYPOGRAPHY.sizes.sm,
-            marginBottom: "1rem",
-            textAlign: "center",
-          }}
+          className="text-center text-sm mb-4 font-sans"
+          style={{ color: "#2563eb" }}
         >
           {protocol.targetPatientProfile
             ? `Đối tượng: ${protocol.targetPatientProfile}`
             : ""}
         </div>
-        <TreatmentTimeline protocol={protocol} animate />
+        <div className="flex-1 min-h-0">
+          <TreatmentTimeline protocol={protocol} animate />
+        </div>
       </div>
     </div>
   );

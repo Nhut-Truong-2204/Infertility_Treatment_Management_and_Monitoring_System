@@ -103,10 +103,11 @@ const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
 
     // Kiểm tra ngày giờ mới phải khác với ngày giờ hiện tại
     const currentDateTime = new Date(appointment.appointmentDateTime);
-    // Tạo newDateTime đúng với giờ người dùng chọn
+    // Tạo newDateTime với giờ Việt Nam (UTC+7)
     const newDateTime = new Date(
       `${selectedDate}T${selectedShift.startTime}:00`
     );
+    newDateTime.setHours(newDateTime.getHours() + 7);
 
     if (newDateTime.getTime() === currentDateTime.getTime()) {
       setValidationError("Ngày giờ mới phải khác với ngày giờ hiện tại");
@@ -121,12 +122,11 @@ const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
   const handleReschedule = async () => {
     if (!validateSelection()) return;
 
-    // Tạo newDateTime đúng với giờ người dùng chọn
+    // Tạo newDateTime với giờ Việt Nam (UTC+7)
     const newDateTime = `${selectedDate}T${selectedShift.startTime}:00`;
-
     try {
       setLoading(true);
-      console.log("Rescheduling appointment to:", newDateTime);
+
       const response = await rescheduleAppointment(appointment.appointmentId, {
         newAppointmentDateTime: newDateTime,
         reasonForReschedule: rescheduleReason || "",

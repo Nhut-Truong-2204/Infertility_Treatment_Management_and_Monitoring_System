@@ -14,12 +14,16 @@ const useDashboard = () => {
   // Fetch upcoming appointments
   const fetchUpcomingAppointments = useCallback(async () => {
     try {
-      const currentDate = new Date().toISOString().split("T")[0];
+      const now = new Date();
+      const currentDate = now.toISOString().split("T")[0]; // Format to YYYY-MM-DD
+      let threeDaysLater = new Date(now);
+      threeDaysLater.setDate(now.getDate() + 3);
+      threeDaysLater = threeDaysLater.toISOString().split("T")[0]; // Format to YYYY-MM-DD
       const response = await getPatientAppointments({
         page: 0,
         size: 5,
         fromDate: currentDate,
-        status: "CONFIRMED",
+        toDate: threeDaysLater,
       });
 
       if (response.data && response.data.success) {

@@ -46,6 +46,11 @@ const MedicalCard = ({
       border: "border-blue-200",
       text: "text-blue-900",
     },
+    gentle: {
+      bg: "bg-gray-50",
+      border: "border-gray-200",
+      text: "text-gray-900",
+    },
   };
 
   const sizes = {

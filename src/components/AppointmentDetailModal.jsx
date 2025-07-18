@@ -182,13 +182,8 @@ const AppointmentDetailModal = ({
                       </span>
                     </div>
                     <p className="font-semibold">
-                      {appointment.appointmentType?.typeName}
+                      {appointment.appointmentType.description}
                     </p>
-                    {appointment.appointmentType?.description && (
-                      <p className="text-sm text-gray-500 mt-1">
-                        {appointment.appointmentType.description}
-                      </p>
-                    )}
                   </div>
 
                   <div className="bg-gray-50 p-4 rounded-lg">
@@ -245,7 +240,10 @@ const AppointmentDetailModal = ({
                           Loại dịch vụ
                         </p>
                         <p className="font-semibold text-blue-900">
-                          {appointment.serviceDefinition.serviceType?.typeName}
+                          {
+                            appointment.serviceDefinition.serviceType
+                              ?.description
+                          }
                         </p>
                       </div>
                       <div>

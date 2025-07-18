@@ -13,10 +13,37 @@ import {
 import BookingModal from "../../components/BookingModal";
 import TreatmentSummary from "../../components/TreatmentSummary";
 
-// Utility functions
-const formatDate = (dateString) => {
-  if (!dateString) return "Chưa xác định";
-  return new Date(dateString).toLocaleDateString("vi-VN");
+import { Calendar as CalendarIcon } from "lucide-react";
+
+const formatDateTime = (dateTimeString) => {
+  if (!dateTimeString) return { date: "Không rõ", time: "" };
+  const date = new Date(dateTimeString);
+  return {
+    date: date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }),
+    time: date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  };
+};
+
+const getDaysFromToday = (dateTimeString) => {
+  if (!dateTimeString) return null;
+  const appointmentDate = new Date(dateTimeString);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  appointmentDate.setHours(0, 0, 0, 0);
+  const diffTime = appointmentDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return "Hôm nay";
+  if (diffDays === 1) return "Ngày mai";
+  if (diffDays === -1) return "Hôm qua";
+  if (diffDays > 0) return `Sau ${diffDays} ngày`;
+  return `${Math.abs(diffDays)} ngày trước`;
 };
 
 const Dashboard = () => {
@@ -124,40 +151,62 @@ const Dashboard = () => {
                   />
                 ) : (
                   <div className="space-y-4">
-                    {upcomingAppointments.map((appointment) => (
-                      <MedicalCard
-                        key={appointment.id}
-                        variant="gentle"
-                        size="small"
-                        hover
-                        className="medical-card-hover"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center">
-                            <i className="fas fa-user-md text-white"></i>
+                    {upcomingAppointments.map((appointment) => {
+                      const dateTime = formatDateTime(
+                        appointment.appointmentDateTime ||
+                          appointment.appointmentDate
+                      );
+                      return (
+                        <MedicalCard
+                          key={appointment.id}
+                          variant="gentle"
+                          size="small"
+                          hover
+                          className="medical-card-hover"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center">
+                              <i className="fas fa-user-md text-white"></i>
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-primary">
+                                {appointment.appointmentType?.description ||
+                                  "Khám tổng quát"}
+                              </h3>
+                              <p className="text-sm text-text-color">
+                                Bác sĩ:{" "}
+                                {appointment?.doctorName || "Chưa xác định"}
+                              </p>
+                              {/* Date & Time style like AppointmentList */}
+                              <div className="flex items-center space-x-2 mt-1">
+                                <CalendarIcon className="w-4 h-4 text-gray-400" />
+                                <div>
+                                  <p className="font-medium text-gray-900">
+                                    {dateTime.date}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    {dateTime.time ||
+                                      appointment.timeSlot ||
+                                      "Chưa xác định"}
+                                  </p>
+                                  <p className="text-xs text-blue-600 font-medium">
+                                    {getDaysFromToday(
+                                      appointment.appointmentDateTime ||
+                                        appointment.appointmentDate
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                            <MedicalStatusBadge
+                              status={appointment.status.description}
+                              size="small"
+                              showIcon
+                            />
                           </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-primary">
-                              {appointment.appointmentType?.name ||
-                                "Khám tổng quát"}
-                            </h3>
-                            <p className="text-sm text-text-color">
-                              Bác sĩ:{" "}
-                              {appointment.doctor?.name || "Chưa xác định"}
-                            </p>
-                            <p className="text-sm text-text-color">
-                              {formatDate(appointment.appointmentDate)} -{" "}
-                              {appointment.timeSlot || "Chưa xác định"}
-                            </p>
-                          </div>
-                          <MedicalStatusBadge
-                            status={appointment.status}
-                            size="small"
-                            showIcon
-                          />
-                        </div>
-                      </MedicalCard>
-                    ))}
+                        </MedicalCard>
+                      );
+                    })}
                   </div>
                 )}
               </MedicalCard.Content>

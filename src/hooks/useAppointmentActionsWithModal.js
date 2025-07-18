@@ -20,7 +20,7 @@ const useAppointmentActionsWithModal = (onSuccess) => {
 
     const status = appointment.status?.status;
     // Chỉ cho phép hủy/dời lịch khi trạng thái là SCHEDULED hoặc CHECKED_IN
-    const allowedStatuses = ["SCHEDULED", "CHECKED_IN"];
+    const allowedStatuses = ["SCHEDULED"];
 
     const isAllowed = allowedStatuses.includes(status);
     console.log("🔍 Status check result:", isAllowed);

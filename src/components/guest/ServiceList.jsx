@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/autoplay";
@@ -9,12 +9,18 @@ import {
   getProtocolTemplates,
 } from "../../api/treatmentMethodsAPI";
 import {
-  MEDICAL_GRADIENTS,
   MEDICAL_COLORS,
-  MEDICAL_BORDER_RADIUS,
+  MEDICAL_GRADIENTS,
   MEDICAL_SHADOWS,
-  MEDICAL_TYPOGRAPHY,
 } from "../../styles/medicalTheme";
+import {
+  FaUserMd,
+  FaShieldAlt,
+  FaHeartbeat,
+  FaBaby,
+  FaVial,
+  FaUserFriends,
+} from "react-icons/fa";
 
 const ServiceList = () => {
   const [methods, setMethods] = useState([]);
@@ -22,8 +28,7 @@ const ServiceList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedProtocol, setSelectedProtocol] = useState(null);
-  const [carouselHeight, setCarouselHeight] = useState(420);
-  const cardRefs = React.useRef([]);
+  const cardRefs = useRef([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,23 +39,8 @@ const ServiceList = () => {
         ]);
         setMethods(methodsRes.data || []);
         setProtocols(protocolsRes.data || []);
-        console.table(methodsRes.data, [
-          "treatmentMethodId",
-          "methodName",
-          "description",
-        ]);
-        console.table(protocolsRes.data, [
-          "treatmentProtocolTemplateId",
-          "templateName",
-          "version",
-          "treatmentMethodId",
-          "description",
-        ]);
       } catch (err) {
-        console.error(
-          "❌ Failed to fetch treatment methods or protocols:",
-          err
-        );
+        console.error("Error fetching data:", err);
         setError("Không thể tải dữ liệu dịch vụ điều trị.");
       } finally {
         setLoading(false);
@@ -59,287 +49,218 @@ const ServiceList = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (methods.length === 0) return;
-    // Đợi render xong, đo chiều cao lớn nhất
-    setTimeout(() => {
-      let max = 420;
-      cardRefs.current.forEach((ref) => {
-        if (ref && ref.offsetHeight > max) max = ref.offsetHeight;
-      });
-      setCarouselHeight(max);
-    }, 300);
-  }, [methods]);
-
   if (loading)
     return (
-      <div
-        style={{
-          width: "100%",
-          padding: "2rem 0",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <span>Đang tải...</span>
+      <div className="flex justify-center items-center py-16 text-lg font-semibold text-primary">
+        Đang tải...
       </div>
     );
   if (error)
     return (
-      <div
-        style={{
-          color: MEDICAL_COLORS.error[600],
-          textAlign: "center",
-          margin: "2rem 0",
-        }}
-      >
-        {error}
-      </div>
+      <div className="text-center text-red-600 py-8 font-semibold">{error}</div>
     );
 
+  // Sử dụng theme từ medicalTheme.js
+  const theme = {
+    sectionBg: "bg-[linear-gradient(180deg,_#f4f5ff_0%,_#fdeee6_100%)]", // fallback nếu không dùng style inline
+    cardBg: "bg-white/90",
+    cardBorder: `border-[2px] border-[${MEDICAL_COLORS.primary[100]}]`,
+    cardShadow: "shadow-lg hover:shadow-2xl",
+    badgeSafe: `bg-[${MEDICAL_COLORS.accent[100]}] text-[${MEDICAL_COLORS.accent[500]}]`,
+    badgePersonal: `bg-[${MEDICAL_COLORS.info[100]}] text-[${MEDICAL_COLORS.info[500]}]`,
+    badgeExpert: `bg-[${MEDICAL_COLORS.success[100]}] text-[${MEDICAL_COLORS.success[600]}]`,
+    btn: `bg-[${MEDICAL_COLORS.accent[500]}] hover:bg-[${MEDICAL_COLORS.primary[500]}]`,
+    btnGradient: "bg-[linear-gradient(90deg,_#ff70a3_0%,_#3b82f6_100%)]",
+    protocolEven: `bg-[linear-gradient(135deg,_${MEDICAL_COLORS.primary[50]}_0%,_${MEDICAL_COLORS.info[50]}_100%)] border-[${MEDICAL_COLORS.info[100]}]`,
+    protocolOdd: `bg-[linear-gradient(135deg,_${MEDICAL_COLORS.accent[100]}_0%,_${MEDICAL_COLORS.accent[50]}_100%)] border-[${MEDICAL_COLORS.accent[100]}]`,
+    title: `text-[${MEDICAL_COLORS.primary[500]}]`,
+    shadow: "shadow-lg",
+  };
+
   return (
-    <section style={{ padding: "2rem 0" }}>
-      <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-        <span
+    <section
+      className={`py-10 md:py-16 ${theme.sectionBg}`}
+      style={{ background: MEDICAL_GRADIENTS.gentle }}
+    >
+      <div className="text-center mb-12">
+        <div
+          className="inline-flex items-center gap-3 px-8 py-3 rounded-full font-bold text-2xl tracking-wide relative border-4 border-white"
           style={{
-            display: "inline-block",
-            padding: "0.5rem 2.5rem",
             background: MEDICAL_GRADIENTS.primary,
-            color: MEDICAL_COLORS.accent[50],
-            fontFamily: MEDICAL_TYPOGRAPHY.fonts.display.join(","),
-            fontSize: MEDICAL_TYPOGRAPHY.sizes["2xl"],
-            fontWeight: 700,
-            borderRadius: MEDICAL_BORDER_RADIUS.xl,
-            boxShadow: MEDICAL_SHADOWS.accent,
-            letterSpacing: "1px",
-            textShadow: "0 2px 8px rgba(32,41,110,0.12)",
-            border: `2px solid ${MEDICAL_COLORS.accent[500]}`,
-            position: "relative",
+            color: "#fff",
+            boxShadow: MEDICAL_SHADOWS.large,
           }}
         >
-          <span
-            style={{
-              position: "absolute",
-              left: "-1.5rem",
-              top: "50%",
-              transform: "translateY(-50%)",
-              fontSize: "2rem",
-              color: MEDICAL_COLORS.accent[500],
-              opacity: 0.25,
-            }}
-          >
-            ★
-          </span>
+          <FaBaby
+            className="text-3xl"
+            style={{ color: MEDICAL_COLORS.accent[500] }}
+          />
           Dịch vụ điều trị hiếm muộn
+          <FaHeartbeat
+            className="text-2xl"
+            style={{ color: MEDICAL_COLORS.primary[500] }}
+          />
+        </div>
+        <p className="mt-5 max-w-2xl mx-auto text-base md:text-lg font-medium text-gray-600">
+          Khám phá các dịch vụ điều trị{" "}
           <span
-            style={{
-              position: "absolute",
-              right: "-1.5rem",
-              top: "50%",
-              transform: "translateY(-50%)",
-              fontSize: "2rem",
-              color: MEDICAL_COLORS.accent[500],
-              opacity: 0.25,
-            }}
+            style={{ color: MEDICAL_COLORS.accent[500] }}
+            className="font-semibold"
           >
-            ★
+            hiện đại
           </span>
-        </span>
-      </div>
-      <Swiper
-        modules={[Autoplay]}
-        spaceBetween={32}
-        slidesPerView={2}
-        loop={true}
-        speed={700}
-        autoplay={{ delay: 2500, disableOnInteraction: false }}
-        breakpoints={{
-          320: { slidesPerView: 1 },
-          1024: { slidesPerView: 2 },
-        }}
-        style={{
-          paddingBottom: "1.5rem",
-          maxWidth: "1100px",
-          margin: "0 auto",
-        }}
-      >
-        {methods.map((method, idx) => (
-          <SwiperSlide key={method.treatmentMethodId}>
-            <div
-              ref={(el) => (cardRefs.current[idx] = el)}
-              style={{
-                background: MEDICAL_GRADIENTS.gentle,
-                borderRadius: MEDICAL_BORDER_RADIUS["2xl"],
-                boxShadow: MEDICAL_SHADOWS.soft,
-                border: `2px solid ${MEDICAL_COLORS.accent[200]}`,
-                padding: "2rem 1.5rem",
-                minHeight: 190,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                justifyContent: "flex-start",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  top: 0,
-                  height: "100%",
-                  width: "40%",
-                  zIndex: 0,
-                  pointerEvents: "none",
-                }}
-              >
-                <img
-                  src={method.imageUrl || "/hero-img.png"}
-                  alt={method.methodName}
-                  style={{
-                    height: "100%",
-                    width: "100%",
-                    objectFit: "cover",
-                    borderTopRightRadius: MEDICAL_BORDER_RADIUS["2xl"],
-                    borderBottomRightRadius: MEDICAL_BORDER_RADIUS["2xl"],
-                    opacity: 0.18,
-                    boxShadow: "0 4px 32px rgba(32,41,110,0.10)",
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  overflowY: "auto",
-                  width: "100%",
-                  flex: 1,
-                  zIndex: 1,
-                }}
-              >
-                <h3
-                  style={{
-                    color: MEDICAL_COLORS.accent[700],
-                    fontFamily: MEDICAL_TYPOGRAPHY.fonts.display.join(","),
-                    fontSize: MEDICAL_TYPOGRAPHY.sizes.xl,
-                    fontWeight: 700,
-                    marginBottom: "0.5rem",
-                    textAlign: "left",
-                  }}
-                >
-                  {method.methodName}
-                </h3>
-                <p
-                  style={{
-                    color: MEDICAL_COLORS.gray[700],
-                    fontSize: MEDICAL_TYPOGRAPHY.sizes.base,
-                    lineHeight: MEDICAL_TYPOGRAPHY.leading.relaxed,
-                    marginBottom: "1rem",
-                    textAlign: "left",
-                  }}
-                >
-                  {method.description}
-                </p>
-              </div>
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-      {/* Hiển thị các mẫu phác đồ bên dưới, alternate style */}
-      <div style={{ maxWidth: "1100px", margin: "2rem auto 0 auto" }}>
-        {protocols.map((protocol, idx) => (
-          <div
-            key={protocol.treatmentProtocolTemplateId}
-            style={{
-              background:
-                idx % 2 === 0
-                  ? MEDICAL_GRADIENTS.gentle
-                  : MEDICAL_GRADIENTS.primary,
-              color:
-                idx % 2 === 0
-                  ? MEDICAL_COLORS.primary[700]
-                  : MEDICAL_COLORS.accent[50],
-              borderRadius: MEDICAL_BORDER_RADIUS.xl,
-              boxShadow: MEDICAL_SHADOWS.soft,
-              border: `2px solid ${MEDICAL_COLORS.accent[200]}`,
-              padding: "1.5rem 1.5rem 1.5rem 2rem",
-              marginBottom: "1.5rem",
-              display: "flex",
-              flexDirection: idx % 2 === 0 ? "row" : "row-reverse",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "2rem",
-            }}
+          ,{" "}
+          <span
+            style={{ color: MEDICAL_COLORS.info[500] }}
+            className="font-semibold"
           >
-            <div style={{ flex: 1 }}>
-              <h4
-                style={{
-                  fontFamily: MEDICAL_TYPOGRAPHY.fonts.display.join(","),
-                  fontSize: MEDICAL_TYPOGRAPHY.sizes.xl,
-                  fontWeight: 700,
-                  marginBottom: "0.5rem",
-                  color:
-                    idx % 2 === 0
-                      ? MEDICAL_COLORS.primary[700]
-                      : MEDICAL_COLORS.accent[50],
-                }}
-              >
-                {protocol.templateName}{" "}
-                <span
-                  style={{
-                    fontWeight: 400,
-                    fontSize: MEDICAL_TYPOGRAPHY.sizes.sm,
-                  }}
-                >
-                  ({protocol.version})
-                </span>
-              </h4>
-              <div
-                style={{
-                  fontSize: MEDICAL_TYPOGRAPHY.sizes.base,
-                  marginBottom: "0.5rem",
-                }}
-              >
-                {protocol.description}
-              </div>
-              <div
-                style={{
-                  fontSize: MEDICAL_TYPOGRAPHY.sizes.sm,
-                  marginBottom: "0.5rem",
-                }}
-              >
-                <strong>Phương pháp:</strong> {protocol.treatmentMethodName}
-              </div>
-              {protocol.targetPatientProfile && (
-                <div
-                  style={{
-                    fontSize: MEDICAL_TYPOGRAPHY.sizes.sm,
-                    marginBottom: "0.5rem",
-                  }}
-                >
-                  <strong>Đối tượng:</strong> {protocol.targetPatientProfile}
-                </div>
-              )}
-            </div>
-            <button
-              style={{
-                background: MEDICAL_GRADIENTS.primary,
-                color: MEDICAL_COLORS.accent[50],
-                border: "none",
-                borderRadius: MEDICAL_BORDER_RADIUS.lg,
-                fontWeight: 700,
-                fontSize: MEDICAL_TYPOGRAPHY.sizes.base,
-                padding: "0.5rem 1.25rem",
-                cursor: "pointer",
-                boxShadow: MEDICAL_SHADOWS.medium,
-                minWidth: "120px",
-              }}
-              onClick={() => setSelectedProtocol(protocol)}
-            >
-              Xem timeline
-            </button>
-          </div>
-        ))}
+            cá nhân hóa
+          </span>{" "}
+          và{" "}
+          <span
+            style={{ color: MEDICAL_COLORS.success[600] }}
+            className="font-semibold"
+          >
+            an toàn
+          </span>{" "}
+          tại trung tâm của chúng tôi. Đội ngũ chuyên môn, công nghệ tiên tiến,
+          quy trình minh bạch, bảo mật tuyệt đối.
+        </p>
       </div>
+
+      {/* Carousel dịch vụ */}
+      <div className="max-w-5xl mx-auto">
+        <Swiper
+          modules={[Autoplay]}
+          spaceBetween={32}
+          slidesPerView={1}
+          loop={true}
+          speed={700}
+          autoplay={{ delay: 3500, disableOnInteraction: false }}
+          breakpoints={{
+            640: { slidesPerView: 1 },
+            1024: { slidesPerView: 2 },
+          }}
+          className="pb-10"
+        >
+          {methods.map((method, idx) => (
+            <SwiperSlide key={method.treatmentMethodId}>
+              <div
+                ref={(el) => (cardRefs.current[idx] = el)}
+                className={`relative ${theme.cardBg} ${theme.cardBorder} rounded-3xl ${theme.cardShadow} p-8 min-h-[280px] flex flex-col justify-between group overflow-hidden`}
+              >
+                <div className="absolute right-0 top-0 h-full w-2/5 z-0 pointer-events-none">
+                  <img
+                    src={method.imageUrl || "/hero-img.png"}
+                    alt={method.methodName}
+                    className="h-full w-full object-cover rounded-tr-3xl rounded-br-3xl opacity-20 group-hover:opacity-30 transition-opacity duration-200"
+                  />
+                </div>
+                <div className="relative z-10 flex-1 flex flex-col justify-between">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FaVial
+                      style={{ color: MEDICAL_COLORS.accent[500] }}
+                      className="text-lg"
+                    />
+                    <h3
+                      className={`text-xl md:text-2xl font-bold font-display drop-shadow-sm ${theme.title}`}
+                    >
+                      {method.methodName}
+                    </h3>
+                  </div>
+                  <p className="text-gray-700 text-base leading-relaxed mb-3 line-clamp-4">
+                    {method.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-auto">
+                    <span
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${theme.badgeSafe}`}
+                    >
+                      <FaShieldAlt
+                        style={{ color: MEDICAL_COLORS.accent[500] }}
+                      />{" "}
+                      An toàn
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${theme.badgePersonal}`}
+                    >
+                      <FaUserFriends
+                        style={{ color: MEDICAL_COLORS.info[500] }}
+                      />{" "}
+                      Cá nhân hóa
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold shadow-sm ${theme.badgeExpert}`}
+                    >
+                      <FaUserMd
+                        style={{ color: MEDICAL_COLORS.success[600] }}
+                      />{" "}
+                      Chuyên gia
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+
+      {/* Danh sách phác đồ mẫu */}
+      <div className="max-w-5xl mx-auto mt-14">
+        <h4
+          className={`text-lg md:text-xl font-bold mb-7 flex items-center gap-2 ${theme.title}`}
+        >
+          <FaVial style={{ color: MEDICAL_COLORS.accent[500] }} /> Các phác đồ
+          điều trị mẫu
+        </h4>
+        <div className="flex flex-col gap-8">
+          {protocols.map((protocol, idx) => (
+            <div
+              key={protocol.treatmentProtocolTemplateId}
+              className={`flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6 p-7 rounded-3xl ${
+                theme.shadow
+              } border-2 ${
+                idx % 2 === 0 ? theme.protocolEven : theme.protocolOdd
+              } transition-all`}
+            >
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <FaHeartbeat style={{ color: MEDICAL_COLORS.accent[500] }} />
+                  <span
+                    className={`font-semibold text-base md:text-lg ${theme.title}`}
+                  >
+                    {protocol.templateName}
+                  </span>
+                  <span className="ml-2 text-xs text-gray-400">
+                    ({protocol.version})
+                  </span>
+                </div>
+                <div className="text-gray-700 text-sm md:text-base mb-1">
+                  {protocol.description}
+                </div>
+                <div className="text-xs md:text-sm text-gray-500 mb-1">
+                  <span className="font-semibold">Phương pháp:</span>{" "}
+                  {protocol.treatmentMethodName}
+                </div>
+                {protocol.targetPatientProfile && (
+                  <div className="text-xs md:text-sm text-gray-500 mb-1">
+                    <span className="font-semibold">Đối tượng:</span>{" "}
+                    {protocol.targetPatientProfile}
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center md:justify-end">
+                <button
+                  className={`px-6 py-2.5 rounded-lg font-bold text-white text-base min-w-[130px] ${theme.btnGradient} shadow-md hover:scale-105 hover:shadow-lg transition-all`}
+                  onClick={() => setSelectedProtocol(protocol)}
+                >
+                  Xem timeline
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {selectedProtocol && (
         <TreatmentProtocolModal
           protocol={selectedProtocol}

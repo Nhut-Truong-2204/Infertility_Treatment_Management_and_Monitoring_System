@@ -16,22 +16,60 @@ import {
   Calendar as CalendarIcon,
   X,
   Edit3,
+  Star,
 } from "lucide-react";
-// eslint-disable-next-line
 import { motion, AnimatePresence } from "framer-motion";
 import AppointmentDetailModal from "../../components/AppointmentDetailModal";
 import RescheduleModal from "../../components/RescheduleModal";
 import useAppointments from "../../hooks/useAppointments";
 import useAppointmentTypes from "../../hooks/useAppointmentTypes";
 import useAppointmentActionsWithModal from "../../hooks/useAppointmentActionsWithModal";
-import {
-  Loading,
-  MedicalStatusBadge,
-  MedicalEmptyState,
-  MedicalAlert,
-  MedicalCard,
-  Button,
-} from "../../components/ui";
+import FeedbackModal from "../../components/FeedbackModal";
+import { Loading, MedicalAlert, Button } from "../../components/ui";
+
+// --- Helper functions ---
+function getDefaultDateRange() {
+  const today = new Date();
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(today.getDate() - 7);
+  const sevenDaysLater = new Date(today);
+  sevenDaysLater.setDate(today.getDate() + 7);
+  return {
+    fromDate: sevenDaysAgo.toISOString().split("T")[0],
+    toDate: sevenDaysLater.toISOString().split("T")[0],
+  };
+}
+
+function formatDateTime(dateTimeString) {
+  if (!dateTimeString) return { date: "Không rõ", time: "" };
+  const date = new Date(dateTimeString);
+  return {
+    date: date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }),
+    time: date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  };
+}
+
+function getDaysFromToday(dateTimeString) {
+  if (!dateTimeString) return null;
+  const appointmentDate = new Date(dateTimeString);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  appointmentDate.setHours(0, 0, 0, 0);
+  const diffTime = appointmentDate - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return "Hôm nay";
+  if (diffDays === 1) return "Ngày mai";
+  if (diffDays === -1) return "Hôm qua";
+  if (diffDays > 0) return `Sau ${diffDays} ngày`;
+  return `${Math.abs(diffDays)} ngày trước`;
+}
 
 const AppointmentList = () => {
   const {
@@ -45,28 +83,12 @@ const AppointmentList = () => {
     clearSelectedAppointment,
     getStats,
   } = useAppointments();
-
   const { getStatusOptions, getStatusConfig } = useAppointmentTypes();
-
   const [showFilters, setShowFilters] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackTarget, setFeedbackTarget] = useState(null);
 
-  // Helper function để tính toán ngày 7 ngày trước và sau
-  const getDefaultDateRange = () => {
-    const today = new Date();
-    const sevenDaysAgo = new Date(today);
-    sevenDaysAgo.setDate(today.getDate() - 7);
-
-    const sevenDaysLater = new Date(today);
-    sevenDaysLater.setDate(today.getDate() + 7);
-
-    return {
-      fromDate: sevenDaysAgo.toISOString().split("T")[0], // Format YYYY-MM-DD
-      toDate: sevenDaysLater.toISOString().split("T")[0],
-    };
-  };
-
-  // Filter states với default range 7 ngày trước/sau
   const [filters, setFilters] = useState(() => {
     const defaultRange = getDefaultDateRange();
     return {
@@ -78,12 +100,10 @@ const AppointmentList = () => {
     };
   });
 
-  // Define handleRefresh after filters are available
   const handleRefresh = React.useCallback(() => {
     fetchAppointments(filters);
   }, [fetchAppointments, filters]);
 
-  // Appointment actions hook
   const {
     loading: actionLoading,
     canCancelOrReschedule,
@@ -95,50 +115,15 @@ const AppointmentList = () => {
     handleRescheduleSuccess,
   } = useAppointmentActionsWithModal(handleRefresh);
 
-  // Status options from API
   const statusOptions = getStatusOptions();
 
   useEffect(() => {
     fetchAppointments(filters);
   }, [fetchAppointments, filters]);
 
-  // Helper functions
-  const formatDateTime = (dateTimeString) => {
-    if (!dateTimeString) return "Không rõ";
-    const date = new Date(dateTimeString);
-    return {
-      date: date.toLocaleDateString("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }),
-      time: date.toLocaleTimeString("vi-VN", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-  };
-
-  const getDaysFromToday = (dateTimeString) => {
-    if (!dateTimeString) return null;
-    const appointmentDate = new Date(dateTimeString);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    appointmentDate.setHours(0, 0, 0, 0);
-
-    const diffTime = appointmentDate - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return "Hôm nay";
-    if (diffDays === 1) return "Ngày mai";
-    if (diffDays === -1) return "Hôm qua";
-    if (diffDays > 0) return `Sau ${diffDays} ngày`;
-    return `${Math.abs(diffDays)} ngày trước`;
-  };
-
+  // --- UI helpers ---
   const getStatusBadge = (status) => {
     const config = getStatusConfig(status?.status);
-
     return (
       <span
         className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${config.class}`}
@@ -147,7 +132,6 @@ const AppointmentList = () => {
       </span>
     );
   };
-
   const getStatusIcon = (statusKey) => {
     const config = getStatusConfig(statusKey);
     const iconMap = {
@@ -169,16 +153,11 @@ const AppointmentList = () => {
     );
   };
 
-  // Event handlers
-  const handleFilterChange = (key, value) => {
+  // --- Event handlers ---
+  const handleFilterChange = (key, value) =>
     setFilters((prev) => ({ ...prev, [key]: value, page: 0 }));
-  };
-
-  const handlePageChange = (newPage) => {
+  const handlePageChange = (newPage) =>
     setFilters((prev) => ({ ...prev, page: newPage }));
-  };
-
-  // Reset date range về 7 ngày trước/sau
   const handleResetDateRange = () => {
     const defaultRange = getDefaultDateRange();
     setFilters((prev) => ({
@@ -188,8 +167,6 @@ const AppointmentList = () => {
       page: 0,
     }));
   };
-
-  // Quick filter functions
   const setTodayFilter = () => {
     const today = new Date().toISOString().split("T")[0];
     setFilters((prev) => ({
@@ -199,14 +176,12 @@ const AppointmentList = () => {
       page: 0,
     }));
   };
-
   const setThisWeekFilter = () => {
     const today = new Date();
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay());
     const endOfWeek = new Date(today);
     endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
-
     setFilters((prev) => ({
       ...prev,
       fromDate: startOfWeek.toISOString().split("T")[0],
@@ -214,12 +189,10 @@ const AppointmentList = () => {
       page: 0,
     }));
   };
-
   const setThisMonthFilter = () => {
     const today = new Date();
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
     setFilters((prev) => ({
       ...prev,
       fromDate: startOfMonth.toISOString().split("T")[0],
@@ -227,20 +200,25 @@ const AppointmentList = () => {
       page: 0,
     }));
   };
-
   const handleViewDetail = async (appointmentId) => {
     const detail = await fetchAppointmentDetail(appointmentId);
-    if (detail) {
-      setShowDetailModal(true);
-    }
+    if (detail) setShowDetailModal(true);
   };
-
   const handleCloseModal = () => {
     setShowDetailModal(false);
     clearSelectedAppointment();
   };
 
-  // Get stats for display
+  // Feedback
+  const handleOpenFeedback = (appointment) => {
+    setFeedbackTarget(appointment);
+    setShowFeedbackModal(true);
+  };
+  const handleCloseFeedback = () => {
+    setShowFeedbackModal(false);
+    setFeedbackTarget(null);
+  };
+
   const stats = getStats();
 
   if (loading) {
@@ -257,7 +235,6 @@ const AppointmentList = () => {
       </div>
     );
   }
-
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
@@ -274,8 +251,7 @@ const AppointmentList = () => {
                 onClick={handleRefresh}
                 className="w-full"
               >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Thử lại
+                <RefreshCw className="w-4 h-4 mr-2" /> Thử lại
               </Button>
             </div>
           </MedicalAlert>
@@ -306,22 +282,18 @@ const AppointmentList = () => {
                 </p>
               </div>
             </div>
-
             <div className="flex items-center space-x-3">
               <button
                 onClick={handleRefresh}
                 className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors duration-200"
               >
-                <RefreshCw className="w-4 h-4" />
-                <span>Làm mới</span>
+                <RefreshCw className="w-4 h-4" /> <span>Làm mới</span>
               </button>
-
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="flex items-center space-x-2 px-4 py-2 bg-primary hover:bg-accent text-white rounded-xl transition-colors duration-200"
               >
-                <Filter className="w-4 h-4" />
-                <span>Bộ lọc</span>
+                <Filter className="w-4 h-4" /> <span>Bộ lọc</span>
                 <ChevronDown
                   className={`w-4 h-4 transform transition-transform ${
                     showFilters ? "rotate-180" : ""
@@ -376,20 +348,16 @@ const AppointmentList = () => {
                     </button>
                   </div>
                 </div>
-
                 {filters.fromDate && filters.toDate && (
                   <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <p className="text-sm text-blue-700">
                       <span className="font-medium">Khoảng thời gian:</span>{" "}
-                      {new Date(filters.fromDate).toLocaleDateString("vi-VN")}{" "}
-                      {" - "}
+                      {new Date(filters.fromDate).toLocaleDateString("vi-VN")} -{" "}
                       {new Date(filters.toDate).toLocaleDateString("vi-VN")}
                     </p>
                   </div>
                 )}
-
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {/* Status Filter */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Trạng thái
@@ -408,8 +376,6 @@ const AppointmentList = () => {
                       ))}
                     </select>
                   </div>
-
-                  {/* From Date */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Từ ngày
@@ -423,8 +389,6 @@ const AppointmentList = () => {
                       className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white/90"
                     />
                   </div>
-
-                  {/* To Date */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Đến ngày
@@ -438,8 +402,6 @@ const AppointmentList = () => {
                       className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-white/90"
                     />
                   </div>
-
-                  {/* Page Size */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Số lượng hiển thị
@@ -480,7 +442,6 @@ const AppointmentList = () => {
               </div>
             </div>
           </div>
-
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
             <div className="flex items-center">
               <div className="p-3 bg-green-100 rounded-xl mr-4">
@@ -494,7 +455,6 @@ const AppointmentList = () => {
               </div>
             </div>
           </div>
-
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
             <div className="flex items-center">
               <div className="p-3 bg-yellow-100 rounded-xl mr-4">
@@ -537,13 +497,14 @@ const AppointmentList = () => {
                   <div className="col-span-2 text-center">Hành động</div>
                 </div>
               </div>
-
               {/* Table Body */}
               <div className="divide-y divide-gray-200">
                 {appointments.content.map((appointment, index) => {
                   const dateTime = formatDateTime(
                     appointment.appointmentDateTime
                   );
+                  const isCompleted =
+                    appointment.status?.status === "COMPLETED";
                   return (
                     <motion.div
                       key={appointment.appointmentId}
@@ -570,7 +531,6 @@ const AppointmentList = () => {
                             </div>
                           </div>
                         </div>
-
                         {/* Date & Time */}
                         <div className="col-span-2">
                           <div className="flex items-center space-x-2">
@@ -590,7 +550,6 @@ const AppointmentList = () => {
                             </div>
                           </div>
                         </div>
-
                         {/* Doctor */}
                         <div className="col-span-2">
                           <div className="flex items-center space-x-2">
@@ -602,7 +561,6 @@ const AppointmentList = () => {
                             </div>
                           </div>
                         </div>
-
                         {/* Service */}
                         <div className="col-span-2">
                           <div className="flex items-center space-x-2">
@@ -614,12 +572,10 @@ const AppointmentList = () => {
                             </div>
                           </div>
                         </div>
-
                         {/* Status */}
                         <div className="col-span-1">
                           {getStatusBadge(appointment.status)}
                         </div>
-
                         {/* Actions */}
                         <div className="col-span-2 text-center">
                           <div className="flex items-center justify-center space-x-2">
@@ -633,7 +589,6 @@ const AppointmentList = () => {
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-
                             {/* Cancel Button */}
                             {canCancelOrReschedule(appointment) && (
                               <button
@@ -649,7 +604,6 @@ const AppointmentList = () => {
                                 <X className="w-4 h-4" />
                               </button>
                             )}
-
                             {/* Reschedule Button */}
                             {canCancelOrReschedule(appointment) && (
                               <button
@@ -663,6 +617,16 @@ const AppointmentList = () => {
                                 <Edit3 className="w-4 h-4" />
                               </button>
                             )}
+                            {/* Feedback Button */}
+                            {isCompleted && (
+                              <button
+                                onClick={() => handleOpenFeedback(appointment)}
+                                className="inline-flex items-center px-3 py-2 text-sm font-medium text-accent-700 bg-accent-50 rounded-lg hover:bg-accent-100 transition-colors gap-1"
+                                title="Gửi đánh giá"
+                              >
+                                <Star className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -670,7 +634,6 @@ const AppointmentList = () => {
                   );
                 })}
               </div>
-
               {/* Pagination */}
               {appointments.totalPages > 1 && (
                 <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
@@ -693,11 +656,9 @@ const AppointmentList = () => {
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
-
                       <span className="px-4 py-2 bg-primary text-white rounded-lg">
                         {filters.page + 1} / {appointments.totalPages}
                       </span>
-
                       <button
                         onClick={() =>
                           handlePageChange(
@@ -728,13 +689,18 @@ const AppointmentList = () => {
         onClose={handleCloseModal}
         loading={detailLoading}
       />
-
       {/* Reschedule Modal */}
       <RescheduleModal
         isOpen={showRescheduleModal}
         onClose={handleCloseRescheduleModal}
         appointment={selectedAppointmentForReschedule}
         onSuccess={handleRescheduleSuccess}
+      />
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={handleCloseFeedback}
+        appointment={feedbackTarget}
       />
     </div>
   );

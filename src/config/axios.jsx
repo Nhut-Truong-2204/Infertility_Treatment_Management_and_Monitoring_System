@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 
 const instance = axios.create({
-  baseURL: "https://infertility-treatment-management-and.onrender.com",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 20000,
   headers: {
     "Content-Type": "application/json",

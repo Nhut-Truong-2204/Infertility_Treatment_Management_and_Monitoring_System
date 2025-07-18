@@ -148,7 +148,7 @@ const TreatmentTimeline = () => {
                       </div>
                     </div>
                     <MedicalStatusBadge
-                      status={protocol.status?.status}
+                      status={protocol.status?.description}
                       variant="default"
                     />
                   </div>
@@ -266,7 +266,7 @@ const TreatmentTimeline = () => {
                                       Bước {step.stepOrder}: {step.stepName}
                                     </h4>
                                     <MedicalStatusBadge
-                                      status={step.status?.value}
+                                      status={step.status?.description}
                                       variant="step"
                                     />
                                   </div>

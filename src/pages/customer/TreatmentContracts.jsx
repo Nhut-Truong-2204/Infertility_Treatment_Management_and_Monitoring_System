@@ -97,7 +97,7 @@ const TreatmentContracts = () => {
   // (imports already at the top)
   const handleOpenOtpModal = (contract) => {
     setOtpContract(contract);
-    setOtpEmail(contract?.createdByUser?.email || "");
+    setOtpEmail(contract?.patientProfile?.email || "");
     setOtpError("");
     setShowOtpModal(true);
   };

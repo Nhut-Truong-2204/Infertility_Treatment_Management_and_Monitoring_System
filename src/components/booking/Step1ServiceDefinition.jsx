@@ -90,16 +90,12 @@ const Step1ServiceDefinition = ({ onSelect, formData }) => {
                   )}
                 </div>
                 <p className="text-sm text-text-color">{service.description}</p>
-                {service.price && (
+                {service.defaultPrice && (
                   <div className="mt-2 flex items-center gap-4">
                     <span className="text-sm font-medium text-accent">
-                      Giá: {Number(service.price).toLocaleString("vi-VN")} VNĐ
+                      Giá:{" "}
+                      {Number(service.defaultPrice).toLocaleString("vi-VN")} VNĐ
                     </span>
-                    {service.duration && (
-                      <span className="text-sm text-gray-600">
-                        Thời gian: {service.duration} phút
-                      </span>
-                    )}
                   </div>
                 )}
               </div>

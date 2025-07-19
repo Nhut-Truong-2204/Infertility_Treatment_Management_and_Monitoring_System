@@ -28,7 +28,6 @@ import FeedbackModal from "../../components/FeedbackModal";
 import { Loading, MedicalAlert, Button } from "../../components/ui";
 import { getPayosLink } from "../../api/paymentAPI";
 
-// --- Helper functions ---
 function getDefaultDateRange() {
   const today = new Date();
   const sevenDaysAgo = new Date(today);

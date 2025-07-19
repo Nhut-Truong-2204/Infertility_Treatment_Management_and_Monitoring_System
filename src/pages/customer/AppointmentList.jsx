@@ -12,11 +12,11 @@ import {
   CheckCircle,
   XCircle,
   Stethoscope,
-  Eye,
   Calendar as CalendarIcon,
   X,
   Edit3,
   Star,
+  CreditCard,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppointmentDetailModal from "../../components/AppointmentDetailModal";
@@ -26,6 +26,7 @@ import useAppointmentTypes from "../../hooks/useAppointmentTypes";
 import useAppointmentActionsWithModal from "../../hooks/useAppointmentActionsWithModal";
 import FeedbackModal from "../../components/FeedbackModal";
 import { Loading, MedicalAlert, Button } from "../../components/ui";
+import { getPayosLink } from "../../api/paymentAPI";
 
 // --- Helper functions ---
 function getDefaultDateRange() {
@@ -151,6 +152,20 @@ const AppointmentList = () => {
     return (
       iconMap[statusKey] || <AlertCircle className="w-4 h-4 text-gray-500" />
     );
+  };
+
+  // Payment handler
+  const [payLoadingId, setPayLoadingId] = useState(null);
+  const handlePayAppointment = async (appointmentId) => {
+    setPayLoadingId(appointmentId);
+    try {
+      const url = await getPayosLink({ appointmentId });
+      window.location.href = url;
+    } catch (err) {
+      alert(err.message || "Không thể lấy link thanh toán");
+    } finally {
+      setPayLoadingId(null);
+    }
   };
 
   // --- Event handlers ---
@@ -488,12 +503,12 @@ const AppointmentList = () => {
             <>
               {/* Table Header */}
               <div className="bg-gray-50 px-6 py-4">
-                <div className="grid grid-cols-12 gap-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="col-span-3">Thông tin lịch hẹn</div>
+                <div className="grid grid-cols-12 gap-4 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
+                  <div className="col-span-2">Mã lịch khám</div>
                   <div className="col-span-2">Ngày & Giờ</div>
                   <div className="col-span-2">Bác sĩ</div>
                   <div className="col-span-2">Dịch vụ</div>
-                  <div className="col-span-1">Trạng thái</div>
+                  <div className="col-span-2">Trạng thái</div>
                   <div className="col-span-2 text-center">Hành động</div>
                 </div>
               </div>
@@ -511,28 +526,27 @@ const AppointmentList = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="px-6 py-4 hover:bg-gray-50 transition-colors duration-200"
+                      className="px-6 py-4 hover:bg-blue-50 cursor-pointer transition-colors duration-200"
+                      onClick={() =>
+                        handleViewDetail(appointment.appointmentId)
+                      }
                     >
                       <div className="grid grid-cols-12 gap-4 items-center">
                         {/* Appointment Info */}
-                        <div className="col-span-3">
+                        <div className="col-span-2">
                           <div className="flex items-center space-x-3">
                             <div className="p-2 bg-blue-100 rounded-lg">
                               {getStatusIcon(appointment.status?.status)}
                             </div>
                             <div>
-                              <p className="font-semibold text-gray-900">
+                              <p className="font-semibold text-gray-900 text-center">
                                 #{appointment.appointmentId}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                {appointment.appointmentType?.description ||
-                                  "Không rõ"}
                               </p>
                             </div>
                           </div>
                         </div>
                         {/* Date & Time */}
-                        <div className="col-span-2">
+                        <div className="col-span-2 text-center">
                           <div className="flex items-center space-x-2">
                             <CalendarIcon className="w-4 h-4 text-gray-400" />
                             <div>
@@ -551,7 +565,7 @@ const AppointmentList = () => {
                           </div>
                         </div>
                         {/* Doctor */}
-                        <div className="col-span-2">
+                        <div className="col-span-2 text-center">
                           <div className="flex items-center space-x-2">
                             <User className="w-4 h-4 text-gray-400" />
                             <div>
@@ -562,7 +576,7 @@ const AppointmentList = () => {
                           </div>
                         </div>
                         {/* Service */}
-                        <div className="col-span-2">
+                        <div className="col-span-2 text-center">
                           <div className="flex items-center space-x-2">
                             <Stethoscope className="w-4 h-4 text-gray-400" />
                             <div>
@@ -573,30 +587,41 @@ const AppointmentList = () => {
                           </div>
                         </div>
                         {/* Status */}
-                        <div className="col-span-1">
+                        <div className="col-span-2 text-center">
                           {getStatusBadge(appointment.status)}
                         </div>
                         {/* Actions */}
                         <div className="col-span-2 text-center">
                           <div className="flex items-center justify-center space-x-2">
-                            {/* View Detail Button */}
-                            <button
-                              onClick={() =>
-                                handleViewDetail(appointment.appointmentId)
-                              }
-                              className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors gap-1"
-                              title="Xem chi tiết"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
+                            {/* Pay Button: only show if appointment is SCHEDULED and has not been paid (assume status) */}
+                            {appointment.status?.status === "SCHEDULED" && (
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handlePayAppointment(
+                                    appointment.appointmentId
+                                  );
+                                }}
+                                variant="success"
+                                size="sm"
+                                className="flex items-center gap-1"
+                                disabled={
+                                  payLoadingId === appointment.appointmentId
+                                }
+                                title="Thanh toán lịch hẹn"
+                              >
+                                <CreditCard className="w-4 h-4" />
+                              </Button>
+                            )}
                             {/* Cancel Button */}
                             {canCancelOrReschedule(appointment) && (
                               <button
-                                onClick={() =>
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   handleCancelAppointment(
                                     appointment.appointmentId
-                                  )
-                                }
+                                  );
+                                }}
                                 disabled={actionLoading}
                                 className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Hủy lịch hẹn"
@@ -607,9 +632,10 @@ const AppointmentList = () => {
                             {/* Reschedule Button */}
                             {canCancelOrReschedule(appointment) && (
                               <button
-                                onClick={() =>
-                                  handleRescheduleAppointment(appointment)
-                                }
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRescheduleAppointment(appointment);
+                                }}
                                 disabled={actionLoading}
                                 className="inline-flex items-center px-3 py-2 text-sm font-medium text-yellow-600 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Dời lịch hẹn"
@@ -620,7 +646,10 @@ const AppointmentList = () => {
                             {/* Feedback Button */}
                             {isCompleted && (
                               <button
-                                onClick={() => handleOpenFeedback(appointment)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenFeedback(appointment);
+                                }}
                                 className="inline-flex items-center px-3 py-2 text-sm font-medium text-accent-700 bg-accent-50 rounded-lg hover:bg-accent-100 transition-colors gap-1"
                                 title="Gửi đánh giá"
                               >

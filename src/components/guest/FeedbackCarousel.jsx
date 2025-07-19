@@ -1,111 +1,78 @@
-import React, { useEffect, useState } from "react";
-import Slider from "react-slick";
-import axios from "../../config/axios";
+import React from "react";
 import { FaStar } from "react-icons/fa";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import {
+  MEDICAL_COLORS,
+  MEDICAL_THEMES,
+  MEDICAL_SHADOWS,
+} from "../../styles/medicalTheme";
+import usePublicFeedbacks from "./usePublicFeedbacks";
 
 function FeedbackCarousel() {
-  const [feedbacks, setFeedbacks] = useState([]);
+  const feedbacks = usePublicFeedbacks();
 
-  useEffect(() => {
-    async function fetchFeedbacks() {
-      try {
-        const res = await axios.get("/api/feedback/public", {
-          params: { page: 0, size: 20 },
-        });
-        if (res.data?.data?.content) {
-          // Sort by ratingScore descending
-          const sorted = res.data.data.content
-            .filter((fb) => fb.isPublic)
-            .sort((a, b) => b.ratingScore - a.ratingScore);
-          setFeedbacks(sorted);
-        }
-      } catch {
-        setFeedbacks([]);
-      }
-    }
-    fetchFeedbacks();
-  }, []);
-
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 2,
-    slidesToScroll: 1,
-    rtl: true, // Reverse direction
-    responsive: [
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-        },
-      },
-    ],
-  };
+  if (!feedbacks.length) {
+    return (
+      <div className="max-w-3xl mx-auto py-8">
+        <h2 className="text-2xl font-bold text-center mb-4 text-[var(--color-primary, #20296e)]">
+          Khách hàng nói gì về chúng tôi?
+        </h2>
+        <div className="text-center text-gray-500">
+          Chưa có phản hồi công khai nào.
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-      <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>
+    <div className="max-w-3xl mx-auto py-8">
+      <h2 className="text-2xl font-bold text-center mb-8 text-[var(--color-primary, #20296e)]">
         Khách hàng nói gì về chúng tôi?
       </h2>
-      <Slider {...settings}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {feedbacks.map((fb) => (
-          <div key={fb.feedbackId} style={{ padding: "1rem" }}>
-            <div
-              style={{
-                background: "#fff",
-                borderRadius: "8px",
-                boxShadow: "0 2px 8px #eee",
-                padding: "1.5rem",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                <span style={{ fontWeight: "bold", fontSize: "1.1rem" }}>
-                  {fb.patientName}
+          <div
+            key={fb.feedbackId}
+            className="bg-white rounded-xl shadow-md p-6 flex flex-col h-full border border-[var(--color-border, #e5e7eb)]"
+            style={{
+              borderColor: MEDICAL_THEMES.gentle.border,
+              boxShadow: MEDICAL_SHADOWS.soft,
+            }}
+          >
+            <div className="flex items-center mb-2">
+              <span className="font-semibold text-lg text-[var(--color-primary, #20296e)]">
+                {fb.patientName}
+              </span>
+              <span className="ml-auto flex gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <FaStar
+                    key={i}
+                    className={
+                      i < fb.ratingScore ? "text-yellow-400" : "text-gray-300"
+                    }
+                  />
+                ))}
+              </span>
+            </div>
+            <div className="italic text-gray-500 mb-2">
+              {fb.serviceName} {fb.doctorName ? `- ${fb.doctorName}` : ""}
+            </div>
+            <div className="mb-2 text-gray-700">{fb.feedbackContent}</div>
+            <div className="bg-[var(--color-bg-response,#f6f6f6)] rounded-md px-3 py-2 mt-2 text-sm border border-[var(--color-border,#e5e7eb)]">
+              <span className="font-semibold text-[var(--color-primary,#20296e)]">
+                Phản hồi từ phòng khám:
+              </span>{" "}
+              {fb.clinicResponse}
+              {fb.respondedByUserName && (
+                <span className="block text-xs text-gray-400 mt-1">
+                  Bởi: {fb.respondedByUserName}{" "}
+                  {fb.responseDate &&
+                    `- ${new Date(fb.responseDate).toLocaleDateString()}`}
                 </span>
-                <span style={{ marginLeft: "auto", color: "#f5b50a" }}>
-                  {[...Array(5)].map((_, i) => (
-                    <FaStar
-                      key={i}
-                      color={i < fb.ratingScore ? "#f5b50a" : "#ddd"}
-                    />
-                  ))}
-                </span>
-              </div>
-              <div
-                style={{
-                  fontStyle: "italic",
-                  color: "#888",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                {fb.serviceName} {fb.doctorName ? `- ${fb.doctorName}` : ""}
-              </div>
-              <div style={{ marginBottom: "0.5rem" }}>{fb.feedbackContent}</div>
-              {fb.clinicResponse && (
-                <div
-                  style={{
-                    background: "#f6f6f6",
-                    borderRadius: "6px",
-                    padding: "0.5rem",
-                    marginTop: "0.5rem",
-                  }}
-                >
-                  <strong>Phản hồi từ phòng khám:</strong> {fb.clinicResponse}
-                </div>
               )}
             </div>
           </div>
         ))}
-      </Slider>
+      </div>
     </div>
   );
 }

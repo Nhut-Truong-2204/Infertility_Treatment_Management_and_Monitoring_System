@@ -7,6 +7,7 @@ import {
   Loading,
   MedicalStatusBadge,
 } from "../../components/ui";
+import { getPayosLink } from "../../api/paymentAPI";
 import {
   MEDICAL_COLORS,
   MEDICAL_SHADOWS,
@@ -24,6 +25,7 @@ import {
   Clock,
   XCircle,
   RefreshCw,
+  CreditCard,
 } from "lucide-react";
 import TreatmentContractDetailModal from "../../components/TreatmentContractDetailModal";
 import OTPVerificationModal from "../../components/ui/OTPVerificationModal";
@@ -270,6 +272,20 @@ const TreatmentContracts = () => {
   const handleCloseModal = () => {
     setShowDetailModal(false);
     clearSelectedContract();
+  };
+
+  // Payment handler
+  const [payLoadingId, setPayLoadingId] = useState(null);
+  const handlePayContract = async (contractId) => {
+    setPayLoadingId(contractId);
+    try {
+      const url = await getPayosLink({ contractId });
+      window.location.href = url;
+    } catch (err) {
+      alert(err.message || "Không thể lấy link thanh toán");
+    } finally {
+      setPayLoadingId(null);
+    }
   };
 
   // Get stats for display
@@ -584,18 +600,7 @@ const TreatmentContracts = () => {
                               {statusConfig.icon}
                               {statusConfig.text}
                             </div>
-                            <Button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleViewDetail(contract.treatmentContractId);
-                              }}
-                              variant="outline"
-                              size="sm"
-                              className="flex items-center gap-2"
-                            >
-                              <Eye className="w-4 h-4" />
-                              Xem chi tiết
-                            </Button>
+                            {/* Nút xem chi tiết đã bị loại bỏ, click vào card để xem chi tiết */}
                             {/* Nút ký hợp đồng nếu trạng thái là PENDING */}
                             {contract.status?.typeName === "PENDING" && (
                               <Button
@@ -608,6 +613,25 @@ const TreatmentContracts = () => {
                                 className="flex items-center gap-2"
                               >
                                 Ký hợp đồng
+                              </Button>
+                            )}
+                            {/* Nút thanh toán hợp đồng nếu trạng thái là ACTIVE */}
+                            {contract.status?.typeName === "SIGNED" && (
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handlePayContract(
+                                    contract.treatmentContractId
+                                  );
+                                }}
+                                variant="success"
+                                size="sm"
+                                className="flex items-center gap-2"
+                                disabled={
+                                  payLoadingId === contract.treatmentContractId
+                                }
+                              >
+                                <CreditCard className="w-4 h-4" />
                               </Button>
                             )}
                             {/* Nút hủy hợp đồng cho trạng thái PENDING, SIGNED, ACTIVE */}

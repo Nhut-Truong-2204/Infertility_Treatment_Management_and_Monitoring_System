@@ -1,11 +1,6 @@
-import React from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { MedicalAlert } from "../../components/ui";
 import ServiceList from "../../components/guest/ServiceList";
 
 const Services = () => {
-  const { user, isAuthenticated } = useAuth();
-
   return (
     <div
       className="bg-white py-16 sm:py-24 font-onest"
@@ -130,18 +125,6 @@ const Services = () => {
             </span>
           </div>
         </div>
-
-        {/* Thông báo cho user đã đăng nhập */}
-        {isAuthenticated && (
-          <MedicalAlert
-            type="info"
-            title={`Chào mừng ${user?.name || "bạn"}!`}
-            message="Bạn có thể đặt lịch hẹn trực tiếp cho các dịch vụ bên dưới."
-            variant="outline"
-            className="mb-8"
-          />
-        )}
-
         <ServiceList />
       </div>
     </div>

@@ -40,6 +40,7 @@ const TreatmentSummary = ({ treatmentData }) => {
       case "đang điều trị":
         return "bg-green-100 text-green-800";
       case "completed":
+      case "Đã lên kế hoạch":
       case "hoàn thành":
         return "bg-blue-100 text-blue-800";
       case "paused":
@@ -54,7 +55,9 @@ const TreatmentSummary = ({ treatmentData }) => {
     const statusValue =
       status?.status?.toLowerCase() || status?.toLowerCase() || "";
     switch (statusValue) {
-      case "active":
+      case "planned":
+        return "Đã lên kế hoạch";
+      case "in_progress":
         return "Đang điều trị";
       case "completed":
         return "Hoàn thành";

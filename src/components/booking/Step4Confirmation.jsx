@@ -19,6 +19,16 @@ const Step4Confirmation = ({ onSelect, formData }) => {
           </span>
         </div>
         <div className="flex justify-between">
+          <strong className="text-gray-600">Giá dịch vụ:</strong>
+          <span className="text-primary font-semibold">
+            {formData.serviceDefinition?.defaultPrice
+              ? `${Number(
+                  formData.serviceDefinition.defaultPrice
+                ).toLocaleString("vi-VN")} VNĐ`
+              : "Chưa có giá"}
+          </span>
+        </div>
+        <div className="flex justify-between">
           <strong className="text-gray-600">Loại lịch hẹn:</strong>
           <span className="text-primary font-semibold text-right">
             {formData.appointmentType?.description}
@@ -38,7 +48,6 @@ const Step4Confirmation = ({ onSelect, formData }) => {
               : ""}
           </span>
         </div>
-        {/* Bạn có thể thêm tên bác sĩ ở đây nếu cần */}
       </div>
       <div className="mt-6">
         <label

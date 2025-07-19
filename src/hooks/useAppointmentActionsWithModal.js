@@ -14,23 +14,18 @@ const useAppointmentActionsWithModal = (onSuccess) => {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   // Helper function để kiểm tra xem appointment có thể hủy/dời hay không
   const canCancelOrReschedule = (appointment) => {
-    console.log("🔍 Checking appointment:", appointment);
-    console.log("🔍 Appointment status:", appointment.status);
-    console.log("🔍 Appointment status.status:", appointment.status?.status);
-
     const status = appointment.status?.status;
     // Chỉ cho phép hủy/dời lịch khi trạng thái là SCHEDULED hoặc CHECKED_IN
     const allowedStatuses = ["SCHEDULED"];
 
     const isAllowed = allowedStatuses.includes(status);
-    console.log("🔍 Status check result:", isAllowed);
 
     if (!isAllowed) {
       return false;
     }
 
     // Tạm thời cho phép tất cả để test - có thể thêm logic thời gian sau
-    console.log("✅ Appointment can be cancelled/rescheduled");
+
     return true;
 
     // Logic thời gian có thể dùng sau:

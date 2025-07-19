@@ -5,33 +5,105 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Thanh toán thành công</title>
-    <link rel="stylesheet" href="/src/index.css" />
     <link rel="icon" href="/favicon.ico" />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ecfdf5 0%, #fff 60%, #dbeafe 100%);
+        }
+
+        .success-container {
+            background: #fff;
+            border-radius: 1.25rem;
+            box-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.08), 0 1.5px 6px 0 rgba(59, 130, 246, 0.05);
+            padding: 2rem;
+            max-width: 28rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1.5px solid #bbf7d0;
+            margin-top: 4rem;
+        }
+
+        .icon-success {
+            width: 4rem;
+            height: 4rem;
+            color: #22c55e;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .title-success {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #15803d;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .desc-success {
+            color: #374151;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            width: 100%;
+            font-weight: bold;
+            border-radius: 0.5rem;
+            padding: 0.75rem 0;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-success {
+            background: #22c55e;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #16a34a;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+            margin-bottom: 0;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+    </style>
 </head>
 
-<body
-    class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-50 via-white to-blue-50 font-onest">
-    <div
-        class="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full flex flex-col items-center border border-green-100 mt-16">
-        <svg class="w-16 h-16 text-green-500 mb-4" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24">
+<body>
+    <div class="success-container">
+        <svg class="icon-success" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
             <path d="M9 12l2 2l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                 stroke-linejoin="round" />
         </svg>
-        <h1 class="text-2xl font-bold text-green-700 mb-2">Thanh toán thành công!</h1>
-        <p class="text-gray-700 mb-6 text-center">
+        <h1 class="title-success">Thanh toán thành công!</h1>
+        <p class="desc-success">
             Cảm ơn bạn đã thanh toán. Giao dịch của bạn đã được xác nhận.<br />
             Nếu có thắc mắc, vui lòng liên hệ phòng khám để được hỗ trợ.
         </p>
-        <button onclick="window.location.href='/customer/appointments'"
-            class="w-full mb-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition-colors duration-200">
-            Xem lịch hẹn
-        </button>
-        <button onclick="window.location.href='/customer/treatment-contracts'"
-            class="w-full bg-primary hover:bg-accent text-white font-bold py-3 rounded-lg transition-colors duration-200">
-            Xem hợp đồng điều trị
+        <button onclick="window.location.href='/customer/dashboard'" class="btn btn-success">
+            Quay lại trang Dashboard
         </button>
     </div>
 </body>

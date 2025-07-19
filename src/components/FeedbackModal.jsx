@@ -3,18 +3,8 @@ import { Star, X } from "lucide-react";
 import useFeedback from "../hooks/useFeedback";
 import { MEDICAL_COLORS } from "../styles/medicalTheme";
 
-const RATING_LABELS = [
-  "Rất tệ",
-  "Tệ",
-  "Bình thường",
-  "Tốt",
-  "Xuất sắc"
-];
-export default function FeedbackModal({
-  isOpen,
-  onClose,
-  appointment
-}) {
+const RATING_LABELS = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Xuất sắc"];
+export default function FeedbackModal({ isOpen, onClose, appointment }) {
   const [rating, setRating] = useState(5);
   const [hover, setHover] = useState(null);
   const [content, setContent] = useState("");
@@ -25,7 +15,7 @@ export default function FeedbackModal({
     await submitFeedback({
       appointmentId: appointment?.appointmentId || 0,
       ratingScore: rating,
-      feedbackContent: content
+      feedbackContent: content,
     });
   };
 

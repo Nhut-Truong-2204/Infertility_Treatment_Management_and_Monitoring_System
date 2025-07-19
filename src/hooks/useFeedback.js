@@ -19,7 +19,8 @@ export default function useFeedback() {
       setSuccess(true);
     } catch (err) {
       setError(
-        err?.response?.data?.message || "Gửi feedback thất bại. Vui lòng thử lại."
+        err?.response?.data?.message ||
+          "Gửi feedback thất bại. Vui lòng thử lại."
       );
     } finally {
       setLoading(false);

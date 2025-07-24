@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { closeLoginModal, openRegisterModal } from "../redux/slices/uiSlice";
-import { login } from "../redux/slices/authSlice";
+import { closeLoginModal, openRegisterModal, openForgotPasswordModal } from "../redux/slices/uiSlice";
+import { clearResetPasswordData } from "../redux/slices/authSlice";
+import { login, loginWithGoogle } from "../redux/slices/authSlice";
+import { GoogleLogin } from "@react-oauth/google";
 import MedicalCard from "./ui/MedicalCard";
 import MedicalAlert from "./ui/MedicalAlert";
 
@@ -46,15 +48,27 @@ const LoginModal = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     try {
       await dispatch(login({ email, password })).unwrap();
       dispatch(closeLoginModal());
-      // Redirect to dashboard after successful login
+      dispatch(clearResetPasswordData());
       navigate("/dashboard");
     } catch (err) {
       // Error is handled by Redux state
       console.error("Login error:", err);
+    }
+  };
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      // Truyền tokenId (credential) xuống cho backend
+      await dispatch(loginWithGoogle(credentialResponse.credential)).unwrap();
+      dispatch(closeLoginModal());
+      dispatch(clearResetPasswordData());
+      navigate("/dashboard");
+    } catch (err) {
+      // Error is handled by Redux state
+      console.error("Google login error:", err);
     }
   };
 
@@ -136,11 +150,31 @@ const LoginModal = () => {
             >
               {isLoggingIn ? "Đang xử lý..." : "Đăng Nhập"}
             </button>
+            <div className="w-full flex items-center justify-center mt-2">
+              <GoogleLogin
+                onSuccess={handleGoogleLogin}
+                onError={() => {
+                  // Hiển thị lỗi nếu cần
+                }}
+                shape="pill"
+                theme="filled_blue"
+                text="continue_with"
+                logo_alignment="left"
+                width="100%"
+              />
+            </div>
           </form>
           <div className="text-center mt-4 space-y-2">
-            <a href="#" className="text-sm text-accent hover:underline block">
+            <button
+              type="button"
+              className="text-sm text-accent hover:underline block"
+              onClick={() => {
+                dispatch(closeLoginModal());
+                dispatch(openForgotPasswordModal());
+              }}
+            >
               Quên mật khẩu?
-            </a>
+            </button>
             <p className="text-sm text-gray-600">
               Chưa có tài khoản?{" "}
               <button

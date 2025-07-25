@@ -1,3 +1,27 @@
+import { loginWithGoogle as googleLoginApi } from "../../api/googleAuth";
+export const loginWithGoogle = createAsyncThunk(
+  "auth/loginWithGoogle",
+  async (googleToken, { rejectWithValue }) => {
+    try {
+      const response = await googleLoginApi(googleToken);
+      const { accessToken, user } = response.data;
+      // Lưu vào cookie
+      Cookies.set("accessToken", accessToken, {
+        expires: 1,
+        secure: true,
+        sameSite: "Strict",
+      });
+      Cookies.set("user", JSON.stringify(user), {
+        expires: 1,
+        secure: true,
+        sameSite: "Strict",
+      });
+      return user;
+    } catch (error) {
+      return rejectWithValue(error.message || "Đăng nhập Google thất bại");
+    }
+  }
+);
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../../config/axios"; // Đảm bảo đường dẫn đúng
 import Cookies from "js-cookie";
@@ -89,6 +113,8 @@ const initialState = {
   user: JSON.parse(Cookies.get("user") || "null"), // Lấy user từ cookie nếu có
   loading: true,
   error: null,
+  resetEmail: "",
+  resetToken: "",
 };
 
 const authSlice = createSlice({
@@ -99,6 +125,14 @@ const authSlice = createSlice({
       state.user = null;
       Cookies.remove("accessToken");
       Cookies.remove("user");
+    },
+    setResetPasswordData: (state, action) => {
+      state.resetEmail = action.payload.email;
+      state.resetToken = action.payload.token;
+    },
+    clearResetPasswordData: (state) => {
+      state.resetEmail = "";
+      state.resetToken = "";
     },
   },
   extraReducers: (builder) => {
@@ -113,6 +147,19 @@ const authSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Login with Google
+      .addCase(loginWithGoogle.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginWithGoogle.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(loginWithGoogle.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -137,5 +184,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, setResetPasswordData, clearResetPasswordData } = authSlice.actions;
 export default authSlice.reducer;

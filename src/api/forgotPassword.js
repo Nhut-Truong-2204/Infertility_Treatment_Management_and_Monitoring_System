@@ -57,9 +57,12 @@ export const resetPassword = async (token, password, confirmPassword) => {
     throw new Error("Mật khẩu xác nhận không khớp");
   }
   try {
-    const response = await instance.post(`/api/auth/reset-password/${token}`, {
+    // Thêm email vào tham số
+    const response = await instance.post(`/api/auth/reset-password`, {
       password,
       confirmPassword,
+      token,
+      email,
     });
     return response.data;
   } catch (error) {

@@ -5,6 +5,8 @@ const initialState = {
   isBookingModalOpen: false,
   isRegisterModalOpen: false,
   isOTPModalOpen: false,
+  isForgotPasswordModalOpen: false,
+  isResetPasswordModalOpen: false,
 };
 
 const uiSlice = createSlice({
@@ -16,6 +18,18 @@ const uiSlice = createSlice({
     },
     closeLoginModal: (state) => {
       state.isLoginModalOpen = false;
+    },
+    openForgotPasswordModal: (state) => {
+      state.isForgotPasswordModalOpen = true;
+    },
+    closeForgotPasswordModal: (state) => {
+      state.isForgotPasswordModalOpen = false;
+    },
+    openResetPasswordModal: (state) => {
+      state.isResetPasswordModalOpen = true;
+    },
+    closeResetPasswordModal: (state) => {
+      state.isResetPasswordModalOpen = false;
     },
     openBookingModal: (state) => {
       state.isBookingModalOpen = true;
@@ -47,6 +61,10 @@ export const {
   closeRegisterModal,
   openOTPModal,
   closeOTPModal,
+  openForgotPasswordModal,
+  closeForgotPasswordModal,
+  openResetPasswordModal,
+  closeResetPasswordModal,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

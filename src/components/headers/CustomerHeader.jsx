@@ -1,4 +1,13 @@
 import React, { useState } from "react";
+import NotificationList from "../NotificationList";
+import {
+  MEDICAL_COLORS,
+  MEDICAL_GRADIENTS,
+  MEDICAL_SHADOWS,
+} from "../../styles/medicalTheme";
+// ...existing code...
+import { faBell } from "@fortawesome/free-solid-svg-icons";
+import useNotifications from "../../hooks/useNotifications";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../redux/slices/authSlice";
@@ -8,6 +17,11 @@ import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const CustomerHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const { notifications, loading } = useNotifications();
+  const unreadCount = Array.isArray(notifications)
+    ? notifications.filter((n) => !n.isRead).length
+    : 0;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
@@ -86,12 +100,38 @@ const CustomerHeader = () => {
               </button>
 
               {/* Notifications */}
-              <button className="relative text-white hover:text-accent transition-colors p-2">
-                <i className="fas fa-bell text-xl"></i>
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  3
+
+              <button
+                className="relative text-white hover:scale-105 hover:shadow-xl transition-all duration-200 p-0 rounded-full focus:outline-none focus:ring-2 focus:ring-accent shadow-md"
+                style={{ minWidth: 52, minHeight: 52 }}
+                onClick={() => setShowNotifications(true)}
+                aria-label="Xem thông báo"
+              >
+                <span className="flex items-center justify-center w-12 h-12">
+                  <FontAwesomeIcon
+                    icon={faBell}
+                    className="text-3xl drop-shadow-sm"
+                    style={{ color: MEDICAL_COLORS.primary[50] }}
+                  />
                 </span>
+                {!loading && unreadCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center border-2 shadow-lg ring-2 animate__animated animate__fadeIn"
+                    style={{
+                      background: MEDICAL_GRADIENTS.gentle,
+                      color: MEDICAL_COLORS.accent[700],
+                      borderColor: MEDICAL_COLORS.primary[50],
+                      boxShadow: MEDICAL_SHADOWS.accent,
+                    }}
+                  >
+                    {unreadCount}
+                  </span>
+                )}
               </button>
+
+              {showNotifications && (
+                <NotificationList onClose={() => setShowNotifications(false)} />
+              )}
 
               {/* User Dropdown */}
               <div className="group relative">

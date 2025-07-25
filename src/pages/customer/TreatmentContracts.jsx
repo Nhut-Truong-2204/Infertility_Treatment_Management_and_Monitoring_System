@@ -600,9 +600,7 @@ const TreatmentContracts = () => {
                               {statusConfig.icon}
                               {statusConfig.text}
                             </div>
-                            {/* Nút xem chi tiết đã bị loại bỏ, click vào card để xem chi tiết */}
-                            {/* Nút ký hợp đồng nếu trạng thái là PENDING */}
-                            {contract.status?.typeName === "PENDING" && (
+                            {contract.status?.typeName === "PAID" && (
                               <Button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -615,8 +613,7 @@ const TreatmentContracts = () => {
                                 Ký hợp đồng
                               </Button>
                             )}
-                            {/* Nút thanh toán hợp đồng nếu trạng thái là ACTIVE */}
-                            {contract.status?.typeName === "SIGNED" && (
+                            {contract.status?.typeName === "APPROVED" && (
                               <Button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -636,6 +633,8 @@ const TreatmentContracts = () => {
                             )}
                             {/* Nút hủy hợp đồng cho trạng thái PENDING, SIGNED, ACTIVE */}
                             {(contract.status?.typeName === "PENDING" ||
+                              contract.status?.typeName === "APPROVED" ||
+                              contract.status?.typeName === "PAID" ||
                               contract.status?.typeName === "SIGNED" ||
                               contract.status?.typeName === "ACTIVE") && (
                               <Button

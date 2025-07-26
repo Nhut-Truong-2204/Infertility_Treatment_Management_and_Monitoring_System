@@ -7,7 +7,7 @@ const Step1ServiceDefinition = ({ onSelect, formData }) => {
     formData.serviceType
   );
 
-  if (!formData.serviceType || !formData.serviceType.typeName) {
+  if (!formData.serviceType || !formData.serviceType.description) {
     return (
       <div className="text-center py-8">
         <i className="fas fa-arrow-left text-gray-400 text-3xl mb-3"></i>
@@ -50,7 +50,7 @@ const Step1ServiceDefinition = ({ onSelect, formData }) => {
           <span>
             Đang xem dịch vụ cho loại:
             <span className="font-medium text-primary ml-1">
-              {formData.serviceType.typeName}
+              {formData.serviceType.description}
             </span>
           </span>
         </div>
@@ -105,8 +105,8 @@ const Step1ServiceDefinition = ({ onSelect, formData }) => {
           <div className="text-center py-8">
             <i className="fas fa-info-circle text-gray-400 text-3xl mb-3"></i>
             <p className="text-gray-500">
-              Không có dịch vụ nào cho loại "{formData.serviceType?.typeName}"
-              đã chọn.
+              Không có dịch vụ nào cho loại "{formData.serviceType?.description}
+              " đã chọn.
             </p>
           </div>
         )}

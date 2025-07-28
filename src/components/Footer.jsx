@@ -1,14 +1,12 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import useClinicIntro from "../hooks/useClinicIntro";
 import SocialLinks from "./ui/SocialLinks";
-
+import logo from "../assets/images/logo.svg";
 export default function Footer() {
   const { user, isAuthenticated } = useAuth();
   const { clinicIntro: clinicInfo, loading } = useClinicIntro();
 
-  // Common links for all users
   const quickLinks = [
     { path: "/", name: "Trang Chủ" },
     { path: "/about", name: "Về Chúng Tôi" },
@@ -59,7 +57,7 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <div className="mb-6">
               <img
-                src="/logo.svg"
+                src={logo}
                 alt="Logo Ferlix"
                 className="h-12 w-auto mb-4"
                 onError={(e) => {

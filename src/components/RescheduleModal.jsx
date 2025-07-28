@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, Clock, X, CheckCircle, AlertTriangle } from "lucide-react";
 import Swal from "sweetalert2";
-import useWorkingShifts from "../hooks/useWorkingShifts";
+// ...existing code...
 import { rescheduleAppointment } from "../api/appointmentAPI";
+import { getDoctorWorkScheduleByDate } from "../api/doctorWorkScheduleAPI";
 import { Loading } from "./ui";
 
 const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
@@ -12,17 +13,57 @@ const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
   const [validationError, setValidationError] = useState("");
   const [rescheduleReason, setRescheduleReason] = useState("");
 
-  const { shifts: allShifts, loading: shiftsLoading } = useWorkingShifts();
+  const [allShifts, setAllShifts] = useState([]);
+  const [shiftsLoading, setShiftsLoading] = useState(false);
 
   // Reset state khi modal đóng/mở
+  // Khi mở modal: mặc định chọn ngày hôm nay, fetch work schedule bác sĩ theo ngày
   useEffect(() => {
-    if (isOpen) {
-      setSelectedDate("");
+    // Support both doctorUserId (number) and doctorUser?.userId (object)
+    const doctorId =
+      appointment?.doctorUserId || appointment?.doctorUser?.userId;
+    if (isOpen && doctorId) {
+      const today = getTodayDate();
+      setSelectedDate(today);
       setSelectedShift(null);
       setValidationError("");
       setRescheduleReason("");
+      fetchDoctorShifts(today, doctorId);
     }
-  }, [isOpen]);
+    // eslint-disable-next-line
+  }, [isOpen, appointment?.doctorUserId, appointment?.doctorUser?.userId]);
+
+  // Khi đổi ngày, fetch lại work schedule bác sĩ theo ngày và scroll đến phần chọn ca
+  useEffect(() => {
+    const doctorId =
+      appointment?.doctorUserId || appointment?.doctorUser?.userId;
+    if (selectedDate && doctorId) {
+      fetchDoctorShifts(selectedDate, doctorId);
+      // Auto scroll đến phần chọn ca
+      setTimeout(() => {
+        const el = document.getElementById("reschedule-time-section");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 200);
+    }
+    // eslint-disable-next-line
+  }, [
+    selectedDate,
+    appointment?.doctorUserId,
+    appointment?.doctorUser?.userId,
+  ]);
+
+  const fetchDoctorShifts = async (date, doctorId) => {
+    setShiftsLoading(true);
+    try {
+      const shifts = await getDoctorWorkScheduleByDate(doctorId, date);
+      setAllShifts(shifts || []);
+    } catch (err) {
+      console.error("Error fetching doctor shifts:", err);
+      setAllShifts([]);
+    } finally {
+      setShiftsLoading(false);
+    }
+  };
 
   const getTodayDate = () => {
     const today = new Date();
@@ -54,8 +95,22 @@ const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
     return shiftStartMinutes > currentTime;
   };
 
-  // Lọc ca khám trong tương lai (giống Step4DateTime)
-  const futureShifts = allShifts.filter((shift) =>
+  // Loại trừ khung giờ đã đặt của ngày đặt lịch (nếu trùng ngày)
+  let filteredShifts = allShifts;
+  if (selectedDate && appointment?.appointmentDateTime) {
+    const apptDate = new Date(appointment.appointmentDateTime)
+      .toISOString()
+      .split("T")[0];
+    if (selectedDate === apptDate) {
+      filteredShifts = allShifts.filter(
+        (shift) =>
+          shift.startTime !==
+          new Date(appointment.appointmentDateTime).toTimeString().slice(0, 5)
+      );
+    }
+  }
+  // Chỉ lấy các ca hợp lệ trong tương lai
+  const futureShifts = filteredShifts.filter((shift) =>
     isShiftInFuture(shift, selectedDate)
   );
 
@@ -229,7 +284,9 @@ const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
                 </div>
                 <div>
                   <span className="font-medium">Bác sĩ:</span>{" "}
-                  {appointment.doctorUser?.userFullName || "Không rõ"}
+                  {appointment.doctorName ||
+                    appointment.doctorUser?.userFullName ||
+                    "Không rõ"}
                 </div>
                 <div className="md:col-span-2">
                   <span className="font-medium">Dịch vụ:</span>{" "}
@@ -241,7 +298,7 @@ const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Date Selection */}
-            <div className="space-y-4">
+            <div className="space-y-4" id="reschedule-time-section">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <Calendar className="w-4 h-4 inline mr-2 text-blue-500" />
@@ -304,6 +361,10 @@ const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
                     <AlertTriangle className="w-12 h-12 mx-auto mb-2 text-orange-400" />
                     <p className="text-orange-600 font-medium">
                       Không có ca khám khả dụng cho ngày này
+                      <br />
+                      {filteredShifts.length === 0
+                        ? "Tất cả ca đã được đặt hoặc không còn ca hợp lệ."
+                        : "Tất cả ca còn lại đều đã qua thời gian hiện tại."}
                     </p>
                     <p className="text-gray-500 text-sm mt-1">
                       Vui lòng chọn ngày khác
@@ -383,7 +444,9 @@ const RescheduleModal = ({ isOpen, onClose, appointment, onSuccess }) => {
                   </p>
                   <p className="text-sm text-green-700">
                     <strong>Bác sĩ:</strong>{" "}
-                    {appointment?.doctorUser?.userFullName || "Không rõ"}
+                    {appointment?.doctorName ||
+                      appointment?.doctorUser?.userFullName ||
+                      "Không rõ"}
                   </p>
                 </div>
               </div>

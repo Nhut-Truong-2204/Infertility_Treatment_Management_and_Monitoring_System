@@ -613,7 +613,8 @@ const TreatmentContracts = () => {
                                 Ký hợp đồng
                               </Button>
                             )}
-                            {contract.status?.typeName === "APPROVED" && (
+                            {contract.status?.typeName ===
+                              "AWAITING_PAYMENT" && (
                               <Button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -633,7 +634,8 @@ const TreatmentContracts = () => {
                             )}
                             {/* Nút hủy hợp đồng cho trạng thái PENDING, SIGNED, ACTIVE */}
                             {(contract.status?.typeName === "PENDING" ||
-                              contract.status?.typeName === "APPROVED" ||
+                              contract.status?.typeName ===
+                                "AWAITING_PAYMENT" ||
                               contract.status?.typeName === "PAID" ||
                               contract.status?.typeName === "SIGNED" ||
                               contract.status?.typeName === "ACTIVE") && (

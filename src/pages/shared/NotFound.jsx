@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import {
@@ -6,51 +5,46 @@ import {
   MEDICAL_GRADIENTS,
   MEDICAL_SHADOWS,
 } from "../../styles/medicalTheme";
+import loaderSvg from "../../assets/images/loader.svg";
 
 export default function NotFound() {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
-      style={{
-        background: MEDICAL_GRADIENTS.gentle,
-      }}
+      style={{ background: MEDICAL_GRADIENTS.gentle }}
     >
       <div className="max-w-2xl mx-auto text-center relative z-10">
         {/* 404 Number */}
         <div className="relative mb-8">
-          <h1
-            className="text-9xl md:text-[12rem] font-bold text-transparent bg-clip-text leading-none"
-            style={{
-              backgroundImage: `linear-gradient(135deg, ${MEDICAL_COLORS.primary[500]} 0%, ${MEDICAL_COLORS.accent[500]} 100%)`,
-            }}
-          >
-            404
-          </h1>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div
-              className="w-32 h-32 md:w-40 md:h-40 backdrop-blur-sm rounded-full border flex items-center justify-center"
+          <div className="flex justify-center items-center relative select-none">
+            <span
+              className="text-9xl md:text-[12rem] font-bold text-transparent bg-clip-text leading-none"
               style={{
-                backgroundColor: `${MEDICAL_COLORS.gray[50]}80`,
-                borderColor: `${MEDICAL_COLORS.primary[200]}80`,
-                boxShadow: MEDICAL_SHADOWS.soft,
+                backgroundImage: `linear-gradient(135deg, ${MEDICAL_COLORS.primary[500]} 0%, ${MEDICAL_COLORS.accent[500]} 100%)`,
+                WebkitBackgroundClip: "text",
+                color: "transparent",
               }}
             >
-              <svg
-                className="w-16 h-16 md:w-20 md:h-20"
-                style={{ color: MEDICAL_COLORS.primary[500] }}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                />
-              </svg>
-            </div>
+              4
+            </span>
+            <span className="relative mx-2 flex items-center justify-center">
+              <img
+                src={loaderSvg}
+                alt="Loading..."
+                className="w-32 h-32 md:w-32 md:h-32"
+                style={{ minWidth: 48, minHeight: 48 }}
+              />
+            </span>
+            <span
+              className="text-9xl md:text-[12rem] font-bold text-transparent bg-clip-text leading-none"
+              style={{
+                backgroundImage: `linear-gradient(135deg, ${MEDICAL_COLORS.primary[500]} 0%, ${MEDICAL_COLORS.accent[500]} 100%)`,
+                WebkitBackgroundClip: "text",
+                color: "transparent",
+              }}
+            >
+              4
+            </span>
           </div>
         </div>
 
@@ -83,12 +77,12 @@ export default function NotFound() {
                 boxShadow: MEDICAL_SHADOWS.soft,
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = `${MEDICAL_COLORS.primary[50]}90`;
-                e.target.style.boxShadow = MEDICAL_SHADOWS.medium;
+                e.currentTarget.style.backgroundColor = `${MEDICAL_COLORS.primary[50]}90`;
+                e.currentTarget.style.boxShadow = MEDICAL_SHADOWS.medium;
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = `${MEDICAL_COLORS.gray[50]}90`;
-                e.target.style.boxShadow = MEDICAL_SHADOWS.soft;
+                e.currentTarget.style.backgroundColor = `${MEDICAL_COLORS.gray[50]}90`;
+                e.currentTarget.style.boxShadow = MEDICAL_SHADOWS.soft;
               }}
             >
               <div
@@ -132,12 +126,12 @@ export default function NotFound() {
                 boxShadow: MEDICAL_SHADOWS.soft,
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = `${MEDICAL_COLORS.accent[50]}90`;
-                e.target.style.boxShadow = MEDICAL_SHADOWS.medium;
+                e.currentTarget.style.backgroundColor = `${MEDICAL_COLORS.accent[50]}90`;
+                e.currentTarget.style.boxShadow = MEDICAL_SHADOWS.medium;
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = `${MEDICAL_COLORS.gray[50]}90`;
-                e.target.style.boxShadow = MEDICAL_SHADOWS.soft;
+                e.currentTarget.style.backgroundColor = `${MEDICAL_COLORS.gray[50]}90`;
+                e.currentTarget.style.boxShadow = MEDICAL_SHADOWS.soft;
               }}
             >
               <div
@@ -181,12 +175,12 @@ export default function NotFound() {
                 boxShadow: MEDICAL_SHADOWS.soft,
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = `${MEDICAL_COLORS.info[50]}90`;
-                e.target.style.boxShadow = MEDICAL_SHADOWS.medium;
+                e.currentTarget.style.backgroundColor = `${MEDICAL_COLORS.info[50]}90`;
+                e.currentTarget.style.boxShadow = MEDICAL_SHADOWS.medium;
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = `${MEDICAL_COLORS.gray[50]}90`;
-                e.target.style.boxShadow = MEDICAL_SHADOWS.soft;
+                e.currentTarget.style.backgroundColor = `${MEDICAL_COLORS.gray[50]}90`;
+                e.currentTarget.style.boxShadow = MEDICAL_SHADOWS.soft;
               }}
             >
               <div className="mb-2" style={{ color: MEDICAL_COLORS.info[500] }}>
@@ -231,10 +225,10 @@ export default function NotFound() {
               boxShadow: MEDICAL_SHADOWS.medium,
             }}
             onMouseEnter={(e) => {
-              e.target.style.boxShadow = MEDICAL_SHADOWS.large;
+              e.currentTarget.style.boxShadow = MEDICAL_SHADOWS.large;
             }}
             onMouseLeave={(e) => {
-              e.target.style.boxShadow = MEDICAL_SHADOWS.medium;
+              e.currentTarget.style.boxShadow = MEDICAL_SHADOWS.medium;
             }}
           >
             <Link to="/">
@@ -265,12 +259,13 @@ export default function NotFound() {
               backgroundColor: "transparent",
             }}
             onMouseEnter={(e) => {
-              e.target.style.backgroundColor = MEDICAL_COLORS.primary[50];
-              e.target.style.borderColor = MEDICAL_COLORS.primary[400];
+              e.currentTarget.style.backgroundColor =
+                MEDICAL_COLORS.primary[50];
+              e.currentTarget.style.borderColor = MEDICAL_COLORS.primary[400];
             }}
             onMouseLeave={(e) => {
-              e.target.style.backgroundColor = "transparent";
-              e.target.style.borderColor = MEDICAL_COLORS.primary[300];
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.borderColor = MEDICAL_COLORS.primary[300];
             }}
           >
             <svg

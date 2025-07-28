@@ -36,8 +36,15 @@ const ResetPasswordModal = ({ email, token }) => {
     setSuccess("");
     setLoading(true);
     try {
-      const res = await resetPassword(inputToken, password, confirmPassword, inputEmail);
-      setSuccess(res.message || "Đổi mật khẩu thành công. Bạn có thể đăng nhập lại.");
+      const res = await resetPassword(
+        inputToken,
+        password,
+        confirmPassword,
+        inputEmail
+      );
+      setSuccess(
+        res.message || "Đổi mật khẩu thành công. Bạn có thể đăng nhập lại."
+      );
       // Đóng modal và xóa dữ liệu reset khỏi Redux
       setTimeout(() => {
         dispatch(closeResetPasswordModal());
@@ -64,17 +71,36 @@ const ResetPasswordModal = ({ email, token }) => {
           &times;
         </button>
         <MedicalCard.Content>
-          <h2 className="text-2xl font-bold text-primary mb-2 text-center">Đặt lại mật khẩu</h2>
-          <p className="text-center text-text-color mb-6">Nhập mã xác thực, email và mật khẩu mới.</p>
+          <h2 className="text-2xl font-bold text-primary mb-2 text-center">
+            Đặt lại mật khẩu
+          </h2>
+          <p className="text-center text-text-color mb-6">
+            Nhập mã xác thực, email và mật khẩu mới.
+          </p>
           {error && (
-            <MedicalAlert type="error" title="Lỗi" message={error} dismissible className="mb-4" />
+            <MedicalAlert
+              type="error"
+              title="Lỗi"
+              message={error}
+              dismissible
+              className="mb-4"
+            />
           )}
           {success && (
-            <MedicalAlert type="success" title="Thành công" message={success} dismissible className="mb-4" />
+            <MedicalAlert
+              type="success"
+              title="Thành công"
+              message={success}
+              dismissible
+              className="mb-4"
+            />
           )}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="token" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="token"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Mã xác thực
               </label>
               <input
@@ -88,13 +114,17 @@ const ResetPasswordModal = ({ email, token }) => {
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Email
               </label>
               <input
                 type="email"
                 id="email"
                 value={inputEmail}
+                disabled={!!inputEmail} // Disable if email is provided
                 onChange={(e) => setInputEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                 placeholder="nhapemail@example.com"
@@ -102,7 +132,10 @@ const ResetPasswordModal = ({ email, token }) => {
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Mật khẩu mới
               </label>
               <input
@@ -116,7 +149,10 @@ const ResetPasswordModal = ({ email, token }) => {
               />
             </div>
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Xác nhận mật khẩu mới
               </label>
               <input

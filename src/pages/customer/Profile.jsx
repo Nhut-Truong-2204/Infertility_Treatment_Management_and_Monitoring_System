@@ -159,7 +159,7 @@ const Profile = () => {
                 Tài khoản đã xác minh
               </div>
 
-              {/* Quick Stats */}
+              {/* Quick Stats
               <div className="grid grid-cols-2 gap-4 pt-6 border-t border-gray-200">
                 <div className="text-center">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
@@ -175,7 +175,7 @@ const Profile = () => {
                   <p className="text-2xl font-bold text-gray-800">3</p>
                   <p className="text-sm text-gray-600">Năm thành viên</p>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -266,7 +266,7 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Account Security */}
+            {/* Account Security
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
               <div className="p-6 border-b border-gray-200">
                 <h3 className="text-xl font-bold text-gray-800 flex items-center">
@@ -309,25 +309,9 @@ const Profile = () => {
                     </div>
                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   </div>
-
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                        <Clock className="w-4 h-4 text-gray-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-800">
-                          Lần đăng nhập cuối
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Hôm nay lúc 14:30
-                        </p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

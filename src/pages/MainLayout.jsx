@@ -28,26 +28,6 @@ const MainLayout = () => {
         onLoginClick={() => dispatch(openLoginModal())}
         onRegisterClick={() => dispatch(openRegisterModal())}
       />
-      {user && (
-        <div className="bg-gradient-to-r from-primary to-accent text-white py-2 px-4">
-          <div className="container mx-auto flex justify-between items-center text-sm">
-            <span>
-              <i className="fas fa-user-circle mr-2"></i>
-              Chào mừng, {user?.fullName || user?.name || "Khách hàng"}
-            </span>
-            <div className="flex items-center gap-4">
-              <span>
-                <i className="fas fa-calendar-check mr-1"></i>
-                Lịch hẹn tiếp theo: 15/07/2024
-              </span>
-              <span>
-                <i className="fas fa-bell mr-1"></i>3 thông báo mới
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
       <main className="flex-1">
         <Outlet />
       </main>

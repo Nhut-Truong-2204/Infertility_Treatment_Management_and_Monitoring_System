@@ -1,5 +1,5 @@
 import authAxios from "../config/authAxios";
-
+import { formAxios } from "../config/axios";
 // API để lấy thông tin profile hiện tại
 export const getCurrentProfile = async () => {
   try {
@@ -13,7 +13,7 @@ export const getCurrentProfile = async () => {
 // API để cập nhật profile
 export const updateProfile = async (profileData) => {
   try {
-    const response = await authAxios.put("/api/auth/profile", profileData);
+    const response = await formAxios.put("/api/auth/profile", profileData);
     return response.data;
   } catch (error) {
     throw error.response?.data || error;

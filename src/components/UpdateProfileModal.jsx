@@ -43,18 +43,18 @@ const UpdateProfileModal = ({ isOpen, onClose, onSuccess }) => {
       setLoading(true);
       getCurrentProfile()
         .then((response) => {
-          const profileData = response.data || response;
+          const formData = response.data || response;
           const data = {
-            fullName: profileData.fullName || user.fullName || "",
-            email: profileData.email || user.email || "",
-            phoneNumber: profileData.phoneNumber || user.phoneNumber || "",
-            dateOfBirth: profileData.dateOfBirth
-              ? profileData.dateOfBirth.split("T")[0]
+            fullName: formData.fullName || user.fullName || "",
+            email: formData.email || user.email || "",
+            phoneNumber: formData.phoneNumber || user.phoneNumber || "",
+            dateOfBirth: formData.dateOfBirth
+              ? formData.dateOfBirth.split("T")[0]
               : "",
-            gender: profileData.gender || "",
-            address: profileData.address || "",
+            gender: formData.gender || "",
+            address: formData.address || "",
             profilePicture: null,
-            profilePictureURL: profileData.profilePictureURL || "",
+            profilePictureURL: formData.profilePictureURL || "",
           };
           setFormData(data);
           setOriginalData(data);
@@ -85,10 +85,10 @@ const UpdateProfileModal = ({ isOpen, onClose, onSuccess }) => {
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
     if (type === "file") {
-      const file = files[0];
+      const file = files && files[0];
       setFormData((prev) => ({
         ...prev,
-        profilePicture: file,
+        profilePicture: file || null,
         profilePictureURL: file
           ? URL.createObjectURL(file)
           : prev.profilePictureURL,
@@ -114,8 +114,6 @@ const UpdateProfileModal = ({ isOpen, onClose, onSuccess }) => {
     }
     if (!formData.email.trim()) {
       errors.email = "Email không được để trống";
-    } else if (!/^([\w.-]+@[\w-]+\.[a-zA-Z]{2,})$/.test(formData.email)) {
-      errors.email = "Email không hợp lệ";
     }
     if (formData.phoneNumber && !/^[0-9]{10,11}$/.test(formData.phoneNumber)) {
       errors.phoneNumber = "Số điện thoại phải có 10-11 chữ số";
@@ -151,10 +149,10 @@ const UpdateProfileModal = ({ isOpen, onClose, onSuccess }) => {
       form.append("fullName", formData.fullName);
       form.append("email", formData.email);
       form.append("phoneNumber", formData.phoneNumber);
-      form.append("dateOfBirth", formData.dateOfBirth);
+      form.append("dateOfBirth", formData.dateOfBirth); // dạng yyyy-MM-dd
       form.append("gender", formData.gender);
       form.append("address", formData.address);
-      if (formData.profilePicture) {
+      if (formData.profilePicture && formData.profilePicture instanceof File) {
         form.append("profilePicture", formData.profilePicture);
       }
       const response = await updateProfile(form); // updateProfile cần hỗ trợ FormData
@@ -294,7 +292,6 @@ const UpdateProfileModal = ({ isOpen, onClose, onSuccess }) => {
                       id="profilePicture"
                       name="profilePicture"
                       type="file"
-                      accept="image/*"
                       className="hidden"
                       onChange={handleInputChange}
                       disabled={submitting}

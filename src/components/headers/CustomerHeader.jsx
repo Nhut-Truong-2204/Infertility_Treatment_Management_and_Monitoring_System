@@ -49,6 +49,11 @@ const CustomerHeader = () => {
       name: "Hồ Sơ Y Tế",
       icon: "fa-file-medical",
     },
+    {
+      path: "/customer/invoices",
+      name: "Hóa Đơn",
+      icon: "fa-file-invoice-dollar",
+    },
     { path: "/customer/prescriptions", name: "Đơn Thuốc", icon: "fa-pills" },
     { path: "/services", name: "Dịch Vụ", icon: "fa-stethoscope" },
     { path: "/blog", name: "Bài Viết", icon: "fa-newspaper" },
@@ -136,11 +141,18 @@ const CustomerHeader = () => {
               {/* User Dropdown */}
               <div className="group relative">
                 <button className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/10 transition-colors">
-                  {/* Avatar */}
                   <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    {user?.fullName
-                      ? user.fullName.charAt(0).toUpperCase()
-                      : "U"}
+                    {user?.profilePictureURL ? (
+                      <img
+                        src={user.profilePictureURL}
+                        alt={user.fullName || "User"}
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : user?.fullName ? (
+                      user.fullName.charAt(0).toUpperCase()
+                    ) : (
+                      "U"
+                    )}
                   </div>
                   {/* Tên và Icon */}
                   <div className="flex items-center space-x-2">

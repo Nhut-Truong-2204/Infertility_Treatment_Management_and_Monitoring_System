@@ -28,28 +28,13 @@ export const requestPasswordReset = async (email) => {
   }
 };
 
-// 2. Validate reset token
-export const validateResetToken = async (token, email) => {
-  if (!token || !email) {
-    throw new Error("Thiếu thông tin xác thực");
-  }
-  try {
-    const response = await instance.get("/api/auth/validate-reset-token", {
-      params: { token, email },
-    });
-    return response.data;
-  } catch (error) {
-    throw {
-      message:
-        ERROR_MESSAGES[error.code] ||
-        error.message ||
-        ERROR_MESSAGES.NETWORK_ERROR,
-    };
-  }
-};
-
 // 3. Reset password with token
-export const resetPassword = async (token, password, confirmPassword) => {
+export const resetPassword = async (
+  token,
+  password,
+  confirmPassword,
+  email
+) => {
   if (!token || !password || !confirmPassword) {
     throw new Error("Thiếu thông tin cần thiết");
   }

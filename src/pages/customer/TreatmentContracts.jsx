@@ -8,11 +8,7 @@ import {
   MedicalStatusBadge,
 } from "../../components/ui";
 import { getPayosLink } from "../../api/paymentAPI";
-import {
-  MEDICAL_COLORS,
-  MEDICAL_SHADOWS,
-  MEDICAL_SPACING,
-} from "../../styles/medicalTheme";
+import { MEDICAL_COLORS } from "../../styles/medicalTheme";
 import React, { useState } from "react";
 import {
   FileText,

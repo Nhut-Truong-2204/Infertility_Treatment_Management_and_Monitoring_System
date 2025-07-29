@@ -248,9 +248,6 @@ const BookingModal = ({ isOpen, onClose }) => {
           <i className="fas fa-times text-xl"></i>
         </Button>
         <MedicalCard.Header>
-          <span className="text-sm font-medium text-accent">
-            Bước {currentStep} trên {TOTAL_STEPS}
-          </span>
           <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
             <div
               className="bg-accent h-2.5 rounded-full transition-all duration-300"

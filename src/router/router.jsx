@@ -3,6 +3,7 @@ import Home from "../pages/guest/Home";
 import AboutUs from "../pages/guest/AboutUs";
 import Dashboard from "../pages/customer/Dashboard";
 import AppointmentList from "../pages/customer/AppointmentList";
+import InvoiceList from "../pages/customer/InvoiceList";
 import TreatmentTimeline from "../pages/customer/TreatmentTimeline";
 import TreatmentContracts from "../pages/customer/TreatmentContracts";
 import MedicalRecords from "../pages/customer/MedicalRecords";
@@ -37,6 +38,7 @@ const router = createBrowserRouter([
       { path: "customer/treatment-timeline", element: <TreatmentTimeline /> }, // Trang phác đồ điều trị
       { path: "customer/treatment-contracts", element: <TreatmentContracts /> }, // Trang hợp đồng điều trị
       { path: "customer/medical-records", element: <MedicalRecords /> }, // Trang hồ sơ y tế
+      { path: "customer/invoices", element: <InvoiceList /> }, // Trang hóa đơn
       { path: "customer/prescriptions", element: <Dashboard /> }, // Tạm thời dùng Dashboard
       { path: "customer/profile", element: <Profile /> }, // Trang hồ sơ cá nhân
       { path: "customer/settings", element: <Settings /> }, // Trang cài đặt

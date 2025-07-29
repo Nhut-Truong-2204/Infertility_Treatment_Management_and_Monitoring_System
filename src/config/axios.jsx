@@ -11,6 +11,12 @@ const instance = axios.create({
   withCredentials: true,
 });
 
+export const formAxios = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 10000,
+  withCredentials: true,
+});
+
 instance.interceptors.request.use(
   (config) => {
     const token = Cookies.get("accessToken");

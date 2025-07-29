@@ -12,6 +12,7 @@ import {
   Sun,
   ChevronRight,
   LogOut,
+  Edit3,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import UpdateProfileModal from "../../components/UpdateProfileModal";
@@ -194,7 +195,17 @@ const Settings = () => {
         <MedicalCard variant="medical" size="large" className="mb-8">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white font-bold text-2xl">
-              {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
+              {user?.profilePictureURL ? (
+                <img
+                  src={user.profilePictureURL}
+                  alt={user.fullName || "User"}
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : user?.fullName ? (
+                user.fullName.charAt(0).toUpperCase()
+              ) : (
+                "U"
+              )}
             </div>
             <div className="flex-1">
               <MedicalCard.Title className="text-xl">

@@ -179,7 +179,6 @@ const MedicalRecords = () => {
           <>
             {/* Summary Section */}
             <MedicalRecordsSummary records={medicalRecords} />
-
             {/* Records List */}
             <div className="space-y-6">
               {medicalRecords.map((record) => (

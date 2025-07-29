@@ -83,11 +83,6 @@ const Step1ServiceDefinition = ({ onSelect, formData }) => {
                   <p className="font-semibold text-primary">
                     {service.serviceName}
                   </p>
-                  {service.serviceCode && (
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                      {service.serviceCode}
-                    </span>
-                  )}
                 </div>
                 <p className="text-sm text-text-color">{service.description}</p>
                 {service.defaultPrice && (

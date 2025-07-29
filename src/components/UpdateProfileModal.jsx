@@ -20,11 +20,13 @@ const UpdateProfileModal = ({ isOpen, onClose, onSuccess }) => {
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
+    email: "",
     phoneNumber: "",
     dateOfBirth: "",
     gender: "",
     address: "",
-    profilePictureURL: "",
+    profilePicture: null,
+    profilePictureURL: "", // for preview only
   });
   const [originalData, setOriginalData] = useState({});
 
@@ -44,12 +46,14 @@ const UpdateProfileModal = ({ isOpen, onClose, onSuccess }) => {
           const profileData = response.data || response;
           const data = {
             fullName: profileData.fullName || user.fullName || "",
+            email: profileData.email || user.email || "",
             phoneNumber: profileData.phoneNumber || user.phoneNumber || "",
             dateOfBirth: profileData.dateOfBirth
               ? profileData.dateOfBirth.split("T")[0]
               : "",
             gender: profileData.gender || "",
             address: profileData.address || "",
+            profilePicture: null,
             profilePictureURL: profileData.profilePictureURL || "",
           };
           setFormData(data);
@@ -60,10 +64,12 @@ const UpdateProfileModal = ({ isOpen, onClose, onSuccess }) => {
           // Fallback to user data
           const data = {
             fullName: user.fullName || "",
+            email: user.email || "",
             phoneNumber: user.phoneNumber || "",
             dateOfBirth: user.dateOfBirth ? user.dateOfBirth.split("T")[0] : "",
             gender: user.gender || "",
             address: user.address || "",
+            profilePicture: null,
             profilePictureURL: user.profilePictureURL || "",
           };
           setFormData(data);
@@ -77,21 +83,81 @@ const UpdateProfileModal = ({ isOpen, onClose, onSuccess }) => {
 
   // Handle input changes
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const { name, value, type, files } = e.target;
+    if (type === "file") {
+      const file = files[0];
+      setFormData((prev) => ({
+        ...prev,
+        profilePicture: file,
+        profilePictureURL: file
+          ? URL.createObjectURL(file)
+          : prev.profilePictureURL,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   // Handle form submission
   const [alert, setAlert] = useState(null);
+  // Basic client-side validation
+  const validate = () => {
+    const errors = {};
+    if (!formData.fullName.trim()) {
+      errors.fullName = "Họ và tên không được để trống";
+    } else if (!/^([\p{L}\s]{2,100})$/u.test(formData.fullName)) {
+      errors.fullName =
+        "Họ và tên chỉ được chứa chữ cái và khoảng trắng, từ 2-100 ký tự";
+    }
+    if (!formData.email.trim()) {
+      errors.email = "Email không được để trống";
+    } else if (!/^([\w.-]+@[\w-]+\.[a-zA-Z]{2,})$/.test(formData.email)) {
+      errors.email = "Email không hợp lệ";
+    }
+    if (formData.phoneNumber && !/^[0-9]{10,11}$/.test(formData.phoneNumber)) {
+      errors.phoneNumber = "Số điện thoại phải có 10-11 chữ số";
+    }
+    if (formData.dateOfBirth && new Date(formData.dateOfBirth) >= new Date()) {
+      errors.dateOfBirth = "Ngày sinh phải là ngày trong quá khứ";
+    }
+    if (formData.gender && !["Nam", "Nữ", "Khác"].includes(formData.gender)) {
+      errors.gender = "Giới tính phải là Nam, Nữ hoặc Khác";
+    }
+    if (formData.address && formData.address.length > 500) {
+      errors.address = "Địa chỉ tối đa 500 ký tự";
+    }
+    return errors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-
+    const errors = validate();
+    if (Object.keys(errors).length > 0) {
+      setAlert({
+        type: "error",
+        title: "Lỗi nhập liệu!",
+        message: Object.values(errors).join("\n"),
+      });
+      setSubmitting(false);
+      setTimeout(() => setAlert(null), 2500);
+      return;
+    }
     try {
-      const response = await updateProfile(formData);
+      const form = new FormData();
+      form.append("fullName", formData.fullName);
+      form.append("email", formData.email);
+      form.append("phoneNumber", formData.phoneNumber);
+      form.append("dateOfBirth", formData.dateOfBirth);
+      form.append("gender", formData.gender);
+      form.append("address", formData.address);
+      if (formData.profilePicture) {
+        form.append("profilePicture", formData.profilePicture);
+      }
+      const response = await updateProfile(form); // updateProfile cần hỗ trợ FormData
       setAlert({
         type: "success",
         title: "Cập nhật thành công!",
@@ -218,13 +284,22 @@ const UpdateProfileModal = ({ isOpen, onClose, onSuccess }) => {
                       <User className="w-12 h-12 text-gray-400" />
                     )}
                   </div>
-                  <button
-                    type="button"
-                    className="absolute bottom-4 right-0 bg-primary text-white p-2 rounded-full hover:bg-accent transition-colors"
+                  <label
+                    htmlFor="profilePicture"
+                    className="absolute bottom-4 right-0 bg-primary text-white p-2 rounded-full hover:bg-accent transition-colors cursor-pointer"
                     title="Thay đổi ảnh đại diện"
                   >
                     <Upload className="w-4 h-4" />
-                  </button>
+                    <input
+                      id="profilePicture"
+                      name="profilePicture"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleInputChange}
+                      disabled={submitting}
+                    />
+                  </label>
                 </div>
               </div>
 
@@ -247,18 +322,33 @@ const UpdateProfileModal = ({ isOpen, onClose, onSuccess }) => {
                   />
                 </div>
 
+                {/* Email */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    placeholder="Nhập email"
+                  />
+                </div>
+
                 {/* Phone Number */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <Phone className="w-4 h-4 inline mr-2" />
-                    Số điện thoại *
+                    Số điện thoại
                   </label>
                   <input
                     type="tel"
                     name="phoneNumber"
                     value={formData.phoneNumber}
                     onChange={handleInputChange}
-                    required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     placeholder="Nhập số điện thoại"
                   />

@@ -46,18 +46,12 @@ instance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
-    // Chỉ thử refresh token nếu:
-    // 1. Có lỗi 401/403
-    // 2. Chưa retry
-    // 3. Có token ban đầu (không phải guest user)
-    // 4. Không phải request đến auth endpoints
     if (
       error.response &&
       (error.response.status === 401 || error.response.status === 403) &&
       !originalRequest._retry &&
-      Cookies.get("accessToken") && // Chỉ retry nếu có token
-      !originalRequest.url.includes("/api/auth/") // Không retry cho auth endpoints
+      Cookies.get("accessToken") &&
+      !originalRequest.url.includes("/api/auth/")
     ) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
@@ -92,7 +86,6 @@ instance.interceptors.response.use(
       } catch (err) {
         processQueue(err, null);
 
-        // Chỉ hiển thị popup khi thực sự cần thiết
         const hasToken = Cookies.get("accessToken");
         if (hasToken) {
           Swal.fire({

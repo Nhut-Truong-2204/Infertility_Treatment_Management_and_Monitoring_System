@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import logo from "../../assets/images/logo.svg";
 import NotificationList from "../NotificationList";
 import {
   MEDICAL_COLORS,
@@ -70,26 +71,48 @@ const CustomerHeader = () => {
       <div className="bg-primary">
         <div className="max-w-[1480px] mx-auto">
           <nav className="flex items-center py-4 px-4">
-            {/* Menu cho Desktop */}
+            {/* Logo lớn hơn và tên trang web reprotrack */}
+            <div className="flex items-center space-x-4 mr-8">
+              <NavLink to="/" className="flex items-center space-x-3">
+                <img
+                  src={logo}
+                  alt="Logo"
+                  className="h-14 w-auto object-contain"
+                />
+              </NavLink>
+              <span className="text-accent text-xs font-medium hidden xl:inline">
+                Giải pháp hỗ trợ điều trị vô sinh - hiếm muộn hiện đại
+              </span>
+            </div>
+
+            {/* Menu cho Desktop - Hiển thị các mục thường dùng */}
             <div className="hidden lg:flex flex-grow justify-center">
               <ul className="flex items-center space-x-6">
-                {customerMenuItems.map((item) => (
-                  <li key={item.path}>
-                    <NavLink
-                      to={item.path}
-                      className={({ isActive }) =>
-                        `relative transition-all duration-300 hover:text-accent flex items-center space-x-2 px-3 py-2 rounded-lg ${
-                          isActive
-                            ? "text-accent bg-white/10"
-                            : "text-white hover:bg-white/10"
-                        } font-medium`
-                      }
-                    >
-                      <i className={`fas ${item.icon} text-sm`}></i>
-                      <span>{item.name}</span>
-                    </NavLink>
-                  </li>
-                ))}
+                {customerMenuItems
+                  .filter((item) =>
+                    [
+                      "/dashboard",
+                      "/customer/appointments",
+                      "/customer/medical-records",
+                    ].includes(item.path)
+                  )
+                  .map((item) => (
+                    <li key={item.path}>
+                      <NavLink
+                        to={item.path}
+                        className={({ isActive }) =>
+                          `relative transition-all duration-300 hover:text-accent flex items-center space-x-2 px-3 py-2 rounded-lg ${
+                            isActive
+                              ? "text-accent bg-white/10"
+                              : "text-white hover:bg-white/10"
+                          } font-medium`
+                        }
+                      >
+                        <i className={`fas ${item.icon} text-sm`}></i>
+                        <span>{item.name}</span>
+                      </NavLink>
+                    </li>
+                  ))}
               </ul>
             </div>
 
@@ -176,36 +199,35 @@ const CustomerHeader = () => {
                       </p>
                     </div>
 
-                    {/* Menu Items */}
+                    {/* Menu Items: chỉ hiển thị các mục còn lại trong dropdown */}
                     <div className="py-2">
-                      <NavLink
-                        to="/customer/profile"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary transition-colors"
-                      >
-                        <i className="fa-solid fa-user w-4 mr-3 text-gray-400"></i>
-                        Thông tin cá nhân
-                      </NavLink>
-                      <NavLink
-                        to="/customer/appointments"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary transition-colors"
-                      >
-                        <i className="fa-solid fa-calendar-check w-4 mr-3 text-gray-400"></i>
-                        Lịch hẹn của tôi
-                      </NavLink>
-                      <NavLink
-                        to="/customer/medical-records"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary transition-colors"
-                      >
-                        <i className="fa-solid fa-file-medical w-4 mr-3 text-gray-400"></i>
-                        Hồ sơ y tế
-                      </NavLink>
-                      <NavLink
-                        to="/customer/settings"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-secondary transition-colors"
-                      >
-                        <i className="fa-solid fa-cog w-4 mr-3 text-gray-400"></i>
-                        Cài đặt
-                      </NavLink>
+                      {customerMenuItems
+                        .filter(
+                          (item) =>
+                            ![
+                              "/dashboard",
+                              "/customer/appointments",
+                              "/customer/medical-records",
+                            ].includes(item.path)
+                        )
+                        .map((item) => (
+                          <NavLink
+                            key={item.path}
+                            to={item.path}
+                            className={({ isActive }) =>
+                              `flex items-center px-4 py-2 text-sm transition-colors rounded-lg ${
+                                isActive
+                                  ? "bg-secondary text-accent"
+                                  : "text-gray-700 hover:bg-secondary"
+                              }`
+                            }
+                          >
+                            <i
+                              className={`fas ${item.icon} w-4 mr-3 text-gray-400`}
+                            ></i>
+                            {item.name}
+                          </NavLink>
+                        ))}
                     </div>
 
                     {/* Logout */}

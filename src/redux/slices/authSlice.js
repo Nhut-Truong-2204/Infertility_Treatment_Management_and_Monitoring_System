@@ -109,8 +109,9 @@ export const fetchUserOnLoad = createAsyncThunk(
   }
 );
 
+const userCookie = Cookies.get("user");
 const initialState = {
-  user: JSON.parse(Cookies.get("user") || "null"), // Lấy user từ cookie nếu có
+  user: userCookie && userCookie !== 'undefined' ? JSON.parse(userCookie) : null, // Lấy user từ cookie nếu có
   loading: true,
   error: null,
   resetEmail: "",

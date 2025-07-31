@@ -70,9 +70,12 @@ const GuestHeader = ({
         <div className="max-w-[1480px] mx-auto">
           <nav className="flex items-center py-4 px-4">
             <NavLink className="navbar-brand" to="/">
-              <img src={logo} alt="Logo Repro Track" />
+              <img
+                src={logo}
+                alt="Logo Repro Track"
+                className="h-12 w-auto object-contain"
+              />
             </NavLink>
-
             {/* Menu cho Desktop */}
             <div className="hidden lg:flex flex-grow justify-center">
               <ul className="flex items-center space-x-8">

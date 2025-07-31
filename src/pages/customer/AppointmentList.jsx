@@ -592,7 +592,7 @@ const AppointmentList = () => {
                         {/* Actions */}
                         <div className="col-span-2 text-center">
                           <div className="flex items-center justify-center space-x-2">
-                            {/* Pay Button: only show if appointment is SCHEDULED and has not been paid (assume status) */}
+                            {/* Pay Button: only show if appointment is SCHEDULED and has not been paid (assume status)
                             {appointment.status?.status === "SCHEDULED" && (
                               <Button
                                 onClick={(e) => {
@@ -611,7 +611,7 @@ const AppointmentList = () => {
                               >
                                 <CreditCard className="w-4 h-4" />
                               </Button>
-                            )}
+                            )} */}
                             {/* Cancel Button */}
                             {canCancelOrReschedule(appointment) && (
                               <button

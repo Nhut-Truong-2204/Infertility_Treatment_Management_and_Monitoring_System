@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { closeLoginModal, openRegisterModal, openForgotPasswordModal } from "../redux/slices/uiSlice";
+import {
+  closeLoginModal,
+  openRegisterModal,
+  openForgotPasswordModal,
+} from "../redux/slices/uiSlice";
 import { clearResetPasswordData } from "../redux/slices/authSlice";
 import { login, loginWithGoogle } from "../redux/slices/authSlice";
 import { GoogleLogin } from "@react-oauth/google";
@@ -13,6 +17,7 @@ const LoginModal = () => {
   const navigate = useNavigate();
   const isOpen = useSelector((state) => state.ui.isLoginModalOpen);
   const { loading: isLoggingIn, error } = useSelector((state) => state.auth);
+  const [googleError, setGoogleError] = useState("");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -60,14 +65,20 @@ const LoginModal = () => {
   };
 
   const handleGoogleLogin = async (credentialResponse) => {
+    if (!credentialResponse || !credentialResponse.credential) {
+      setGoogleError(
+        "Không thể trích xuất thông tin người dùng từ Google. Vui lòng thử lại hoặc chọn tài khoản khác."
+      );
+      return;
+    }
+    setGoogleError("");
     try {
-      // Truyền tokenId (credential) xuống cho backend
       await dispatch(loginWithGoogle(credentialResponse.credential)).unwrap();
       dispatch(closeLoginModal());
       dispatch(clearResetPasswordData());
       navigate("/dashboard");
     } catch (err) {
-      // Error is handled by Redux state
+      setGoogleError("Đăng nhập Google thất bại. Vui lòng thử lại.");
       console.error("Google login error:", err);
     }
   };
@@ -150,16 +161,15 @@ const LoginModal = () => {
             >
               {isLoggingIn ? "Đang xử lý..." : "Đăng Nhập"}
             </button>
-            <div className="w-full flex items-center justify-center mt-2">
+            <div className="w-full flex items-center justify-center mt-2 flex-col gap-2">
               <GoogleLogin
                 onSuccess={handleGoogleLogin}
-                onError={() => {
-                  // Hiển thị lỗi nếu cần
-                }}
-                shape="pill"
-                theme="filled_blue"
-                text="continue_with"
-                logo_alignment="left"
+                onError={() =>
+                  setGoogleError(
+                    "Không thể đăng nhập Google. Vui lòng thử lại."
+                  )
+                }
+                useOneTap={false}
                 width="100%"
               />
             </div>

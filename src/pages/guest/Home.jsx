@@ -2,6 +2,7 @@ import React from "react";
 import Hero from "../../components/Hero";
 import DoctorCarousel from "../../components/guest/DoctorCarousel";
 import FeedbackCarousel from "../../components/guest/FeedbackCarousel";
+import AIChatbotIcon from "../../components/AIChatbotIcon";
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
           <FeedbackCarousel />
         </section>
       </main>
+      <AIChatbotIcon />
     </div>
   );
 }

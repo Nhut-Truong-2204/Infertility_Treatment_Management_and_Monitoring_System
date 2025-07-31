@@ -46,11 +46,15 @@ const CustomerHeader = () => {
       icon: "fa-file-contract",
     },
     {
+      path: "/customer/medical-records",
+      name: "Hồ Sơ Y Tế",
+      icon: "fa-file-medical",
+    },
+    {
       path: "/customer/invoices",
       name: "Hóa Đơn",
       icon: "fa-file-invoice-dollar",
     },
-    { path: "/customer/prescriptions", name: "Đơn Thuốc", icon: "fa-pills" },
     { path: "/services", name: "Dịch Vụ", icon: "fa-stethoscope" },
     { path: "/blog", name: "Bài Viết", icon: "fa-newspaper" },
   ];
